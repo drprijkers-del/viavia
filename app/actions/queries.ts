@@ -10,54 +10,63 @@ export interface ListOpdrachtQuery {
 }
 
 export async function listOpdrachten(query?: ListOpdrachtQuery) {
-  const where: any = {};
+  try {
+    const where: any = {};
 
-  if (query?.status && query.status !== "ALL") {
-    where.status = query.status;
-  }
+    if (query?.status && query.status !== "ALL") {
+      where.status = query.status;
+    }
 
-  if (query?.locatie) {
-    where.locatie = query.locatie;
-  }
+    if (query?.locatie) {
+      where.locatie = query.locatie;
+    }
 
-  if (query?.search) {
-    where.OR = [
-      { titel: { contains: query.search, mode: "insensitive" } },
-      { tags: { contains: query.search, mode: "insensitive" } },
-    ];
-  }
+    if (query?.search) {
+      where.OR = [
+        { titel: { contains: query.search, mode: "insensitive" } },
+        { tags: { contains: query.search, mode: "insensitive" } },
+      ];
+    }
 
-  const orderBy = query?.sort === "oldest" 
-    ? { created_at: "asc" as const } 
-    : { created_at: "desc" as const };
+    const orderBy = query?.sort === "oldest" 
+      ? { created_at: "asc" as const } 
+      : { created_at: "desc" as const };
 
-  const opdrachten = await db.opdracht.findMany({
-    where,
-    orderBy,
-    include: {
-      _count: {
-        select: { reacties: true },
+    const opdrachten = await db.opdracht.findMany({
+      where,
+      orderBy,
+      include: {
+        _count: {
+          select: { reacties: true },
+        },
       },
-    },
-  });
+    });
 
-  return opdrachten;
+    return opdrachten;
+  } catch (error) {
+    console.error("Error loading opdrachten:", error);
+    return [];
+  }
 }
 
 export async function getOpdracht(id: string) {
-  const opdracht = await db.opdracht.findUnique({
-    where: { id },
-    include: {
-      reacties: {
-        orderBy: { created_at: "desc" },
+  try {
+    const opdracht = await db.opdracht.findUnique({
+      where: { id },
+      include: {
+        reacties: {
+          orderBy: { created_at: "desc" as const },
+        },
+        _count: {
+          select: { reacties: true },
+        },
       },
-      _count: {
-        select: { reacties: true },
-      },
-    },
-  });
-
-  return opdracht;
+    });
+    return opdracht;
+  } catch (error) {
+    console.error("Error loading opdracht:", error);
+    return null;
+  }
 }
 
 export async function getReacties(opdrachtId: string) {
