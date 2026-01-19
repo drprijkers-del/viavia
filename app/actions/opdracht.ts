@@ -7,7 +7,6 @@ import {
   normalizePhoneNumber,
   stringifyTags,
 } from "@/lib/utils";
-import { redirect } from "next/navigation";
 
 export interface CreateOpdracht {
   titel: string;
