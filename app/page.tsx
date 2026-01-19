@@ -154,22 +154,33 @@ export default function HomePage() {
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-2xl mx-auto px-4">
           <div className="flex items-center justify-between py-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
-                ViaVia
-              </h1>
-              <p className="text-xs md:text-sm text-gray-400 mt-1">
-                Freelance opdrachten delen
-              </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
+                  ViaVia
+                </h1>
+                <p className="text-xs md:text-sm text-gray-400 mt-1">
+                  Freelance opdrachten delen
+                </p>
+              </div>
             </div>
-            {showForm && (
-              <button
-                onClick={() => setShowForm(false)}
-                className="btn btn-outline"
-              >
-                ← Terug
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {!showForm && (
+                <Link href="/kandidaten">
+                  <button className="btn btn-outline text-xs px-3 py-2">
+                    Kandidaten
+                  </button>
+                </Link>
+              )}
+              {showForm && (
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="btn btn-outline"
+                >
+                  ← Terug
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
