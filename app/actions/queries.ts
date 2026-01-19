@@ -22,12 +22,10 @@ export async function listOpdrachten(query?: ListOpdrachtQuery) {
     }
 
     if (query?.search) {
-      // SQLite doesn't support case-insensitive search with mode option
-      // Using lowercase comparison instead
-      const searchLower = query.search.toLowerCase();
+      // PostgreSQL supports case-insensitive search with mode option
       where.OR = [
-        { titel: { contains: searchLower } },
-        { tags: { contains: searchLower } },
+        { titel: { contains: query.search, mode: "insensitive" } },
+        { tags: { contains: query.search, mode: "insensitive" } },
       ];
     }
 
