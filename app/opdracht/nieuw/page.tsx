@@ -24,8 +24,13 @@ export default function NieuwOpdrachPage() {
 
   const loadOpdrachten = async () => {
     setListLoading(true);
-    const result = await listOpdrachten({ status: "OPEN", sort: "recent" });
-    setOpdrachten(result);
+    try {
+      const result = await listOpdrachten({ status: "OPEN", sort: "recent" });
+      setOpdrachten(result);
+    } catch (err) {
+      console.error("Failed to load opdrachten:", err);
+      setOpdrachten([]);
+    }
     setListLoading(false);
   };
 
