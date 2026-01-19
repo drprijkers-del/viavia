@@ -52,3 +52,16 @@ model Reactie {
 
   @@index([opdracht_id])
 }
+
+model Kandidaat {
+  id                      String    @id @default(cuid())
+  naam                    String
+  hoofdskill              String    // bijv "React Developer", "Node.js Developer"
+  skills                  String?   // JSON array of strings, bijv ["React", "TypeScript", "Next.js"]
+  whatsapp_nummer         String
+  beschikbaar             Boolean   @default(true)
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  @@index([beschikbaar])
+}

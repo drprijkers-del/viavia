@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { listOpdrachten } from "@/app/actions/queries";
 import { createOpdracht, CreateOpdracht } from "@/app/actions/opdracht";
+import KandidatenSidebar from "@/app/components/KandidatenSidebar";
 
 export default function HomePage() {
   const [searchInput, setSearchInput] = useState("");
@@ -152,7 +153,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 pb-24">
       {/* Header */}
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
@@ -174,7 +175,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex gap-6">
+          {/* Main Content */}
+          <div className="flex-1 max-w-2xl">
         {/* Form Modal/Overlay */}
         {showForm && (
           <div className="mb-6 glass rounded-2xl p-6 animate-slide-in">
@@ -381,6 +385,23 @@ export default function HomePage() {
             )}
           </div>
         )}
+          </div>
+
+          {/* Kandidaten Sidebar */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            <div className="sticky top-24">
+              <div className="glass rounded-xl p-4 mb-4">
+                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                  <span>👥</span>
+                  <span>Beschikbare Kandidaten</span>
+                </h3>
+                <KandidatenSidebar
+                  currentJob={showForm ? undefined : opdrachten[0]}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Floating Action Button */}
