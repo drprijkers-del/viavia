@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Opdracht {
+  id                      String    @id @default(cuid())
+  titel                   String
+  omschrijving            String
+  locatie                 String    @default("Remote") // Remote, OnSite, Hybride
+  plaats                  String?   // alleen als OnSite/Hybride
+  hybride_dagen_per_week  Int?      // alleen als Hybride (1-5)
+  uurtarief_min           Int?      // in cents (bijv 5000 = €50.00)
+  uurtarief_max           Int?      // in cents (bijv 7500 = €75.00)
+  valuta                  String    @default("EUR")
+  startdatum              String?   // "ASAP" of datum-string bijv "2026-02-01"
+  duur                    String?   // bijv "3 maanden"
+  inzet                   String?   // bijv "20 uur/week"
+  tags                    String?   // JSON array of strings, max 5
+  plaatser_naam           String
+  plaatser_whatsapp       String    // format: +31612345678
+  status                  String    @default("OPEN") // OPEN, INGEVULD
+  edit_token              String    @unique // random hex string
+  
+  // Relations
+  reacties                Reactie[]
+  
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  @@index([status])
+  @@index([created_at])
+}
+
+model Reactie {
+  id                      String    @id @default(cuid())
+  opdracht_id             String
+  naam                    String
+  bericht                 String?
+  whatsapp_nummer         String?
+  created_at              DateTime  @default(now())
+
+  // Relations
+  opdracht                Opdracht  @relation(fields: [opdracht_id], references: [id], onDelete: Cascade)
+
+  @@index([opdracht_id])
+}
