@@ -149,9 +149,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-zinc-950 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-zinc-950 pb-24 flex flex-col items-center">
       {/* Header */}
-      <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-40">
+      <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-40 w-full">
         <div className="max-w-2xl mx-auto px-5 sm:px-6">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-4">
@@ -185,7 +185,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-5 sm:px-6 py-6 sm:py-8">
+      <div className="w-full max-w-2xl px-5 sm:px-6 py-6 sm:py-8">
         {/* Form Modal/Overlay */}
         {showForm && (
           <div className="mb-8 glass rounded-2xl p-8 animate-slide-in">
@@ -233,7 +233,7 @@ export default function HomePage() {
                   Jouw contact info
                 </h3>
 
-                <div className="space-y-6">
+                <div className="space-y-7">
                   <div>
                     <label className="block text-base font-medium mb-3 text-stone-200">
                       👤 Jouw naam *
@@ -322,23 +322,24 @@ export default function HomePage() {
                     className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in relative overflow-hidden`}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    {/* New Ribbon */}
-                    {isNew && job.status === "OPEN" && (
-                      <div className="absolute -right-2 top-6 z-10">
-                        <div className="relative bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-6 py-2 shadow-2xl">
-                          <span className="relative z-10">✨ NIEUW</span>
-                          {/* Ribbon fold effect */}
-                          <div className="absolute -bottom-2 right-0 w-0 h-0 border-l-[16px] border-l-transparent border-t-[8px] border-t-emerald-800"></div>
-                        </div>
-                      </div>
-                    )}
-
                     <Link href={`/opdracht/${job.id}`}>
                       <div className="flex items-start justify-between mb-5">
-                        <h3 className="job-title text-2xl font-bold text-white flex-1 pr-4 leading-tight">
-                          {job.titel}
-                        </h3>
-                        <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"} flex-shrink-0`}>
+                        <div className="flex-1 pr-4">
+                          <h3 className="job-title text-2xl font-bold text-white leading-tight">
+                            {job.titel}
+                          </h3>
+                          {/* New Ribbon - below title */}
+                          {isNew && job.status === "OPEN" && (
+                            <div className="inline-block mt-2">
+                              <div className="relative bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-4 py-1.5 shadow-lg">
+                                <span className="relative z-10">✨ NIEUW</span>
+                                {/* Ribbon fold effect */}
+                                <div className="absolute -bottom-1.5 right-0 w-0 h-0 border-l-[12px] border-l-transparent border-t-[6px] border-t-emerald-800"></div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"} flex-shrink-0 self-start`}>
                           {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
                         </span>
                       </div>
