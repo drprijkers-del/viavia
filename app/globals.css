@@ -56,11 +56,11 @@ h3 { @apply text-lg font-semibold text-gray-200; }
 }
 
 .badge-open {
-  @apply bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30;
+  @apply bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40 shadow-lg shadow-emerald-500/10;
 }
 
 .badge-filled {
-  @apply bg-gray-700/50 text-gray-400 ring-1 ring-gray-600/30;
+  @apply bg-stone-800/60 text-stone-400 ring-1 ring-stone-700/50 shadow-lg;
 }
 
 /* Card */
@@ -74,21 +74,21 @@ h3 { @apply text-lg font-semibold text-gray-200; }
 
 /* Job Tile */
 .job-tile {
-  @apply bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer;
-  padding: 1.5rem; /* 24px */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  @apply bg-gradient-to-br from-stone-900/40 to-stone-950/60 border border-stone-800/60 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer backdrop-blur-sm;
+  padding: 1.75rem; /* 28px */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 640px) {
   .job-tile {
-    padding: 1.25rem; /* 20px on mobile */
+    padding: 1.5rem; /* 24px on mobile */
   }
 }
 
 .job-tile:hover {
-  @apply border-emerald-500/30;
+  @apply border-emerald-500/40;
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.12), 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 .job-tile-filled {
