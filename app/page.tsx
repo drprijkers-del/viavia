@@ -152,7 +152,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 pb-24">
       {/* Header */}
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
@@ -174,7 +174,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Form Modal/Overlay */}
         {showForm && (
           <div className="mb-6 glass rounded-2xl p-6 animate-slide-in">
@@ -308,7 +308,7 @@ export default function HomePage() {
                 return (
                   <div
                     key={job.id}
-                    className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in`}
+                    className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in relative overflow-hidden`}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
                     {/* New Badge */}
@@ -319,25 +319,31 @@ export default function HomePage() {
                     )}
 
                     <Link href={`/opdracht/${job.id}`}>
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="job-title text-xl font-bold text-white flex-1 pr-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <h3 className="job-title text-2xl font-bold text-white flex-1 pr-4 leading-tight">
                           {job.titel}
                         </h3>
-                        <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"}`}>
+                        <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"} flex-shrink-0`}>
                           {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
                         </span>
                       </div>
 
-                      <p className="text-gray-400 mb-4 line-clamp-3 text-base">
+                      <p className="text-gray-300 mb-5 line-clamp-2 text-base leading-relaxed">
                         {job.omschrijving}
                       </p>
 
-                      <div className="flex items-center gap-3 text-sm text-gray-500 mb-4">
-                        <span>👤 {job.plaatser_naam}</span>
+                      <div className="flex items-center gap-4 text-sm text-gray-400 mb-5">
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-base">👤</span>
+                          <span>{job.plaatser_naam}</span>
+                        </span>
                         {job._count?.reacties > 0 && (
-                          <span>💬 {job._count.reacties}</span>
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-base">💬</span>
+                            <span>{job._count.reacties}</span>
+                          </span>
                         )}
-                        <span className="ml-auto">
+                        <span className="ml-auto text-xs">
                           {new Date(job.created_at).toLocaleDateString("nl-NL", {
                             day: "numeric",
                             month: "short",
@@ -355,18 +361,18 @@ export default function HomePage() {
                           e.preventDefault();
                           shareOnWhatsApp(job);
                         }}
-                        className="btn bg-emerald-600 hover:bg-emerald-500 text-white flex-1 py-3 text-base font-medium"
+                        className="btn bg-emerald-600 hover:bg-emerald-500 text-white flex-1 py-2.5 text-sm font-medium"
                       >
-                        💬 Deel in groep
+                        💬 Groep
                       </button>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           recommendToSomeone(job);
                         }}
-                        className="btn bg-blue-600 hover:bg-blue-500 text-white flex-1 py-3 text-base font-medium"
+                        className="btn bg-blue-600 hover:bg-blue-500 text-white flex-1 py-2.5 text-sm font-medium"
                       >
-                        👤 Beveel aan
+                        👤 Persoon
                       </button>
                     </div>
                   </div>
@@ -381,9 +387,10 @@ export default function HomePage() {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-full shadow-2xl hover:scale-110 transition-transform duration-200 flex items-center justify-center z-40 animate-pulse"
+          className="fixed bottom-6 right-6 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:via-emerald-500 hover:to-teal-500 text-white rounded-full shadow-2xl hover:scale-110 transition-all duration-200 flex items-center justify-center z-40"
+          style={{ boxShadow: '0 0 40px rgba(16, 185, 129, 0.4), 0 0 80px rgba(16, 185, 129, 0.2)' }}
         >
-          <span className="text-3xl md:text-4xl">+</span>
+          <span className="text-3xl md:text-4xl font-bold">+</span>
         </button>
       )}
     </div>

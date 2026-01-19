@@ -74,11 +74,14 @@ h3 { @apply text-lg font-semibold text-gray-200; }
 
 /* Job Tile */
 .job-tile {
-  @apply bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer;
+  @apply bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .job-tile:hover {
-  @apply border-gray-700 scale-[1.02];
+  @apply border-emerald-500/30;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15);
 }
 
 .job-tile-filled {
