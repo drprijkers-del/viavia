@@ -74,8 +74,15 @@ h3 { @apply text-lg font-semibold text-gray-200; }
 
 /* Job Tile */
 .job-tile {
-  @apply bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer;
+  @apply bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer;
+  padding: 1.5rem; /* 24px */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 640px) {
+  .job-tile {
+    padding: 1.25rem; /* 20px on mobile */
+  }
 }
 
 .job-tile:hover {
