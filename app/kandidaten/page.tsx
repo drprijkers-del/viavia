@@ -39,9 +39,9 @@ export default function KandidatenPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-zinc-950">
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6">
           <div className="flex items-center justify-between py-4">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
               Kandidaten Beheer
@@ -53,7 +53,7 @@ export default function KandidatenPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-5 sm:px-6 py-8">
         <div className="glass rounded-2xl p-6">
           <h2 className="text-xl font-bold text-white mb-4">Nieuwe kandidaat toevoegen</h2>
 

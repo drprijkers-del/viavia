@@ -152,7 +152,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-zinc-950 pb-24">
       {/* Header */}
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-4">
               <div>
@@ -185,7 +185,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="max-w-2xl mx-auto px-5 sm:px-6 py-6 sm:py-8">
         {/* Form Modal/Overlay */}
         {showForm && (
           <div className="mb-8 glass rounded-2xl p-8 animate-slide-in">
@@ -322,10 +322,14 @@ export default function HomePage() {
                     className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in relative overflow-hidden`}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    {/* New Badge */}
+                    {/* New Ribbon */}
                     {isNew && job.status === "OPEN" && (
-                      <div className="absolute top-3 right-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl z-10 ring-2 ring-emerald-400/20">
-                        ✨ NIEUW
+                      <div className="absolute -right-2 top-6 z-10">
+                        <div className="relative bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-6 py-2 shadow-2xl">
+                          <span className="relative z-10">✨ NIEUW</span>
+                          {/* Ribbon fold effect */}
+                          <div className="absolute -bottom-2 right-0 w-0 h-0 border-l-[16px] border-l-transparent border-t-[8px] border-t-emerald-800"></div>
+                        </div>
                       </div>
                     )}
 
