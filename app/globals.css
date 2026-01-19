@@ -11,38 +11,38 @@ html {
 }
 
 body {
-  background: #ffffff;
-  color: #1f2937;
+  background: #0a0a0a;
+  color: #e5e5e5;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
 }
 
 /* Typography */
-h1 { @apply text-2xl font-bold; }
-h2 { @apply text-xl font-bold; }
-h3 { @apply text-lg font-semibold; }
+h1 { @apply text-2xl font-bold text-white; }
+h2 { @apply text-xl font-bold text-white; }
+h3 { @apply text-lg font-semibold text-gray-200; }
 
 /* Buttons */
 .btn {
-  @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors gap-2;
+  @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium transition-all duration-200 gap-2;
 }
 
 .btn-primary {
-  @apply bg-green-500 text-white hover:bg-green-600 active:bg-green-700;
+  @apply bg-emerald-600 text-white hover:bg-emerald-500 active:bg-emerald-700 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30;
 }
 
 .btn-secondary {
-  @apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400;
+  @apply bg-gray-700 text-gray-200 hover:bg-gray-600 active:bg-gray-800;
 }
 
 .btn-outline {
-  @apply border border-gray-300 text-gray-900 hover:bg-gray-50 active:bg-gray-100;
+  @apply border border-gray-700 text-gray-300 hover:bg-gray-800 active:bg-gray-700 hover:border-gray-600;
 }
 
 /* Forms */
 .input,
 .textarea {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent;
+  @apply w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all;
 }
 
 .textarea {
@@ -52,22 +52,91 @@ h3 { @apply text-lg font-semibold; }
 
 /* Badge */
 .badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
 }
 
 .badge-open {
-  @apply bg-green-100 text-green-800;
+  @apply bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30;
 }
 
 .badge-filled {
-  @apply bg-gray-100 text-gray-800;
+  @apply bg-gray-700/50 text-gray-400 ring-1 ring-gray-600/30;
 }
 
 /* Card */
 .card {
-  @apply bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow;
+  @apply bg-gray-900/50 border border-gray-800 rounded-xl p-5 shadow-lg backdrop-blur-sm transition-all duration-200;
+}
+
+.card:hover {
+  @apply border-gray-700 shadow-xl;
+}
+
+/* Job Tile */
+.job-tile {
+  @apply bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer;
+}
+
+.job-tile:hover {
+  @apply border-gray-700 scale-[1.02];
+}
+
+.job-tile-filled {
+  @apply opacity-60 grayscale;
+}
+
+.job-tile-filled .job-title {
+  @apply line-through text-gray-500;
 }
 
 /* Container */
 .container-main {
-  @apply max-w-2xl mx-auto px-4 py-6;}
+  @apply max-w-7xl mx-auto px-4 py-6;
+}
+
+/* Split Layout */
+.split-layout {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-screen;
+}
+
+.split-left {
+  @apply lg:sticky lg:top-6 lg:h-fit;
+}
+
+.split-right {
+  @apply space-y-4;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Glass effect */
+.glass {
+  @apply bg-gray-900/30 backdrop-blur-xl border border-gray-800/50;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-950;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-800 rounded-full hover:bg-gray-700;
+}
