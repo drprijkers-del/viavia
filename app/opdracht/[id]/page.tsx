@@ -5,6 +5,7 @@ import ShareButton from "@/app/components/ShareButton";
 import ReactieForm from "@/app/components/ReactieForm";
 import ReactieList from "@/app/components/ReactieList";
 import MarkAsFilledButton from "@/app/components/MarkAsFilledButton";
+import RecommendButton from "@/app/components/RecommendButton";
 
 export default async function OpdrachDetail({
   params,
@@ -163,6 +164,8 @@ export default async function OpdrachDetail({
                     💬 Contacteer via WhatsApp
                   </button>
                 </a>
+
+                <RecommendButton opdrachtId={opdracht.id} titel={opdracht.titel} />
 
                 {/* Mark as filled */}
                 <MarkAsFilledButton opdrachtId={opdracht.id} />

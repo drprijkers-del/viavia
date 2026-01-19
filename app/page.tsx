@@ -48,6 +48,13 @@ export default function HomePage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 
+  const recommendToSomeone = (job: any) => {
+    const url = `${window.location.origin}/opdracht/${job.id}`;
+    const text = `Hey! Ik dacht dat deze opdracht perfect voor je is:\n\n${job.titel}\n\n${url}`;
+    // Opens WhatsApp to manually select contact
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -106,7 +113,17 @@ export default function HomePage() {
               }}
               className="btn btn-primary w-full text-lg py-4"
             >
-              💬 Deel via WhatsApp
+              💬 Deel in groep
+            </button>
+
+            <button
+              onClick={() => {
+                if (justPosted) recommendToSomeone(justPosted);
+                setJustPostedId(null);
+              }}
+              className="btn bg-blue-600 hover:bg-blue-500 text-white w-full text-lg py-4"
+            >
+              👤 Beveel aan iemand aan
             </button>
 
             <button
@@ -331,16 +348,27 @@ export default function HomePage() {
                       </div>
                     </Link>
 
-                    {/* WhatsApp Share Button - Always Visible */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        shareOnWhatsApp(job);
-                      }}
-                      className="btn bg-emerald-600 hover:bg-emerald-500 text-white w-full py-3 text-base font-medium"
-                    >
-                      💬 Deel via WhatsApp
-                    </button>
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          shareOnWhatsApp(job);
+                        }}
+                        className="btn bg-emerald-600 hover:bg-emerald-500 text-white flex-1 py-3 text-base font-medium"
+                      >
+                        💬 Deel in groep
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          recommendToSomeone(job);
+                        }}
+                        className="btn bg-blue-600 hover:bg-blue-500 text-white flex-1 py-3 text-base font-medium"
+                      >
+                        👤 Beveel aan
+                      </button>
+                    </div>
                   </div>
                 );
               })
