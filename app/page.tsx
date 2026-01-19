@@ -14,6 +14,8 @@ export default function HomePage() {
   const [opdrachten, setOpdrachten] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<"recent" | "oldest" | "rate">("recent");
 
   // Form state
   const [formLoading, setFormLoading] = useState(false);
@@ -23,21 +25,61 @@ export default function HomePage() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
 
+  // Load bookmarks from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("viavia-bookmarks");
+    if (saved) {
+      setBookmarked(new Set(JSON.parse(saved)));
+    }
+  }, []);
+
+  const toggleBookmark = (id: string) => {
+    setBookmarked((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      localStorage.setItem("viavia-bookmarks", JSON.stringify(Array.from(newSet)));
+      return newSet;
+    });
+  };
+
   const loadOpdrachten = useCallback(async (newFilter?: ListOpdrachtQuery) => {
     setLoading(true);
     const result = await listOpdrachten(newFilter || filter);
+
+    // Sort by rate if selected
+    if (sortBy === "rate") {
+      result.sort((a, b) => {
+        const maxA = a.uurtarief_max || a.uurtarief_min || 0;
+        const maxB = b.uurtarief_max || b.uurtarief_min || 0;
+        return maxB - maxA;
+      });
+    }
+
     setOpdrachten(result);
     setLoading(false);
-  }, [filter]);
+  }, [filter, sortBy]);
 
   useEffect(() => {
     loadOpdrachten();
-  }, []);
+  }, [sortBy]);
 
   const handleFilterChange = async (newFilter: ListOpdrachtQuery) => {
     setFilter(newFilter);
     setLoading(true);
     const result = await listOpdrachten(newFilter);
+
+    if (sortBy === "rate") {
+      result.sort((a, b) => {
+        const maxA = a.uurtarief_max || a.uurtarief_min || 0;
+        const maxB = b.uurtarief_max || b.uurtarief_min || 0;
+        return maxB - maxA;
+      });
+    }
+
     setOpdrachten(result);
     setLoading(false);
   };
@@ -66,6 +108,12 @@ export default function HomePage() {
 
   const removeTag = (tag: string) => {
     setTags(tags.filter((t) => t !== tag));
+  };
+
+  const shareOnWhatsApp = (job: any) => {
+    const url = `${window.location.origin}/opdracht/${job.id}`;
+    const text = `🚀 Check deze opdracht op ViaVia!\n\n${job.titel}\n\n${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -124,6 +172,15 @@ export default function HomePage() {
     setFormLoading(false);
   }
 
+  // Get all unique tags from opdrachten for quick filters
+  const allTags = Array.from(
+    new Set(
+      opdrachten
+        .filter((job) => job.tags)
+        .flatMap((job) => JSON.parse(job.tags))
+    )
+  ).slice(0, 8);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
       {/* Header */}
@@ -138,12 +195,25 @@ export default function HomePage() {
                 Freelance opdrachten, direct gedeeld
               </p>
             </div>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="btn btn-primary"
-            >
-              {showForm ? "← Terug" : "+ Nieuwe opdracht"}
-            </button>
+            <div className="flex items-center gap-3">
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="input text-sm py-2 px-3 bg-gray-800 border-gray-700"
+              >
+                <option value="recent">🕒 Nieuwste eerst</option>
+                <option value="oldest">📅 Oudste eerst</option>
+                <option value="rate">💰 Hoogste tarief</option>
+              </select>
+
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="btn btn-primary"
+              >
+                {showForm ? "← Terug" : "+ Nieuwe opdracht"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -164,6 +234,26 @@ export default function HomePage() {
                     onChange={(e) => handleSearch(e.target.value)}
                   />
                 </div>
+
+                {/* Quick Tag Filters */}
+                {allTags.length > 0 && (
+                  <div className="glass rounded-xl p-4">
+                    <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                      🏷️ Populaire Skills
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {allTags.map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={() => handleSearch(tag)}
+                          className="px-3 py-1.5 bg-gray-800 hover:bg-emerald-600 text-gray-300 hover:text-white rounded-full text-sm transition-all duration-200 hover:scale-105"
+                        >
+                          #{tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Filters */}
                 <div className="glass rounded-xl p-4 space-y-3">
@@ -232,9 +322,28 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Bookmarked */}
+                {bookmarked.size > 0 && (
+                  <div className="glass rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xl font-bold text-emerald-400">
+                          {bookmarked.size}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Opgeslagen opdrachten
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                        <span className="text-2xl">⭐</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="glass rounded-xl p-6 animate-slide-in">
+              <div className="glass rounded-xl p-6 animate-slide-in max-h-[calc(100vh-120px)] overflow-y-auto">
                 <h2 className="text-xl font-bold mb-4">Nieuwe opdracht plaatsen</h2>
 
                 {success && (
@@ -448,57 +557,99 @@ export default function HomePage() {
                 <p className="text-gray-400">Geen opdrachten gevonden</p>
               </div>
             ) : (
-              opdrachten.map((job, index) => (
-                <Link key={job.id} href={`/opdracht/${job.id}`}>
+              opdrachten.map((job, index) => {
+                const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const isBookmarked = bookmarked.has(job.id);
+
+                return (
                   <div
-                    className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in`}
+                    key={job.id}
+                    className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in relative group`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="job-title text-lg font-semibold text-white flex-1">
-                        {job.titel}
-                      </h3>
-                      <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"}`}>
-                        {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
-                      </span>
-                    </div>
-
-                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                      {job.omschrijving}
-                    </p>
-
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
-                      <span>
-                        {job.locatie === "Remote" && "🌐 Remote"}
-                        {job.locatie === "OnSite" && `📍 ${job.plaats || "On-site"}`}
-                        {job.locatie === "Hybride" && "🏢 Hybride"}
-                      </span>
-                      {job._count?.reacties > 0 && (
-                        <span>💬 {job._count.reacties}</span>
-                      )}
-                      <span className="ml-auto">
-                        {new Date(job.created_at).toLocaleDateString("nl-NL", {
-                          day: "numeric",
-                          month: "short"
-                        })}
-                      </span>
-                    </div>
-
-                    {job.tags && JSON.parse(job.tags).length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-3">
-                        {JSON.parse(job.tags).slice(0, 3).map((tag: string) => (
-                          <span
-                            key={tag}
-                            className="text-xs px-2 py-0.5 bg-gray-800 text-gray-400 rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                    {/* New Badge */}
+                    {isNew && job.status === "OPEN" && (
+                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
+                        ✨ NIEUW
                       </div>
                     )}
+
+                    {/* Bookmark Button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleBookmark(job.id);
+                      }}
+                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-2xl hover:scale-110 transform"
+                    >
+                      {isBookmarked ? "⭐" : "☆"}
+                    </button>
+
+                    <Link href={`/opdracht/${job.id}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="job-title text-lg font-semibold text-white flex-1 pr-8">
+                          {job.titel}
+                        </h3>
+                        <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"}`}>
+                          {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                        {job.omschrijving}
+                      </p>
+
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                        <span>
+                          {job.locatie === "Remote" && "🌐 Remote"}
+                          {job.locatie === "OnSite" && `📍 ${job.plaats || "On-site"}`}
+                          {job.locatie === "Hybride" && "🏢 Hybride"}
+                        </span>
+                        {(job.uurtarief_min || job.uurtarief_max) && (
+                          <span className="text-emerald-400 font-semibold">
+                            💰 €{Math.max(job.uurtarief_min || 0, job.uurtarief_max || 0) / 100}/u
+                          </span>
+                        )}
+                        {job._count?.reacties > 0 && (
+                          <span>💬 {job._count.reacties}</span>
+                        )}
+                        <span className="ml-auto">
+                          {new Date(job.created_at).toLocaleDateString("nl-NL", {
+                            day: "numeric",
+                            month: "short"
+                          })}
+                        </span>
+                      </div>
+
+                      {job.tags && JSON.parse(job.tags).length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {JSON.parse(job.tags).slice(0, 3).map((tag: string) => (
+                            <span
+                              key={tag}
+                              className="text-xs px-2 py-0.5 bg-gray-800 text-gray-400 rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </Link>
+
+                    {/* Quick Actions */}
+                    <div className="mt-3 pt-3 border-t border-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          shareOnWhatsApp(job);
+                        }}
+                        className="btn btn-outline text-xs py-1.5 w-full"
+                      >
+                        💬 Deel via WhatsApp
+                      </button>
+                    </div>
                   </div>
-                </Link>
-              ))
+                );
+              })
             )}
           </div>
         </div>
