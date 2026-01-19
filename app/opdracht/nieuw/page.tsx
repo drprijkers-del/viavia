@@ -52,42 +52,49 @@ export default function NieuwOpdrachPage() {
     setSuccess(false);
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
 
-    const data: CreateOpdracht = {
-      titel: formData.get("titel") as string,
-      omschrijving: formData.get("omschrijving") as string,
-      locatie: locatie,
-      plaats: formData.get("plaats") as string | undefined,
-      hybride_dagen_per_week: locatie === "Hybride" 
-        ? parseInt(formData.get("hybride_dagen") as string) || undefined
-        : undefined,
-      uurtarief_min: formData.get("uurtarief_min") 
-        ? parseInt(formData.get("uurtarief_min") as string) * 100
-        : undefined,
-      uurtarief_max: formData.get("uurtarief_max")
-        ? parseInt(formData.get("uurtarief_max") as string) * 100
-        : undefined,
-      valuta: (formData.get("valuta") as string) || "EUR",
-      startdatum: formData.get("startdatum") as string | undefined,
-      duur: formData.get("duur") as string | undefined,
-      inzet: formData.get("inzet") as string | undefined,
-      tags: tags.length > 0 ? tags : undefined,
-      plaatser_naam: formData.get("plaatser_naam") as string,
-      plaatser_whatsapp: formData.get("plaatser_whatsapp") as string,
-    };
+    try {
+      const formData = new FormData(form);
 
-    const result = await createOpdracht(data);
+      const data: CreateOpdracht = {
+        titel: formData.get("titel") as string,
+        omschrijving: formData.get("omschrijving") as string,
+        locatie: locatie,
+        plaats: formData.get("plaats") as string | undefined,
+        hybride_dagen_per_week: locatie === "Hybride" 
+          ? parseInt(formData.get("hybride_dagen") as string) || undefined
+          : undefined,
+        uurtarief_min: formData.get("uurtarief_min") 
+          ? parseInt(formData.get("uurtarief_min") as string) * 100
+          : undefined,
+        uurtarief_max: formData.get("uurtarief_max")
+          ? parseInt(formData.get("uurtarief_max") as string) * 100
+          : undefined,
+        valuta: (formData.get("valuta") as string) || "EUR",
+        startdatum: formData.get("startdatum") as string | undefined,
+        duur: formData.get("duur") as string | undefined,
+        inzet: formData.get("inzet") as string | undefined,
+        tags: tags.length > 0 ? tags : undefined,
+        plaatser_naam: formData.get("plaatser_naam") as string,
+        plaatser_whatsapp: formData.get("plaatser_whatsapp") as string,
+      };
 
-    if (result.success) {
-      setSuccess(true);
-      setTags([]);
-      setTagInput("");
-      (e.currentTarget as HTMLFormElement).reset();
-      await loadOpdrachten();
-      setTimeout(() => setSuccess(false), 2000);
-    } else {
-      setError(result.error || "Er is iets misgegaan");
+      const result = await createOpdracht(data);
+
+      if (result.success) {
+        setSuccess(true);
+        setTags([]);
+        setTagInput("");
+        if (form) form.reset();
+        await loadOpdrachten();
+        setTimeout(() => setSuccess(false), 2000);
+      } else {
+        setError(result.error || "Er is iets misgegaan");
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      setError("Fout bij plaatsen opdracht: " + (err instanceof Error ? err.message : String(err)));
     }
     setLoading(false);
   }

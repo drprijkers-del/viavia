@@ -9,9 +9,10 @@ import MarkAsFilledButton from "@/app/components/MarkAsFilledButton";
 export default async function OpdrachDetail({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const opdracht = await getOpdracht(params.id);
+  const { id } = await params;
+  const opdracht = await getOpdracht(id);
 
   if (!opdracht) {
     return (
