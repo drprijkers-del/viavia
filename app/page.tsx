@@ -188,25 +188,25 @@ export default function HomePage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Form Modal/Overlay */}
         {showForm && (
-          <div className="mb-6 glass rounded-2xl p-6 animate-slide-in">
-            <h2 className="text-2xl font-bold mb-2 text-white">Nieuwe opdracht</h2>
-            <p className="text-gray-400 text-sm mb-6">Vul de opdracht in, super simpel</p>
+          <div className="mb-8 glass rounded-2xl p-8 animate-slide-in">
+            <h2 className="text-3xl font-bold mb-3 text-white">Nieuwe opdracht</h2>
+            <p className="text-stone-400 text-base mb-8">Vul de opdracht in, super simpel</p>
 
             {error && (
-              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-4 text-red-400">
+              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6 text-red-400">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-7">
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-300">
+                <label className="block text-base font-medium mb-3 text-stone-200">
                   📝 Wat is de opdracht? *
                 </label>
                 <input
                   type="text"
                   name="titel"
-                  className="input text-lg"
+                  className="input text-lg py-4"
                   placeholder="bijv: React Developer gezocht"
                   required
                   disabled={formLoading}
@@ -215,33 +215,33 @@ export default function HomePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-300">
+                <label className="block text-base font-medium mb-3 text-stone-200">
                   📄 Details / omschrijving *
                 </label>
                 <textarea
                   name="omschrijving"
-                  className="textarea text-base"
+                  className="textarea text-base py-4"
                   placeholder="Vertel meer over de opdracht..."
                   required
                   disabled={formLoading}
-                  rows={4}
+                  rows={5}
                 />
               </div>
 
-              <div className="border-t border-gray-800 pt-5">
-                <h3 className="text-sm font-semibold mb-4 text-gray-400 uppercase tracking-wider">
+              <div className="border-t border-stone-800/50 pt-7">
+                <h3 className="text-base font-semibold mb-5 text-stone-300">
                   Jouw contact info
                 </h3>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-300">
+                    <label className="block text-base font-medium mb-3 text-stone-200">
                       👤 Jouw naam *
                     </label>
                     <input
                       type="text"
                       name="plaatser_naam"
-                      className="input"
+                      className="input py-3.5"
                       placeholder="John Doe"
                       required
                       disabled={formLoading}
@@ -249,18 +249,18 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-300">
+                    <label className="block text-base font-medium mb-3 text-stone-200">
                       📱 WhatsApp nummer *
                     </label>
                     <input
                       type="tel"
                       name="plaatser_whatsapp"
-                      className="input"
+                      className="input py-3.5"
                       placeholder="+31612345678"
                       required
                       disabled={formLoading}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-sm text-stone-500 mt-2">
                       Zodat mensen je kunnen bereiken
                     </p>
                   </div>
@@ -269,7 +269,7 @@ export default function HomePage() {
 
               <button
                 type="submit"
-                className="btn btn-primary w-full text-lg py-4 font-semibold"
+                className="btn btn-primary w-full text-lg py-5 font-semibold shadow-xl mt-8"
                 disabled={formLoading}
               >
                 {formLoading ? "Bezig..." : "✓ Plaats opdracht"}
