@@ -41,13 +41,14 @@ export default function HomePage() {
 
   // Load initial data
   useEffect(() => {
-    (async () => {
+    const loadData = async () => {
       setLoading(true);
       const result = await listOpdrachten(filter);
       setOpdrachten(result);
       setLoading(false);
-    })();
-  }, []);
+    };
+    loadData();
+  }, [filter]);
 
   return (
     <div className="container-main">
