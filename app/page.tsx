@@ -191,13 +191,6 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {!showForm && (
-                <Link href="/kandidaten">
-                  <button className="btn btn-outline text-xs px-3 py-1.5">
-                    Kandidaten
-                  </button>
-                </Link>
-              )}
               {showForm && (
                 <button
                   onClick={() => setShowForm(false)}
