@@ -317,12 +317,9 @@ export default function HomePage() {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const whatsappLink = `https://wa.me/${job.plaatser_whatsapp?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hoi ${job.plaatser_naam}, ik ben geïnteresseerd in je opdracht: "${job.titel}"`)}`;
 
-                // Format tarief with thousands separator
-                const formatCurrency = (num: number) => {
-                  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                };
+                // Format tarief - simple display, no thousand separator for hourly rates
                 const tarief = (job.uurtarief_min || job.uurtarief_max)
-                  ? `€${formatCurrency(job.uurtarief_min || job.uurtarief_max)}${job.uurtarief_min && job.uurtarief_max && job.uurtarief_min !== job.uurtarief_max ? ` - €${formatCurrency(job.uurtarief_max)}` : ''}/uur`
+                  ? `€${job.uurtarief_min || job.uurtarief_max}${job.uurtarief_min && job.uurtarief_max && job.uurtarief_min !== job.uurtarief_max ? ` - €${job.uurtarief_max}` : ''}/uur`
                   : null;
 
                 // Format locatie
@@ -363,9 +360,9 @@ export default function HomePage() {
                             <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"}`}>
                               {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
                             </span>
-                            {/* New Badge - same style as Open badge */}
+                            {/* New Badge - exactly same style as badge-open */}
                             {isNew && job.status === "OPEN" && (
-                              <span className="badge bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40 shadow-lg shadow-emerald-500/10">
+                              <span className="badge badge-open">
                                 ✨ NIEUW
                               </span>
                             )}
