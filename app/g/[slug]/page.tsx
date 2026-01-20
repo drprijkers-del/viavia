@@ -320,13 +320,13 @@ export default function GroupBoardPage() {
                 <h1 className="text-2xl font-bold text-white">
                   {group.name || "ViaVia"}
                 </h1>
-                {/* Group switcher - only show if user has multiple groups */}
-                {myGroups.length > 1 && !showForm && (
+                {/* Group switcher - always show to allow creating new groups */}
+                {!showForm && (
                   <div className="relative">
                     <button
                       onClick={() => setShowGroupSwitcher(!showGroupSwitcher)}
                       className="text-gray-400 hover:text-white p-1 rounded transition-colors"
-                      title="Wissel van groep"
+                      title={myGroups.length > 1 ? "Wissel van groep" : "Maak nieuwe groep"}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
@@ -340,7 +340,7 @@ export default function GroupBoardPage() {
                           onClick={() => setShowGroupSwitcher(false)}
                         />
                         <div className="absolute left-0 top-full mt-2 w-64 bg-[#1A1A1A] border border-gray-800 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
-                          {myGroups.map((g: any) => (
+                          {myGroups.length > 1 && myGroups.map((g: any) => (
                             <Link
                               key={g.slug}
                               href={`/g/${g.slug}`}
@@ -366,7 +366,7 @@ export default function GroupBoardPage() {
                           ))}
                           <Link
                             href="/"
-                            className="block px-4 py-3 border-t border-gray-800 hover:bg-white/5 transition-colors text-sm text-emerald-500"
+                            className={`block px-4 py-3 ${myGroups.length > 1 ? 'border-t border-gray-800' : ''} hover:bg-white/5 transition-colors text-sm text-emerald-500`}
                             onClick={() => setShowGroupSwitcher(false)}
                           >
                             + Nieuwe groep maken
