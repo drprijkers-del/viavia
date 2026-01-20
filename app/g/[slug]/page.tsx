@@ -434,8 +434,9 @@ ${inviteUrl}
 
           {/* Groups vertical list */}
           {!showForm && (
-            <div className="space-y-2">
-              {myGroups.map((g: any) => (
+            <>
+              <div className="space-y-2">
+                {myGroups.map((g: any) => (
                 <div
                   key={g.slug}
                   className={`flex items-center justify-between px-4 py-2 rounded-lg border transition-colors ${
@@ -513,19 +514,20 @@ ${inviteUrl}
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            {/* New Group Button - separate from list */}
-            <Link
-              href="/"
-              className="mt-4 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600/10 border border-emerald-600/30 hover:bg-emerald-600/20 hover:border-emerald-500/50 text-emerald-400 text-sm font-medium transition-all"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nieuwe groep maken
-            </Link>
+              {/* New Group Button - separate from list */}
+              <Link
+                href="/"
+                className="mt-4 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600/10 border border-emerald-600/30 hover:bg-emerald-600/20 hover:border-emerald-500/50 text-emerald-400 text-sm font-medium transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Nieuwe groep maken
+              </Link>
+            </>
           )}
         </div>
       </div>
