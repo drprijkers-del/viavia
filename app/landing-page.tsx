@@ -17,7 +17,6 @@ export default function LandingPage() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
-  const [withCode, setWithCode] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [myGroups, setMyGroups] = useState<SavedGroup[]>([]);
   const [showImportPrompt, setShowImportPrompt] = useState(false);
@@ -55,7 +54,7 @@ export default function LandingPage() {
 
     const result = await createGroup({
       name: groupName || undefined,
-      withCode,
+      withCode: false,
     });
 
     if (result.success && result.slug) {
@@ -310,26 +309,6 @@ export default function LandingPage() {
               />
             </div>
 
-            {/* Code protection option */}
-            <div className="mb-8">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={withCode}
-                  onChange={(e) => setWithCode(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-gray-700 bg-[#0A0A0A] text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
-                  disabled={loading}
-                />
-                <div>
-                  <span className="text-white text-sm">
-                    Bescherm met groepscode
-                  </span>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Alleen tegen spam. Lezen kan altijd zonder code.
-                  </p>
-                </div>
-              </label>
-            </div>
 
             {/* Create button */}
             <button

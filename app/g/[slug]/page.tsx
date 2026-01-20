@@ -21,8 +21,6 @@ export default function GroupBoardPage() {
   const [error, setError] = useState("");
   const [showBanner, setShowBanner] = useState(false);
   const [groupCode, setGroupCode] = useState<string | null>(null);
-  const [codeInput, setCodeInput] = useState("");
-  const [codeVerified, setCodeVerified] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
@@ -81,14 +79,8 @@ export default function GroupBoardPage() {
         setShowBanner(true);
         if (storedCode) {
           setGroupCode(storedCode);
-          setCodeVerified(true); // Creator doesn't need to verify
           setIsCreator(true); // User created this group
         }
-      }
-
-      // If no code protection, auto-verify
-      if (!groupData.code_hash) {
-        setCodeVerified(true);
       }
     }
 
@@ -115,31 +107,9 @@ export default function GroupBoardPage() {
     }
   }, [group, loadOpdrachten]);
 
-  async function handleVerifyCode() {
-    if (!codeInput.trim()) {
-      setError("Vul de groepscode in");
-      return;
-    }
-
-    const result = await verifyGroupCode(slug, codeInput.trim());
-    if (result.valid) {
-      setCodeVerified(true);
-      setError("");
-    } else {
-      setError(result.error || "Onjuiste code");
-    }
-  }
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
-
-    // Check code if needed
-    if (group?.code_hash && !codeVerified) {
-      setError("Vul eerst de groepscode in");
-      return;
-    }
-
     setFormLoading(true);
 
     const form = e.currentTarget;
@@ -537,35 +507,8 @@ Zo houden we overzicht zonder terug te scrollen in WhatsApp 📱✨`;
       </div>
 
       <div className="w-full max-w-2xl px-6 py-8">
-        {/* Code verification (if needed and not verified) */}
-        {group.code_hash && !codeVerified && showForm && (
-          <div className="mb-6 bg-[#1A1A1A] rounded-2xl p-6 border border-gray-800/50">
-            <h3 className="text-white font-semibold mb-2">Groepscode vereist</h3>
-            <p className="text-sm text-gray-400 mb-4">
-              Deze groep is beschermd. Vul de groepscode in om een opdracht te plaatsen.
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={codeInput}
-                onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-                className="flex-1 bg-[#0A0A0A] border border-gray-800 text-white rounded-xl px-4 py-2 focus:border-emerald-500 focus:outline-none transition-colors font-mono"
-                placeholder="Bijv. ABC123"
-                maxLength={6}
-              />
-              <button
-                onClick={handleVerifyCode}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-xl transition-colors font-medium"
-              >
-                Verifieer
-              </button>
-            </div>
-            {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
-          </div>
-        )}
-
         {/* Form - WhatsApp inline style */}
-        {showForm && (!group.code_hash || codeVerified) && (
+        {showForm && (
           <div className="mb-8 bg-[#1A1A1A] rounded-2xl p-8 border border-gray-800/50">
             <h2 className="text-2xl font-bold text-white mb-6">Nieuwe opdracht</h2>
 
