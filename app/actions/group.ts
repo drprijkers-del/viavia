@@ -112,3 +112,37 @@ export async function getGroup(slug: string) {
     return null;
   }
 }
+
+export async function deleteGroup(slug: string, code?: string) {
+  try {
+    const group = await db.group.findUnique({
+      where: { slug },
+      select: { code_hash: true },
+    });
+
+    if (!group) {
+      return { success: false, error: "Groep niet gevonden" };
+    }
+
+    // If group has code protection, verify it
+    if (group.code_hash) {
+      if (!code) {
+        return { success: false, error: "Groepscode is verplicht" };
+      }
+      const valid = await bcrypt.compare(code, group.code_hash);
+      if (!valid) {
+        return { success: false, error: "Onjuiste groepscode" };
+      }
+    }
+
+    // Delete group (cascades to opdrachten and reacties)
+    await db.group.delete({
+      where: { slug },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting group:", error);
+    return { success: false, error: "Er is iets misgegaan bij het verwijderen" };
+  }
+}

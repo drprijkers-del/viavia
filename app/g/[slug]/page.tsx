@@ -2,13 +2,14 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { listOpdrachten } from "@/app/actions/queries";
 import { createOpdracht, CreateOpdracht } from "@/app/actions/opdracht";
-import { getGroup, verifyGroupCode } from "@/app/actions/group";
+import { getGroup, verifyGroupCode, deleteGroup } from "@/app/actions/group";
 
 export default function GroupBoardPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params?.slug as string;
 
   const [group, setGroup] = useState<any>(null);
@@ -22,6 +23,10 @@ export default function GroupBoardPage() {
   const [groupCode, setGroupCode] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteCodeInput, setDeleteCodeInput] = useState("");
+  const [isCreator, setIsCreator] = useState(false);
 
   // Load group data
   useEffect(() => {
@@ -43,6 +48,7 @@ export default function GroupBoardPage() {
         if (storedCode) {
           setGroupCode(storedCode);
           setCodeVerified(true); // Creator doesn't need to verify
+          setIsCreator(true); // User created this group
         }
       }
 
@@ -155,6 +161,23 @@ export default function GroupBoardPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
+  async function handleDeleteGroup() {
+    if (!group) return;
+
+    const code = group.code_hash ? deleteCodeInput : undefined;
+    const result = await deleteGroup(slug, code);
+
+    if (result.success) {
+      // Clear session storage
+      sessionStorage.removeItem(`group_${slug}_show_banner`);
+      sessionStorage.removeItem(`group_${slug}_code`);
+      // Redirect to home
+      router.push("/");
+    } else {
+      alert(result.error || "Er is iets misgegaan");
+    }
+  }
+
   if (groupLoading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
@@ -230,8 +253,8 @@ export default function GroupBoardPage() {
       {/* Header */}
       <div className="border-b border-gray-800/50 bg-black/40 backdrop-blur-xl sticky top-0 z-40 w-full">
         <div className="max-w-2xl mx-auto px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-white">
                 {group.name || "ViaVia"}
               </h1>
@@ -239,14 +262,63 @@ export default function GroupBoardPage() {
                 Altijd het overzicht, zonder terugscrollen in WhatsApp.
               </p>
             </div>
-            {showForm && (
-              <button
-                onClick={() => setShowForm(false)}
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Annuleer
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Deel link button - always visible */}
+              {!showForm && (
+                <button
+                  onClick={shareWhatsApp}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                >
+                  Deel link
+                </button>
+              )}
+
+              {showForm && (
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Annuleer
+                </button>
+              )}
+
+              {/* Menu button - only for creator */}
+              {!showForm && isCreator && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </svg>
+                  </button>
+
+                  {showMenu && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowMenu(false)}
+                      />
+
+                      {/* Menu dropdown */}
+                      <div className="absolute right-0 mt-2 w-48 bg-[#1A1A1A] border border-gray-800 rounded-lg shadow-xl z-50">
+                        <button
+                          onClick={() => {
+                            setShowMenu(false);
+                            setShowDeleteModal(true);
+                          }}
+                          className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors rounded-lg"
+                        >
+                          Verwijder groep
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -544,6 +616,55 @@ export default function GroupBoardPage() {
         >
           <span className="text-3xl font-bold">+</span>
         </button>
+      )}
+
+      {/* Delete Group Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-6">
+          <div className="bg-[#1A1A1A] border border-gray-800 rounded-2xl p-8 max-w-md w-full">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Groep verwijderen?
+            </h2>
+            <p className="text-gray-400 mb-6">
+              Dit verwijdert de groep inclusief alle opdrachten permanent. Deze actie kan niet ongedaan worden gemaakt.
+            </p>
+
+            {group?.code_hash && (
+              <div className="mb-6">
+                <label className="block text-sm text-gray-400 mb-2">
+                  Groepscode ter bevestiging
+                </label>
+                <input
+                  type="text"
+                  value={deleteCodeInput}
+                  onChange={(e) => setDeleteCodeInput(e.target.value.toUpperCase())}
+                  className="w-full bg-[#0A0A0A] border border-gray-800 text-white rounded-xl px-4 py-3 focus:border-red-500 focus:outline-none transition-colors font-mono"
+                  placeholder="Vul groepscode in"
+                  maxLength={6}
+                />
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteCodeInput("");
+                }}
+                className="flex-1 bg-white/5 hover:bg-white/10 text-white px-4 py-3 rounded-xl transition-colors font-medium"
+              >
+                Annuleer
+              </button>
+              <button
+                onClick={handleDeleteGroup}
+                disabled={group?.code_hash && !deleteCodeInput}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white px-4 py-3 rounded-xl transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Verwijder
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
