@@ -6,6 +6,7 @@ import ReactieForm from "@/app/components/ReactieForm";
 import ReactieList from "@/app/components/ReactieList";
 import MarkAsFilledButton from "@/app/components/MarkAsFilledButton";
 import RecommendButton from "@/app/components/RecommendButton";
+import DeleteButton from "@/app/components/DeleteButton";
 
 export default async function OpdrachDetail({
   params,
@@ -17,7 +18,7 @@ export default async function OpdrachDetail({
 
   if (!opdracht) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-zinc-950 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">😞</div>
           <h2 className="text-xl font-semibold text-red-400 mb-4">
@@ -40,7 +41,7 @@ export default async function OpdrachDetail({
   const isFilled = opdracht.status === "INGEVULD";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-zinc-950">
       {/* Header */}
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="container-main">
@@ -169,6 +170,9 @@ export default async function OpdrachDetail({
 
                 {/* Mark as filled */}
                 <MarkAsFilledButton opdrachtId={opdracht.id} />
+
+                {/* Delete opdracht */}
+                <DeleteButton opdrachtId={opdracht.id} />
               </div>
             </div>
           </div>
