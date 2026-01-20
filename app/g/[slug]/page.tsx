@@ -786,9 +786,9 @@ ${url}
                 <div className="animate-spin w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-3"></div>
                 <p className="text-gray-500">Laden...</p>
               </div>
-            ) : (
+            ) : opdrachten.length === 0 ? (
               <>
-                {/* Example/Template Card - always visible */}
+                {/* Example/Template Card - only shown when no opdrachten */}
                 <button
                   onClick={() => {
                     if (myGroups.length > 1) {
@@ -833,13 +833,13 @@ ${url}
                   </div>
                 </button>
 
-                {opdrachten.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 text-sm">
-                      Klik op het voorbeeld hierboven om je eerste opdracht te plaatsen
-                    </p>
-                  </div>
-                ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-sm">
+                    Klik op het voorbeeld hierboven om je eerste opdracht te plaatsen
+                  </p>
+                </div>
+              </>
+            ) : (
                   opdrachten.map((job) => {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const reactiesCount = job._count?.reacties || 0;
@@ -912,8 +912,6 @@ ${url}
                   </Link>
                 );
                   })
-                )}
-              </>
             )}
           </div>
         )}
