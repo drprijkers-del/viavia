@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createGroup } from "@/app/actions/group";
 
@@ -14,13 +14,16 @@ interface SavedGroup {
 
 export default function LandingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [withCode, setWithCode] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [myGroups, setMyGroups] = useState<SavedGroup[]>([]);
+  const [showImportPrompt, setShowImportPrompt] = useState(false);
+  const [importData, setImportData] = useState<SavedGroup[] | null>(null);
 
-  // Load user's groups from localStorage
+  // Load user's groups from localStorage and check for import param
   useEffect(() => {
     const savedGroups = localStorage.getItem("my_groups");
     if (savedGroups) {
@@ -31,7 +34,21 @@ export default function LandingPage() {
         console.error("Error loading groups:", e);
       }
     }
-  }, []);
+
+    // Check for import parameter in URL
+    const importParam = searchParams.get("import");
+    if (importParam) {
+      try {
+        const decoded = atob(importParam);
+        const groups = JSON.parse(decoded) as SavedGroup[];
+        setImportData(groups);
+        setShowImportPrompt(true);
+      } catch (e) {
+        console.error("Invalid import data:", e);
+        alert("Ongeldige import link");
+      }
+    }
+  }, [searchParams]);
 
   async function handleCreateGroup() {
     setLoading(true);
@@ -77,11 +94,107 @@ export default function LandingPage() {
     sessionStorage.removeItem(`group_${slug}_show_banner`);
   }
 
+  function exportGroups() {
+    if (myGroups.length === 0) {
+      alert("Je hebt nog geen groepen om te exporteren");
+      return;
+    }
+
+    const encoded = btoa(JSON.stringify(myGroups));
+    const url = `${window.location.origin}/?import=${encoded}`;
+
+    navigator.clipboard.writeText(url);
+    alert("Export link gekopieerd! Plak deze URL op een ander device om je groepen te importeren.");
+  }
+
+  function handleImport() {
+    if (!importData) return;
+
+    // Merge with existing groups, avoiding duplicates
+    const existingSlugs = new Set(myGroups.map(g => g.slug));
+    const newGroups = importData.filter(g => !existingSlugs.has(g.slug));
+
+    const mergedGroups = [...myGroups, ...newGroups];
+    localStorage.setItem("my_groups", JSON.stringify(mergedGroups));
+    setMyGroups(mergedGroups);
+
+    // Store codes in sessionStorage
+    newGroups.forEach(g => {
+      if (g.code) {
+        sessionStorage.setItem(`group_${g.slug}_code`, g.code);
+      }
+    });
+
+    setShowImportPrompt(false);
+    setImportData(null);
+
+    // Clean URL
+    router.replace("/");
+
+    alert(`${newGroups.length} groep${newGroups.length === 1 ? '' : 'en'} geïmporteerd!`);
+  }
+
+  function cancelImport() {
+    setShowImportPrompt(false);
+    setImportData(null);
+    router.replace("/");
+  }
+
   const hasGroups = myGroups.length > 0;
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] py-12 px-6">
       <div className="max-w-2xl mx-auto">
+        {/* Import Prompt Modal */}
+        {showImportPrompt && importData && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
+            <div className="bg-[#1A1A1A] border border-gray-800 rounded-2xl p-8 max-w-md w-full">
+              <h2 className="text-xl font-bold text-white mb-4">
+                Groepen importeren
+              </h2>
+              <p className="text-gray-400 mb-6">
+                Er {importData.length === 1 ? 'is' : 'zijn'} {importData.length} groep{importData.length === 1 ? '' : 'en'} gevonden om te importeren:
+              </p>
+              <div className="space-y-2 mb-6 max-h-60 overflow-y-auto">
+                {importData.map((group) => (
+                  <div
+                    key={group.slug}
+                    className="bg-[#0A0A0A] border border-gray-800 rounded-lg p-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">
+                        {group.name?.charAt(0).toUpperCase() || "V"}
+                      </div>
+                      <span className="text-white text-sm">
+                        {group.name || "ViaVia"}
+                      </span>
+                      {group.code && (
+                        <span className="text-xs text-gray-500 font-mono ml-auto">
+                          {group.code}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelImport}
+                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 rounded-xl transition-colors"
+                >
+                  Annuleren
+                </button>
+                <button
+                  onClick={handleImport}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition-colors"
+                >
+                  Importeren
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-3">
@@ -97,12 +210,24 @@ export default function LandingPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-white">Mijn groepen</h2>
-              <button
-                onClick={() => setShowForm(true)}
-                className="text-sm text-emerald-500 hover:text-emerald-400 transition-colors"
-              >
-                + Nieuwe groep
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={exportGroups}
+                  className="text-sm text-gray-400 hover:text-emerald-500 transition-colors flex items-center gap-1"
+                  title="Exporteer groepen naar ander device"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Export
+                </button>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="text-sm text-emerald-500 hover:text-emerald-400 transition-colors"
+                >
+                  + Nieuwe groep
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3">
