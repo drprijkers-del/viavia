@@ -341,9 +341,16 @@ export default function GroupBoardPage() {
                     <div className={`w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold`}>
                       {g.name?.charAt(0).toUpperCase() || "V"}
                     </div>
-                    <span className="text-sm font-medium">
-                      {g.name || "ViaVia"}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        {g.name || "ViaVia"}
+                      </span>
+                      {g.code && (
+                        <span className="text-xs font-mono text-gray-500">
+                          {g.code}
+                        </span>
+                      )}
+                    </div>
                   </Link>
                   {g.code && (
                     <button
