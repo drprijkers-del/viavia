@@ -232,7 +232,19 @@ export default function GroupBoardPage() {
     const inviteUrl = `${window.location.origin}/?import=${encoded}`;
 
     navigator.clipboard.writeText(inviteUrl);
-    alert("Uitnodigingslink gekopieerd! Deel deze link met je groepsleden zodat zij ook toegang krijgen tot dit groepsoverzicht.");
+
+    // Also prepare a friendly message for WhatsApp
+    const friendlyMessage = `Hey! 👋
+
+Plaats je freelance opdrachten in deze app, dan blijven ze zichtbaar voor de hele groep!
+
+${inviteUrl}
+
+Zo houden we overzicht zonder terug te scrollen in WhatsApp 📱✨`;
+
+    if (confirm("Link gekopieerd! Wil je deze ook direct delen via WhatsApp?")) {
+      window.open(`https://wa.me/?text=${encodeURIComponent(friendlyMessage)}`, "_blank");
+    }
   }
 
   function copyLink() {
