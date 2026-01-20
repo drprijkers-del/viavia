@@ -280,7 +280,7 @@ export default function HomePage() {
 
         {/* Search */}
         {!showForm && (
-          <div className="mb-6 animate-slide-in">
+          <div className="mb-10 mt-8 animate-slide-in">
             <input
               type="text"
               placeholder="🔍 Zoeken..."
@@ -293,7 +293,7 @@ export default function HomePage() {
 
         {/* Job Tiles */}
         {!showForm && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             {loading ? (
               <div className="text-center py-16 text-gray-500">
                 <div className="animate-spin w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-3"></div>
@@ -317,16 +317,19 @@ export default function HomePage() {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const whatsappLink = `https://wa.me/${job.plaatser_whatsapp?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hoi ${job.plaatser_naam}, ik ben geïnteresseerd in je opdracht: "${job.titel}"`)}`;
 
-                // Format tarief
+                // Format tarief with thousands separator
+                const formatCurrency = (num: number) => {
+                  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                };
                 const tarief = (job.uurtarief_min || job.uurtarief_max)
-                  ? `€${job.uurtarief_min || job.uurtarief_max}${job.uurtarief_min && job.uurtarief_max && job.uurtarief_min !== job.uurtarief_max ? ` - €${job.uurtarief_max}` : ''}/uur`
+                  ? `€${formatCurrency(job.uurtarief_min || job.uurtarief_max)}${job.uurtarief_min && job.uurtarief_max && job.uurtarief_min !== job.uurtarief_max ? ` - €${formatCurrency(job.uurtarief_max)}` : ''}/uur`
                   : null;
 
                 // Format locatie
                 let locatie = "";
-                if (job.locatie === "Remote") locatie = "🌐 Remote";
-                else if (job.locatie === "OnSite") locatie = `📍 ${job.plaats || "On-site"}`;
-                else if (job.locatie === "Hybride") locatie = `🏢 Hybride${job.plaats ? ` - ${job.plaats}` : ""}`;
+                if (job.locatie === "Remote") locatie = "Remote";
+                else if (job.locatie === "OnSite") locatie = "Op locatie";
+                else if (job.locatie === "Hybride") locatie = "Hybride";
 
                 return (
                   <div
@@ -352,22 +355,21 @@ export default function HomePage() {
                       <Link href={`/opdracht/${job.id}`} className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1 pr-4">
-                            <h3 className="job-title text-xl font-bold text-white leading-tight mb-1">
+                            <h3 className="job-title text-xl font-bold text-white leading-tight">
                               {job.titel}
                             </h3>
-                            {/* New Ribbon */}
+                          </div>
+                          <div className="flex flex-col gap-2 items-end flex-shrink-0">
+                            <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"}`}>
+                              {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
+                            </span>
+                            {/* New Badge - same style as Open badge */}
                             {isNew && job.status === "OPEN" && (
-                              <div className="inline-block">
-                                <div className="relative bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-3 py-1 shadow-lg">
-                                  <span className="relative z-10">✨ NIEUW</span>
-                                  <div className="absolute -bottom-1 right-0 w-0 h-0 border-l-[10px] border-l-transparent border-t-[5px] border-t-emerald-800"></div>
-                                </div>
-                              </div>
+                              <span className="badge bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40 shadow-lg shadow-emerald-500/10">
+                                ✨ NIEUW
+                              </span>
                             )}
                           </div>
-                          <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"} flex-shrink-0`}>
-                            {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
-                          </span>
                         </div>
 
                         {/* Job Details Grid */}

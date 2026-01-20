@@ -1,5 +1,5 @@
 import { getOpdracht } from "@/app/actions/queries";
-import { formatTariff, parseTags, createWhatsAppLink } from "@/lib/utils";
+import { formatTariff, createWhatsAppLink } from "@/lib/utils";
 import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import ReactieForm from "@/app/components/ReactieForm";
@@ -32,7 +32,6 @@ export default async function OpdrachDetail({
     );
   }
 
-  const tags = parseTags(opdracht.tags);
   const whatsappLink = createWhatsAppLink(
     opdracht.plaatser_whatsapp,
     `Hoi ${opdracht.plaatser_naam}, ik ben geïnteresseerd in je opdracht: "${opdracht.titel}". Kan jij mij meer vertellen?`
@@ -59,55 +58,36 @@ export default async function OpdrachDetail({
         </div>
       </div>
 
-      <div className="container-main py-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="container-main py-12">
+        <div className="max-w-3xl mx-auto">
           {/* Title Section */}
-          <div className={`glass rounded-2xl p-8 mb-6 ${isFilled ? "opacity-75" : ""}`}>
-            <h1 className={`text-4xl font-bold mb-4 ${isFilled ? "line-through text-gray-500" : "text-white"}`}>
+          <div className={`glass rounded-2xl p-10 mb-8 ${isFilled ? "opacity-75" : ""}`}>
+            <h1 className={`text-4xl font-bold mb-6 ${isFilled ? "line-through text-gray-500" : "text-white"}`}>
               {opdracht.titel}
             </h1>
 
-            <p className="text-gray-300 text-lg leading-relaxed mb-6">
+            <p className="text-gray-300 text-lg leading-relaxed">
               {opdracht.omschrijving}
             </p>
-
-            {/* Tags */}
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-emerald-500/20 text-emerald-400 px-4 py-1.5 rounded-full text-sm font-medium ring-1 ring-emerald-500/30"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
             {/* Locatie */}
-            <div className="glass rounded-xl p-5">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                📍 Locatie
-              </h3>
-              <p className="text-white text-lg">
-                {opdracht.locatie === "Remote" && "🌐 Remote"}
-                {opdracht.locatie === "OnSite" && `📍 ${opdracht.plaats || "On-site"}`}
-                {opdracht.locatie === "Hybride" &&
-                  `🏢 Hybride (${opdracht.hybride_dagen_per_week} dagen/week${opdracht.plaats ? `, ${opdracht.plaats}` : ""})`}
+            <div className="glass rounded-xl p-6">
+              <p className="text-gray-400 text-sm mb-1">Locatie</p>
+              <p className="text-white text-xl font-medium">
+                {opdracht.locatie === "Remote" && "Remote"}
+                {opdracht.locatie === "OnSite" && "Op locatie"}
+                {opdracht.locatie === "Hybride" && "Hybride"}
               </p>
             </div>
 
             {/* Tarief */}
             {(opdracht.uurtarief_min || opdracht.uurtarief_max) && (
-              <div className="glass rounded-xl p-5">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  💰 Uurtarief
-                </h3>
-                <p className="text-emerald-400 text-lg font-semibold">
+              <div className="glass rounded-xl p-6">
+                <p className="text-gray-400 text-sm mb-1">Uurtarief</p>
+                <p className="text-emerald-400 text-xl font-semibold">
                   {formatTariff(
                     opdracht.uurtarief_min,
                     opdracht.uurtarief_max,
@@ -119,61 +99,56 @@ export default async function OpdrachDetail({
 
             {/* Startdatum */}
             {opdracht.startdatum && (
-              <div className="glass rounded-xl p-5">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  📅 Startdatum
-                </h3>
-                <p className="text-white text-lg">{opdracht.startdatum}</p>
+              <div className="glass rounded-xl p-6">
+                <p className="text-gray-400 text-sm mb-1">Startdatum</p>
+                <p className="text-white text-xl font-medium">{opdracht.startdatum}</p>
               </div>
             )}
 
             {/* Duur */}
             {opdracht.duur && (
-              <div className="glass rounded-xl p-5">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  ⏱️ Duur
-                </h3>
-                <p className="text-white text-lg">{opdracht.duur}</p>
+              <div className="glass rounded-xl p-6">
+                <p className="text-gray-400 text-sm mb-1">Duur</p>
+                <p className="text-white text-xl font-medium">{opdracht.duur}</p>
               </div>
             )}
 
             {/* Inzet */}
             {opdracht.inzet && (
-              <div className="glass rounded-xl p-5">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  ⚡ Inzet
-                </h3>
-                <p className="text-white text-lg">{opdracht.inzet}</p>
+              <div className="glass rounded-xl p-6">
+                <p className="text-gray-400 text-sm mb-1">Uren per week</p>
+                <p className="text-white text-xl font-medium">{opdracht.inzet}</p>
               </div>
             )}
           </div>
 
           {/* Contact Section */}
-          <div className="glass rounded-2xl p-6 mb-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-2xl">👤</span>
+          <div className="glass rounded-2xl p-8 mb-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg ring-2 ring-emerald-500/20">
+                {opdracht.plaatser_naam?.charAt(0).toUpperCase() || "?"}
               </div>
-              <div className="flex-1">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
-                  Plaatser
-                </h3>
-                <p className="text-white text-xl font-medium mb-4">{opdracht.plaatser_naam}</p>
-
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <button className="btn btn-primary w-full text-base">
-                    💬 Contacteer via WhatsApp
-                  </button>
-                </a>
-
-                <RecommendButton opdrachtId={opdracht.id} titel={opdracht.titel} />
-
-                {/* Mark as filled */}
-                <MarkAsFilledButton opdrachtId={opdracht.id} />
-
-                {/* Delete opdracht */}
-                <DeleteButton opdrachtId={opdracht.id} />
+              <div>
+                <p className="text-gray-400 text-sm">Geplaatst door</p>
+                <p className="text-white text-2xl font-semibold">{opdracht.plaatser_naam}</p>
               </div>
+            </div>
+
+            {/* Action buttons at bottom */}
+            <div className="space-y-3">
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <button className="btn w-full py-4 text-base bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg">
+                  💬 Chat via WhatsApp
+                </button>
+              </a>
+
+              <RecommendButton opdrachtId={opdracht.id} titel={opdracht.titel} />
+
+              {/* Mark as filled */}
+              <MarkAsFilledButton opdrachtId={opdracht.id} />
+
+              {/* Delete opdracht */}
+              <DeleteButton opdrachtId={opdracht.id} />
             </div>
           </div>
 

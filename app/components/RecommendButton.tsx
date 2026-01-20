@@ -16,7 +16,7 @@ export default function RecommendButton({
   return (
     <button
       onClick={handleRecommend}
-      className="btn bg-blue-600 hover:bg-blue-500 text-white w-full text-base mt-3"
+      className="btn w-full py-4 text-base bg-stone-700 hover:bg-stone-600 text-white shadow-lg"
     >
       👤 Beveel aan iemand aan
     </button>
