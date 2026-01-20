@@ -234,19 +234,20 @@ ${inviteUrl}
     const url = window.location.href;
     const groupName = group?.name || "ViaVia";
 
-    const text = `🚀 *${groupName} - Freelance Opdrachten*
+    const text = `📱 *Zet voortaan je freelance opdrachten in ViaVia!*
 
-👋 Hey! Hier vind je alle freelance opdrachten uit onze groep op één plek.
+👋 Hey! Vanaf nu gebruiken we ${groupName !== "ViaVia" ? `*${groupName}* op ` : ""}ViaVia voor alle freelance opdrachten uit onze groep.
 
-✨ *Voordelen:*
-• Altijd een overzicht van alle opdrachten
+✨ *Waarom?*
+• Altijd overzicht van alle opdrachten
 • Nooit meer terugscrollen in WhatsApp
-• Direct reageren op opdrachten
 • Makkelijk delen met je netwerk
+• Direct contact via WhatsApp
 
-📱 Bekijk hier: ${url}
+📱 Bekijk opdrachten en plaats je eigen opdracht:
+${url}
 
-💡 _Plaats ook je eigen opdrachten en help anderen!_`;
+💼 _Help elkaar en plaats ook jouw opdrachten!_`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
