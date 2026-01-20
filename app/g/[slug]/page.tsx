@@ -23,12 +23,8 @@ export default function GroupBoardPage() {
   const [groupCode, setGroupCode] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteCodeInput, setDeleteCodeInput] = useState("");
   const [isCreator, setIsCreator] = useState(false);
   const [myGroups, setMyGroups] = useState<any[]>([]);
-  const [showGroupSwitcher, setShowGroupSwitcher] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
 
   // Load user's groups from localStorage and fetch their IDs
@@ -222,22 +218,6 @@ export default function GroupBoardPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
-  async function handleDeleteGroup() {
-    if (!group) return;
-
-    const code = group.code_hash ? deleteCodeInput : undefined;
-    const result = await deleteGroup(slug, code);
-
-    if (result.success) {
-      // Clear session storage
-      sessionStorage.removeItem(`group_${slug}_show_banner`);
-      sessionStorage.removeItem(`group_${slug}_code`);
-      // Redirect to home
-      router.push("/");
-    } else {
-      alert(result.error || "Er is iets misgegaan");
-    }
-  }
 
   if (groupLoading) {
     return (
@@ -314,69 +294,11 @@ export default function GroupBoardPage() {
       {/* Header */}
       <div className="border-b border-gray-800/50 bg-black/40 backdrop-blur-xl sticky top-0 z-40 w-full">
         <div className="max-w-2xl mx-auto px-6 py-5">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 mb-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-white">
-                  {group.name || "ViaVia"}
-                </h1>
-                {/* Group switcher - always show to allow creating new groups */}
-                {!showForm && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowGroupSwitcher(!showGroupSwitcher)}
-                      className="text-gray-400 hover:text-white p-1 rounded transition-colors"
-                      title={myGroups.length > 1 ? "Wissel van groep" : "Maak nieuwe groep"}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                      </svg>
-                    </button>
-
-                    {showGroupSwitcher && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setShowGroupSwitcher(false)}
-                        />
-                        <div className="absolute left-0 top-full mt-2 w-64 bg-[#1A1A1A] border border-gray-800 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
-                          {myGroups.length > 1 && myGroups.map((g: any) => (
-                            <Link
-                              key={g.slug}
-                              href={`/g/${g.slug}`}
-                              className={`block px-4 py-3 hover:bg-white/5 transition-colors ${
-                                g.slug === slug ? 'bg-white/5' : ''
-                              }`}
-                              onClick={() => setShowGroupSwitcher(false)}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                                  {g.name?.charAt(0).toUpperCase() || "V"}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-white text-sm font-medium truncate">
-                                    {g.name || "ViaVia"}
-                                  </p>
-                                  {g.slug === slug && (
-                                    <p className="text-xs text-emerald-500">Actief</p>
-                                  )}
-                                </div>
-                              </div>
-                            </Link>
-                          ))}
-                          <Link
-                            href="/"
-                            className={`block px-4 py-3 ${myGroups.length > 1 ? 'border-t border-gray-800' : ''} hover:bg-white/5 transition-colors text-sm text-emerald-500`}
-                            onClick={() => setShowGroupSwitcher(false)}
-                          >
-                            + Nieuwe groep maken
-                          </Link>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+              <h1 className="text-2xl font-bold text-white">
+                ViaVia
+              </h1>
               <p className="text-sm text-gray-500 mt-0.5">
                 Altijd het overzicht, zonder terugscrollen in WhatsApp.
               </p>
@@ -400,45 +322,79 @@ export default function GroupBoardPage() {
                   Annuleer
                 </button>
               )}
-
-              {/* Menu button - only for creator */}
-              {!showForm && isCreator && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowMenu(!showMenu)}
-                    className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                    </svg>
-                  </button>
-
-                  {showMenu && (
-                    <>
-                      {/* Backdrop */}
-                      <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setShowMenu(false)}
-                      />
-
-                      {/* Menu dropdown */}
-                      <div className="absolute right-0 mt-2 w-48 bg-[#1A1A1A] border border-gray-800 rounded-lg shadow-xl z-50">
-                        <button
-                          onClick={() => {
-                            setShowMenu(false);
-                            setShowDeleteModal(true);
-                          }}
-                          className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors rounded-lg"
-                        >
-                          Verwijder groep
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
           </div>
+
+          {/* Groups horizontal list */}
+          {!showForm && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {myGroups.map((g: any) => (
+                <div
+                  key={g.slug}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors flex-shrink-0 ${
+                    g.slug === slug
+                      ? 'bg-emerald-500/20 border-emerald-500/50 text-white'
+                      : 'bg-[#1A1A1A] border-gray-800 text-gray-400 hover:border-gray-700'
+                  }`}
+                >
+                  <Link href={`/g/${g.slug}`} className="flex items-center gap-2">
+                    <div className={`w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold`}>
+                      {g.name?.charAt(0).toUpperCase() || "V"}
+                    </div>
+                    <span className="text-sm font-medium">
+                      {g.name || "ViaVia"}
+                    </span>
+                  </Link>
+                  {g.code && (
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (confirm(`Weet je zeker dat je "${g.name || 'ViaVia'}" wilt verwijderen? Alle opdrachten worden ook verwijderd.`)) {
+                          const result = await deleteGroup(g.slug, g.code);
+                          if (result.success) {
+                            // Remove from localStorage
+                            const updatedGroups = myGroups.filter(group => group.slug !== g.slug);
+                            localStorage.setItem("my_groups", JSON.stringify(updatedGroups));
+                            setMyGroups(updatedGroups);
+
+                            // Clear session storage
+                            sessionStorage.removeItem(`group_${g.slug}_show_banner`);
+                            sessionStorage.removeItem(`group_${g.slug}_code`);
+
+                            // If we deleted the current group, redirect to home or another group
+                            if (g.slug === slug) {
+                              if (updatedGroups.length > 0) {
+                                router.push(`/g/${updatedGroups[0].slug}`);
+                              } else {
+                                router.push("/");
+                              }
+                            }
+                          } else {
+                            alert(result.error || "Er is iets misgegaan");
+                          }
+                        }
+                      }}
+                      className="ml-1 text-gray-600 hover:text-red-400 transition-colors"
+                      title="Verwijder groep"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              ))}
+              <Link
+                href="/"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#1A1A1A] border border-gray-800 hover:border-gray-700 text-emerald-500 text-sm font-medium transition-colors flex-shrink-0"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Nieuwe groep
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -780,54 +736,6 @@ export default function GroupBoardPage() {
         </button>
       )}
 
-      {/* Delete Group Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-6">
-          <div className="bg-[#1A1A1A] border border-gray-800 rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-white mb-4">
-              Groep verwijderen?
-            </h2>
-            <p className="text-gray-400 mb-6">
-              Dit verwijdert de groep inclusief alle opdrachten permanent. Deze actie kan niet ongedaan worden gemaakt.
-            </p>
-
-            {group?.code_hash && (
-              <div className="mb-6">
-                <label className="block text-sm text-gray-400 mb-2">
-                  Groepscode ter bevestiging
-                </label>
-                <input
-                  type="text"
-                  value={deleteCodeInput}
-                  onChange={(e) => setDeleteCodeInput(e.target.value.toUpperCase())}
-                  className="w-full bg-[#0A0A0A] border border-gray-800 text-white rounded-xl px-4 py-3 focus:border-red-500 focus:outline-none transition-colors font-mono"
-                  placeholder="Vul groepscode in"
-                  maxLength={6}
-                />
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeleteCodeInput("");
-                }}
-                className="flex-1 bg-white/5 hover:bg-white/10 text-white px-4 py-3 rounded-xl transition-colors font-medium"
-              >
-                Annuleer
-              </button>
-              <button
-                onClick={handleDeleteGroup}
-                disabled={group?.code_hash && !deleteCodeInput}
-                className="flex-1 bg-red-600 hover:bg-red-500 text-white px-4 py-3 rounded-xl transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Verwijder
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
