@@ -37,7 +37,7 @@ export default function HomePage() {
         bedrijf: formData.get("bedrijf") as string,
         omschrijving: formData.get("omschrijving") as string,
         uurtarief: parseInt(formData.get("uurtarief") as string),
-        locatie: formData.get("locatie") as string,
+        locatie: formData.get("locatie") as "Remote" | "OnSite" | "Hybride",
         locatie_detail: (formData.get("locatie_detail") as string) || undefined,
         uren_per_week: parseInt(formData.get("uren_per_week") as string) || undefined,
         duur_maanden: parseInt(formData.get("duur_maanden") as string) || undefined,
