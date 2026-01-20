@@ -26,6 +26,7 @@ export default function GroupBoardPage() {
   const [isCreator, setIsCreator] = useState(false);
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [showGroupSelector, setShowGroupSelector] = useState(false);
 
   // Load user's groups from localStorage and fetch their IDs
   useEffect(() => {
@@ -319,6 +320,78 @@ export default function GroupBoardPage() {
         </div>
       )}
 
+      {/* Group Selector Modal */}
+      {showGroupSelector && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
+          <div className="bg-[#1A1A1A] border border-gray-800 rounded-2xl p-8 max-w-md w-full">
+            <h2 className="text-xl font-bold text-white mb-4">
+              In welke groepen plaatsen?
+            </h2>
+            <p className="text-gray-400 mb-6 text-sm">
+              Selecteer één of meer groepen waar je deze opdracht wilt plaatsen
+            </p>
+            <div className="space-y-2 mb-6 max-h-60 overflow-y-auto">
+              {myGroups.map((g: any) => {
+                const isSelected = selectedGroups.includes(g.id);
+                return (
+                  <label
+                    key={g.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                      isSelected
+                        ? 'bg-emerald-500/10 border border-emerald-500/30'
+                        : 'bg-[#0A0A0A] border border-gray-800 hover:border-gray-700'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleGroupSelection(g.id)}
+                      className="w-4 h-4 rounded border-gray-700 bg-[#0A0A0A] text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
+                    />
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                        {g.name?.charAt(0).toUpperCase() || "V"}
+                      </div>
+                      <span className="text-white text-sm">
+                        {g.name || "ViaVia"}
+                      </span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              {selectedGroups.length} {selectedGroups.length === 1 ? 'groep' : 'groepen'} geselecteerd
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowGroupSelector(false);
+                  setSelectedGroups([group.id]); // Reset selection
+                }}
+                className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 rounded-xl transition-colors"
+              >
+                Annuleren
+              </button>
+              <button
+                onClick={() => {
+                  if (selectedGroups.length === 0) {
+                    alert("Selecteer minimaal één groep");
+                    return;
+                  }
+                  setShowGroupSelector(false);
+                  setShowForm(true);
+                }}
+                disabled={selectedGroups.length === 0}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Verder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="border-b border-gray-800/50 bg-black/40 backdrop-blur-xl sticky top-0 z-40 w-full">
         <div className="max-w-2xl mx-auto px-6 py-5">
@@ -491,8 +564,42 @@ export default function GroupBoardPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Group selector - only show if user has multiple groups */}
-              {myGroups.length > 1 && (
+              {/* Show selected groups info */}
+              {myGroups.length > 1 && selectedGroups.length > 0 && (
+                <div className="mb-6 pb-6 border-b border-gray-800/50">
+                  <label className="block text-sm text-gray-400 mb-3">
+                    Wordt geplaatst in {selectedGroups.length} groep{selectedGroups.length === 1 ? '' : 'en'}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {myGroups.filter(g => selectedGroups.includes(g.id)).map((g: any) => (
+                      <div
+                        key={g.id}
+                        className="bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-lg flex items-center gap-2"
+                      >
+                        <div className="w-4 h-4 rounded-full bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                          {g.name?.charAt(0).toUpperCase() || "V"}
+                        </div>
+                        <span className="text-white text-sm">{g.name || "ViaVia"}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (selectedGroups.length > 1) {
+                              toggleGroupSelection(g.id);
+                            }
+                          }}
+                          className="text-emerald-400 hover:text-emerald-300 ml-1"
+                          disabled={selectedGroups.length === 1}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Old group selector - removed */}
+              {false && myGroups.length > 1 && (
                 <div className="mb-6 pb-6 border-b border-gray-800/50">
                   <label className="block text-sm text-gray-400 mb-3">
                     Plaats in groepen (selecteer één of meer)
@@ -782,7 +889,13 @@ export default function GroupBoardPage() {
       {/* Floating Action Button */}
       {!showForm && (
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            if (myGroups.length > 1) {
+              setShowGroupSelector(true);
+            } else {
+              setShowForm(true);
+            }
+          }}
           className="fixed bottom-6 right-6 w-16 h-16 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-2xl hover:scale-110 transition-all flex items-center justify-center z-40"
         >
           <span className="text-3xl font-bold">+</span>
