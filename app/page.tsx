@@ -315,86 +315,91 @@ export default function HomePage() {
             ) : (
               opdrachten.map((job, index) => {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const whatsappLink = `https://wa.me/${job.plaatser_whatsapp?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hoi ${job.plaatser_naam}, ik ben geïnteresseerd in je opdracht: "${job.titel}"`)}`;
+
+                // Format tarief
+                const tarief = (job.uurtarief_min || job.uurtarief_max)
+                  ? `€${job.uurtarief_min || job.uurtarief_max}${job.uurtarief_min && job.uurtarief_max && job.uurtarief_min !== job.uurtarief_max ? ` - €${job.uurtarief_max}` : ''}/uur`
+                  : null;
+
+                // Format locatie
+                let locatie = "";
+                if (job.locatie === "Remote") locatie = "🌐 Remote";
+                else if (job.locatie === "OnSite") locatie = `📍 ${job.plaats || "On-site"}`;
+                else if (job.locatie === "Hybride") locatie = `🏢 Hybride${job.plaats ? ` - ${job.plaats}` : ""}`;
 
                 return (
                   <div
                     key={job.id}
-                    className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in relative overflow-hidden`}
+                    className={`job-tile ${job.status === "INGEVULD" ? "job-tile-filled" : ""} animate-slide-in relative`}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <Link href={`/opdracht/${job.id}`}>
-                      <div className="flex items-start justify-between mb-5">
-                        <div className="flex-1 pr-4">
-                          <h3 className="job-title text-2xl font-bold text-white leading-tight">
-                            {job.titel}
-                          </h3>
-                          {/* New Ribbon - below title */}
-                          {isNew && job.status === "OPEN" && (
-                            <div className="inline-block mt-2">
-                              <div className="relative bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-4 py-1.5 shadow-lg">
-                                <span className="relative z-10">✨ NIEUW</span>
-                                {/* Ribbon fold effect */}
-                                <div className="absolute -bottom-1.5 right-0 w-0 h-0 border-l-[12px] border-l-transparent border-t-[6px] border-t-emerald-800"></div>
+                    <div className="flex gap-4">
+                      {/* Creator Photo + WhatsApp Link */}
+                      <a
+                        href={whatsappLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 touch-feedback"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg ring-2 ring-emerald-500/20">
+                          {job.plaatser_naam?.charAt(0).toUpperCase() || "?"}
+                        </div>
+                      </a>
+
+                      {/* Job Info */}
+                      <Link href={`/opdracht/${job.id}`} className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 pr-4">
+                            <h3 className="job-title text-xl font-bold text-white leading-tight mb-1">
+                              {job.titel}
+                            </h3>
+                            {/* New Ribbon */}
+                            {isNew && job.status === "OPEN" && (
+                              <div className="inline-block">
+                                <div className="relative bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold px-3 py-1 shadow-lg">
+                                  <span className="relative z-10">✨ NIEUW</span>
+                                  <div className="absolute -bottom-1 right-0 w-0 h-0 border-l-[10px] border-l-transparent border-t-[5px] border-t-emerald-800"></div>
+                                </div>
                               </div>
+                            )}
+                          </div>
+                          <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"} flex-shrink-0`}>
+                            {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
+                          </span>
+                        </div>
+
+                        {/* Job Details Grid */}
+                        <div className="space-y-2 text-sm">
+                          {tarief && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-400">💰</span>
+                              <span className="text-emerald-400 font-semibold">{tarief}</span>
+                            </div>
+                          )}
+
+                          {locatie && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-300">{locatie}</span>
+                            </div>
+                          )}
+
+                          {job.inzet && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-400">⏱️</span>
+                              <span className="text-gray-300">{job.inzet}</span>
+                            </div>
+                          )}
+
+                          {job.duur && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-400">📅</span>
+                              <span className="text-gray-300">{job.duur}</span>
                             </div>
                           )}
                         </div>
-                        <span className={`badge ${job.status === "OPEN" ? "badge-open" : "badge-filled"} flex-shrink-0 self-start`}>
-                          {job.status === "OPEN" ? "🟢 Open" : "✓ Ingevuld"}
-                        </span>
-                      </div>
-
-                      <p className="text-gray-300 mb-6 line-clamp-2 text-base leading-relaxed">
-                        {job.omschrijving}
-                      </p>
-
-                      <div className="flex items-center gap-4 text-sm text-gray-400">
-                        <span className="flex items-center gap-1.5">
-                          <span className="text-base">👤</span>
-                          <span>{job.plaatser_naam}</span>
-                        </span>
-                        {job._count?.reacties > 0 && (
-                          <span className="flex items-center gap-1.5">
-                            <span className="text-base">💬</span>
-                            <span>{job._count.reacties}</span>
-                          </span>
-                        )}
-                        <span className="ml-auto text-xs">
-                          {new Date(job.created_at).toLocaleDateString("nl-NL", {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </span>
-                      </div>
-                    </Link>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4 mt-4 border-t border-gray-800/30">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          shareOnWhatsApp(job);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2.5 px-4 py-3.5 bg-gradient-to-r from-emerald-600/90 to-emerald-700/90 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-emerald-500/20 shadow-xl border border-emerald-500/20"
-                      >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                        </svg>
-                        <span>Deel</span>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          recommendToSomeone(job);
-                        }}
-                        className="flex items-center justify-center gap-2 px-4 py-3.5 bg-gradient-to-r from-stone-800/90 to-stone-900/90 hover:from-stone-700/90 hover:to-stone-800/90 text-stone-200 rounded-lg font-medium transition-all duration-200 shadow-xl border border-stone-700/50"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 );
