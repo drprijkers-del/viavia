@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { listOpdrachten } from "@/app/actions/queries";
 import { createOpdracht, CreateOpdracht } from "@/app/actions/opdracht";
+import { formatTariff } from "@/lib/utils";
 
 export default function HomePage() {
   const [searchInput, setSearchInput] = useState("");
@@ -548,9 +549,9 @@ export default function HomePage() {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const whatsappLink = `https://wa.me/${job.plaatser_whatsapp?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hoi ${job.plaatser_naam}, ik ben geïnteresseerd in je opdracht: "${job.titel}"`)}`;
 
-                // Format tarief - simple display, no thousand separator for hourly rates
+                // Format tarief using utility function
                 const tarief = (job.uurtarief_min || job.uurtarief_max)
-                  ? `€${job.uurtarief_min || job.uurtarief_max}${job.uurtarief_min && job.uurtarief_max && job.uurtarief_min !== job.uurtarief_max ? ` - €${job.uurtarief_max}` : ''}/uur`
+                  ? formatTariff(job.uurtarief_min, job.uurtarief_max, job.valuta || "EUR")
                   : null;
 
                 // Format locatie

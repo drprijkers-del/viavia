@@ -9,14 +9,19 @@ export function generateEditToken(): string {
 
 /**
  * Format euros to currency string
- * bijv. 100 -> "€100"
+ * Auto-detects if value is in cents (>1000) or euros and converts accordingly
+ * bijv. 100 -> "€100", 10000 -> "€100"
  */
 export function formatCurrency(
-  euros: number | null | undefined,
+  amount: number | null | undefined,
   currency: string = "EUR"
 ): string {
-  if (!euros) return "-";
+  if (!amount) return "-";
   const symbol = currency === "EUR" ? "€" : currency;
+
+  // If amount is likely in cents (> 999), convert to euros
+  const euros = amount > 999 ? Math.round(amount / 100) : amount;
+
   return `${symbol}${euros}`;
 }
 
