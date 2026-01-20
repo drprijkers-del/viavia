@@ -8,22 +8,21 @@ export function generateEditToken(): string {
 }
 
 /**
- * Format cents to currency string
- * bijv. 5000 -> "€50.00"
+ * Format euros to currency string
+ * bijv. 100 -> "€100"
  */
 export function formatCurrency(
-  cents: number | null | undefined,
+  euros: number | null | undefined,
   currency: string = "EUR"
 ): string {
-  if (!cents) return "-";
-  const amount = (cents / 100).toFixed(2);
+  if (!euros) return "-";
   const symbol = currency === "EUR" ? "€" : currency;
-  return `${symbol}${amount}`;
+  return `${symbol}${euros}`;
 }
 
 /**
  * Format tariff range
- * bijv. [5000, 7500] -> "€50.00 - €75.00"
+ * bijv. [100, 120] -> "€100 - €120"
  */
 export function formatTariff(
   min: number | null | undefined,
@@ -31,9 +30,9 @@ export function formatTariff(
   currency: string = "EUR"
 ): string {
   if (!min && !max) return "-";
-  if (min && !max) return `${formatCurrency(min, currency)}+`;
-  if (!min && max) return `tot ${formatCurrency(max, currency)}`;
-  return `${formatCurrency(min, currency)} - ${formatCurrency(max, currency)}`;
+  if (min && !max) return `${formatCurrency(min, currency)}/uur`;
+  if (!min && max) return `tot ${formatCurrency(max, currency)}/uur`;
+  return `${formatCurrency(min, currency)} - ${formatCurrency(max, currency)}/uur`;
 }
 
 /**
