@@ -315,34 +315,34 @@ export default function GroupBoardPage() {
             </div>
           </div>
 
-          {/* Groups horizontal list */}
+          {/* Groups vertical list */}
           {!showForm && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <div className="space-y-2">
               {myGroups.map((g: any) => (
                 <div
                   key={g.slug}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors flex-shrink-0 ${
+                  className={`flex items-center justify-between px-4 py-2 rounded-lg border transition-colors ${
                     g.slug === slug
-                      ? 'bg-emerald-500/20 border-emerald-500/50 text-white'
-                      : 'bg-[#1A1A1A] border-gray-800 text-gray-400 hover:border-gray-700'
+                      ? 'bg-emerald-500/20 border-emerald-500/50'
+                      : 'bg-[#1A1A1A] border-gray-800 hover:border-gray-700'
                   }`}
                 >
-                  <Link href={`/g/${g.slug}`} className="flex items-center gap-2">
-                    <div className={`w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold`}>
+                  <Link href={`/g/${g.slug}`} className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
                       {g.name?.charAt(0).toUpperCase() || "V"}
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className={`text-sm font-medium truncate ${g.slug === slug ? 'text-white' : 'text-gray-300'}`}>
                         {g.name || "ViaVia"}
                       </span>
                       {g.code && (
-                        <span className="text-xs font-mono text-gray-500">
+                        <span className="text-xs font-mono text-gray-500 shrink-0">
                           {g.code}
                         </span>
                       )}
                     </div>
                   </Link>
-                  <div className="flex items-center gap-1 ml-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={(e) => {
                         e.preventDefault();
@@ -350,7 +350,7 @@ export default function GroupBoardPage() {
                         const text = `Check deze freelance opdrachten: ${groupUrl}`;
                         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
                       }}
-                      className="text-emerald-600 hover:text-emerald-500 transition-colors"
+                      className="text-emerald-600 hover:text-emerald-500 transition-colors p-1"
                       title="Deel link in WhatsApp"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -386,7 +386,7 @@ export default function GroupBoardPage() {
                             }
                           }
                         }}
-                        className="text-gray-600 hover:text-red-400 transition-colors"
+                        className="text-gray-600 hover:text-red-400 transition-colors p-1"
                         title="Verwijder groep"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,7 +399,7 @@ export default function GroupBoardPage() {
               ))}
               <Link
                 href="/"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#1A1A1A] border border-gray-800 hover:border-gray-700 text-emerald-500 text-sm font-medium transition-colors flex-shrink-0"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#1A1A1A] border border-gray-800 hover:border-gray-700 text-emerald-500 text-sm font-medium transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
