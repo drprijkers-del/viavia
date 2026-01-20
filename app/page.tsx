@@ -188,7 +188,7 @@ export default function HomePage() {
       <div className="w-full max-w-2xl px-5 sm:px-6 py-6 sm:py-8">
         {/* Form Modal/Overlay */}
         {showForm && (
-          <div className="mb-8 glass rounded-2xl p-8 animate-slide-in">
+          <div className="mb-8 glass rounded-2xl p-6 sm:p-8 animate-slide-in">
             <h2 className="text-3xl font-bold mb-3 text-white">Nieuwe opdracht</h2>
             <p className="text-stone-400 text-base mb-8">Vul de opdracht in, super simpel</p>
 

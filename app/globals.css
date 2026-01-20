@@ -98,7 +98,7 @@ h3 { @apply text-lg font-semibold text-gray-200; }
 
 @media (max-width: 640px) {
   .job-tile {
-    padding: 1.5rem; /* 24px on mobile */
+    padding: 1.25rem; /* 20px on mobile - tighter for better mobile UX */
   }
 }
 

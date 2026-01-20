@@ -58,72 +58,10 @@ export default async function OpdrachDetail({
         </div>
       </div>
 
-      <div className="container-main py-12">
-        <div className="max-w-3xl mx-auto">
-          {/* Title Section */}
-          <div className={`glass rounded-2xl p-10 mb-8 ${isFilled ? "opacity-75" : ""}`}>
-            <h1 className={`text-4xl font-bold mb-6 ${isFilled ? "line-through text-gray-500" : "text-white"}`}>
-              {opdracht.titel}
-            </h1>
-
-            <p className="text-gray-300 text-lg leading-relaxed">
-              {opdracht.omschrijving}
-            </p>
-          </div>
-
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-            {/* Locatie */}
-            <div className="glass rounded-xl p-6">
-              <p className="text-gray-400 text-sm mb-1">Locatie</p>
-              <p className="text-white text-xl font-medium">
-                {opdracht.locatie === "Remote" && "Remote"}
-                {opdracht.locatie === "OnSite" && "Op locatie"}
-                {opdracht.locatie === "Hybride" && "Hybride"}
-              </p>
-            </div>
-
-            {/* Tarief */}
-            {(opdracht.uurtarief_min || opdracht.uurtarief_max) && (
-              <div className="glass rounded-xl p-6">
-                <p className="text-gray-400 text-sm mb-1">Uurtarief</p>
-                <p className="text-emerald-400 text-xl font-semibold">
-                  {formatTariff(
-                    opdracht.uurtarief_min,
-                    opdracht.uurtarief_max,
-                    opdracht.valuta || "EUR"
-                  )}
-                </p>
-              </div>
-            )}
-
-            {/* Startdatum */}
-            {opdracht.startdatum && (
-              <div className="glass rounded-xl p-6">
-                <p className="text-gray-400 text-sm mb-1">Startdatum</p>
-                <p className="text-white text-xl font-medium">{opdracht.startdatum}</p>
-              </div>
-            )}
-
-            {/* Duur */}
-            {opdracht.duur && (
-              <div className="glass rounded-xl p-6">
-                <p className="text-gray-400 text-sm mb-1">Duur</p>
-                <p className="text-white text-xl font-medium">{opdracht.duur}</p>
-              </div>
-            )}
-
-            {/* Inzet */}
-            {opdracht.inzet && (
-              <div className="glass rounded-xl p-6">
-                <p className="text-gray-400 text-sm mb-1">Uren per week</p>
-                <p className="text-white text-xl font-medium">{opdracht.inzet}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Contact Section */}
-          <div className="glass rounded-2xl p-8 mb-8">
+      <div className="container-main py-8 sm:py-12">
+        <div className="max-w-3xl mx-auto px-5 sm:px-0">
+          {/* Contact Section - Moved to top */}
+          <div className="glass rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg ring-2 ring-emerald-500/20">
                 {opdracht.plaatser_naam?.charAt(0).toUpperCase() || "?"}
@@ -134,7 +72,7 @@ export default async function OpdrachDetail({
               </div>
             </div>
 
-            {/* Action buttons at bottom */}
+            {/* Action buttons */}
             <div className="space-y-3">
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 <button className="btn w-full py-4 text-base bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg">
@@ -150,6 +88,68 @@ export default async function OpdrachDetail({
               {/* Delete opdracht */}
               <DeleteButton opdrachtId={opdracht.id} />
             </div>
+          </div>
+
+          {/* Title Section */}
+          <div className={`glass rounded-2xl p-8 sm:p-10 mb-6 sm:mb-8 ${isFilled ? "opacity-75" : ""}`}>
+            <h1 className={`text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 ${isFilled ? "line-through text-gray-500" : "text-white"}`}>
+              {opdracht.titel}
+            </h1>
+
+            <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+              {opdracht.omschrijving}
+            </p>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mb-6 sm:mb-8">
+            {/* Locatie */}
+            <div className="glass rounded-xl p-5 sm:p-6">
+              <p className="text-gray-400 text-sm mb-1">Locatie</p>
+              <p className="text-white text-lg sm:text-xl font-medium">
+                {opdracht.locatie === "Remote" && "Remote"}
+                {opdracht.locatie === "OnSite" && "Op locatie"}
+                {opdracht.locatie === "Hybride" && "Hybride"}
+              </p>
+            </div>
+
+            {/* Tarief */}
+            {(opdracht.uurtarief_min || opdracht.uurtarief_max) && (
+              <div className="glass rounded-xl p-5 sm:p-6">
+                <p className="text-gray-400 text-sm mb-1">Uurtarief</p>
+                <p className="text-emerald-400 text-lg sm:text-xl font-semibold">
+                  {formatTariff(
+                    opdracht.uurtarief_min,
+                    opdracht.uurtarief_max,
+                    opdracht.valuta || "EUR"
+                  )}
+                </p>
+              </div>
+            )}
+
+            {/* Startdatum */}
+            {opdracht.startdatum && (
+              <div className="glass rounded-xl p-5 sm:p-6">
+                <p className="text-gray-400 text-sm mb-1">Startdatum</p>
+                <p className="text-white text-lg sm:text-xl font-medium">{opdracht.startdatum}</p>
+              </div>
+            )}
+
+            {/* Duur */}
+            {opdracht.duur && (
+              <div className="glass rounded-xl p-5 sm:p-6">
+                <p className="text-gray-400 text-sm mb-1">Duur</p>
+                <p className="text-white text-lg sm:text-xl font-medium">{opdracht.duur}</p>
+              </div>
+            )}
+
+            {/* Inzet */}
+            {opdracht.inzet && (
+              <div className="glass rounded-xl p-5 sm:p-6">
+                <p className="text-gray-400 text-sm mb-1">Uren per week</p>
+                <p className="text-white text-lg sm:text-xl font-medium">{opdracht.inzet}</p>
+              </div>
+            )}
           </div>
 
           {/* Reacties Section */}
