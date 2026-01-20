@@ -12,26 +12,38 @@ generator client {
 
 model Opdracht {
   id                      String    @id @default(cuid())
-  titel                   String
-  omschrijving            String
-  locatie                 String    @default("Remote") // Remote, OnSite, Hybride
-  plaats                  String?   // alleen als OnSite/Hybride
-  hybride_dagen_per_week  Int?      // alleen als Hybride (1-5)
-  uurtarief_min           Int?      // in euros (bijv 100 = €100)
-  uurtarief_max           Int?      // in euros (bijv 120 = €120)
-  valuta                  String    @default("EUR")
-  startdatum              String?   // "ASAP" of datum-string bijv "2026-02-01"
-  duur                    String?   // bijv "3 maanden"
-  inzet                   String?   // bijv "20 uur/week"
-  tags                    String?   // JSON array of strings, max 5
+
+  // Basis info (altijd verplicht)
+  titel                   String    // bijv "Senior React Developer"
+  bedrijf                 String    // bijv "Coolblue"
+  omschrijving            String    // max 3-4 regels
+
+  // Financieel (1 vast tarief)
+  uurtarief               Int       // in euros, bijv 100 = €100/uur
+
+  // Locatie (simpel, 1 veld)
+  locatie                 String    @default("Remote") // Remote, Hybride, OnSite
+  locatie_detail          String?   // bijv "Amsterdam" (alleen bij Hybride/OnSite)
+
+  // Tijd (vaste getallen, geen ranges)
+  uren_per_week           Int?      // bijv 32
+  duur_maanden            Int?      // bijv 6
+
+  // Team
+  teamgrootte             String?   // bijv "2-5" of "10+"
+
+  // Contact
   plaatser_naam           String
   plaatser_whatsapp       String    // format: +31612345678
+
+  // Status
   status                  String    @default("OPEN") // OPEN, INGEVULD
-  edit_token              String    @unique // random hex string
-  
+  edit_token              String    @unique // voor delete/edit zonder auth
+
   // Relations
-  reacties                Reactie[]
-  
+  reacties                Reactie[] // wordt NIET getoond, alleen geteld
+
+  // Timestamps
   created_at              DateTime  @default(now())
   updated_at              DateTime  @updatedAt
 
@@ -52,4 +64,3 @@ model Reactie {
 
   @@index([opdracht_id])
 }
-

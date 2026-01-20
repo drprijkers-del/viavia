@@ -5,43 +5,34 @@ import {
   generateEditToken,
   isValidPhoneNumber,
   normalizePhoneNumber,
-  stringifyTags,
 } from "@/lib/utils";
 
 export interface CreateOpdracht {
   titel: string;
+  bedrijf: string;
   omschrijving: string;
+  uurtarief: number;
   locatie: "Remote" | "OnSite" | "Hybride";
-  plaats?: string;
-  hybride_dagen_per_week?: number;
-  uurtarief_min?: number;
-  uurtarief_max?: number;
-  valuta?: string;
-  startdatum?: string;
-  duur?: string;
-  inzet?: string;
-  tags?: string[];
+  locatie_detail?: string;
+  uren_per_week?: number;
+  duur_maanden?: number;
+  teamgrootte?: string;
   plaatser_naam: string;
   plaatser_whatsapp: string;
 }
 
 export async function createOpdracht(data: CreateOpdracht) {
   // Validate required fields
-  if (!data.titel || !data.omschrijving || !data.plaatser_naam) {
-    return { error: "Titel, omschrijving en naam zijn verplicht" };
+  if (!data.titel || !data.bedrijf || !data.omschrijving || !data.plaatser_naam) {
+    return { error: "Functie, bedrijf, omschrijving en naam zijn verplicht" };
+  }
+
+  if (!data.uurtarief || data.uurtarief <= 0) {
+    return { error: "Uurtarief is verplicht" };
   }
 
   if (!isValidPhoneNumber(data.plaatser_whatsapp)) {
     return { error: "Ongeldig WhatsApp-nummer" };
-  }
-
-  // Validate locatie-specific fields
-  if (data.locatie !== "Remote" && !data.plaats) {
-    return { error: "Plaats is verplicht voor On-site/Hybride" };
-  }
-
-  if (data.locatie === "Hybride" && !data.hybride_dagen_per_week) {
-    return { error: "Aantal dagen is verplicht voor Hybride" };
   }
 
   try {
@@ -50,17 +41,14 @@ export async function createOpdracht(data: CreateOpdracht) {
     const opdracht = await db.opdracht.create({
       data: {
         titel: data.titel.trim(),
+        bedrijf: data.bedrijf.trim(),
         omschrijving: data.omschrijving.trim(),
+        uurtarief: data.uurtarief,
         locatie: data.locatie,
-        plaats: data.plaats?.trim() || null,
-        hybride_dagen_per_week: data.hybride_dagen_per_week || null,
-        uurtarief_min: data.uurtarief_min || null,
-        uurtarief_max: data.uurtarief_max || null,
-        valuta: data.valuta || "EUR",
-        startdatum: data.startdatum?.trim() || null,
-        duur: data.duur?.trim() || null,
-        inzet: data.inzet?.trim() || null,
-        tags: data.tags ? stringifyTags(data.tags) : null,
+        locatie_detail: data.locatie_detail?.trim() || null,
+        uren_per_week: data.uren_per_week || null,
+        duur_maanden: data.duur_maanden || null,
+        teamgrootte: data.teamgrootte?.trim() || null,
         plaatser_naam: data.plaatser_naam.trim(),
         plaatser_whatsapp: normalizedPhone,
         status: "OPEN",
@@ -136,5 +124,31 @@ export async function updateOpdracht(
   } catch (error) {
     console.error("Error updating opdracht:", error);
     return { error: "Er is iets misgegaan bij het bijwerken van de opdracht" };
+  }
+}
+
+export async function deleteOpdracht(opdrachtId: string, editToken: string) {
+  try {
+    // Verify edit token
+    const opdracht = await db.opdracht.findUnique({
+      where: { id: opdrachtId },
+    });
+
+    if (!opdracht) {
+      return { error: "Opdracht niet gevonden" };
+    }
+
+    if (opdracht.edit_token !== editToken) {
+      return { error: "Je mag deze opdracht niet verwijderen" };
+    }
+
+    await db.opdracht.delete({
+      where: { id: opdrachtId },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting opdracht:", error);
+    return { error: "Er is iets misgegaan bij het verwijderen van de opdracht" };
   }
 }
