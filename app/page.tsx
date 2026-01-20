@@ -15,6 +15,9 @@ export default function HomePage() {
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
   const [justPostedId, setJustPostedId] = useState<string | null>(null);
+  const [selectedLocatie, setSelectedLocatie] = useState<"Remote" | "OnSite" | "Hybride">("Remote");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
 
   const loadOpdrachten = useCallback(async () => {
     setLoading(true);
@@ -55,6 +58,17 @@ export default function HomePage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 
+  const handleAddTag = () => {
+    if (tagInput.trim() && tags.length < 5 && !tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()]);
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(t => t !== tagToRemove));
+  };
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -68,7 +82,15 @@ export default function HomePage() {
       const data: CreateOpdracht = {
         titel: formData.get("titel") as string,
         omschrijving: formData.get("omschrijving") as string,
-        locatie: "Remote",
+        locatie: selectedLocatie,
+        plaats: selectedLocatie !== "Remote" ? (formData.get("plaats") as string) || undefined : undefined,
+        hybride_dagen_per_week: selectedLocatie === "Hybride" ? parseInt(formData.get("hybride_dagen") as string) || undefined : undefined,
+        uurtarief_min: parseInt(formData.get("uurtarief_min") as string) || undefined,
+        uurtarief_max: parseInt(formData.get("uurtarief_max") as string) || undefined,
+        startdatum: (formData.get("startdatum") as string) || undefined,
+        duur: (formData.get("duur") as string) || undefined,
+        inzet: (formData.get("inzet") as string) || undefined,
+        tags: tags.length > 0 ? tags : undefined,
         plaatser_naam: formData.get("plaatser_naam") as string,
         plaatser_whatsapp: formData.get("plaatser_whatsapp") as string,
       };
@@ -78,6 +100,9 @@ export default function HomePage() {
       if (result.success) {
         setJustPostedId(result.opdrachtId || null);
         if (form) form.reset();
+        setSelectedLocatie("Remote");
+        setTags([]);
+        setTagInput("");
         await loadOpdrachten();
       } else {
         setError(result.error || "Er is iets misgegaan");
@@ -226,6 +251,212 @@ export default function HomePage() {
                   disabled={formLoading}
                   rows={5}
                 />
+              </div>
+
+              {/* Locatie Section */}
+              <div className="border-t border-stone-800/50 pt-7">
+                <h3 className="text-base font-semibold mb-5 text-stone-300">
+                  Locatie & Werkplek
+                </h3>
+
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-base font-medium mb-3 text-stone-200">
+                      📍 Type locatie *
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {(["Remote", "OnSite", "Hybride"] as const).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setSelectedLocatie(type)}
+                          className={`py-3 px-4 rounded-lg font-medium transition-all ${
+                            selectedLocatie === type
+                              ? "bg-emerald-600 text-white shadow-lg"
+                              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                          }`}
+                          disabled={formLoading}
+                        >
+                          {type === "Remote" && "Remote"}
+                          {type === "OnSite" && "Op locatie"}
+                          {type === "Hybride" && "Hybride"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {selectedLocatie !== "Remote" && (
+                    <div>
+                      <label className="block text-base font-medium mb-3 text-stone-200">
+                        🏢 Plaats {selectedLocatie === "Hybride" ? "(optioneel)" : "*"}
+                      </label>
+                      <input
+                        type="text"
+                        name="plaats"
+                        className="input py-3.5"
+                        placeholder="bijv: Amsterdam, Rotterdam"
+                        required={selectedLocatie === "OnSite"}
+                        disabled={formLoading}
+                      />
+                    </div>
+                  )}
+
+                  {selectedLocatie === "Hybride" && (
+                    <div>
+                      <label className="block text-base font-medium mb-3 text-stone-200">
+                        📅 Dagen op locatie per week *
+                      </label>
+                      <select
+                        name="hybride_dagen"
+                        className="input py-3.5"
+                        required
+                        disabled={formLoading}
+                        defaultValue=""
+                      >
+                        <option value="" disabled>Selecteer aantal dagen</option>
+                        <option value="1">1 dag</option>
+                        <option value="2">2 dagen</option>
+                        <option value="3">3 dagen</option>
+                        <option value="4">4 dagen</option>
+                        <option value="5">5 dagen</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Tarief & Details Section */}
+              <div className="border-t border-stone-800/50 pt-7">
+                <h3 className="text-base font-semibold mb-5 text-stone-300">
+                  Tarief & Details
+                </h3>
+
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-base font-medium mb-3 text-stone-200">
+                      💰 Uurtarief (€) *
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="number"
+                        name="uurtarief_min"
+                        className="input py-3.5"
+                        placeholder="Min. tarief"
+                        min="0"
+                        step="5"
+                        required
+                        disabled={formLoading}
+                      />
+                      <input
+                        type="number"
+                        name="uurtarief_max"
+                        className="input py-3.5"
+                        placeholder="Max. tarief (opt)"
+                        min="0"
+                        step="5"
+                        disabled={formLoading}
+                      />
+                    </div>
+                    <p className="text-sm text-stone-500 mt-2">
+                      Vul je uurtarief in euro's (bijv: 75)
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-base font-medium mb-3 text-stone-200">
+                      📅 Startdatum (optioneel)
+                    </label>
+                    <input
+                      type="text"
+                      name="startdatum"
+                      className="input py-3.5"
+                      placeholder="bijv: ASAP, 1 maart 2026"
+                      disabled={formLoading}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-base font-medium mb-3 text-stone-200">
+                        ⏱️ Uren/week (opt)
+                      </label>
+                      <input
+                        type="text"
+                        name="inzet"
+                        className="input py-3.5"
+                        placeholder="bijv: 32 uur"
+                        disabled={formLoading}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-base font-medium mb-3 text-stone-200">
+                        📆 Duur (opt)
+                      </label>
+                      <input
+                        type="text"
+                        name="duur"
+                        className="input py-3.5"
+                        placeholder="bijv: 6 maanden"
+                        disabled={formLoading}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-base font-medium mb-3 text-stone-200">
+                      🏷️ Tags (max 5, optioneel)
+                    </label>
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddTag();
+                          }
+                        }}
+                        className="input py-3 flex-1"
+                        placeholder="bijv: React, TypeScript"
+                        disabled={formLoading || tags.length >= 5}
+                        maxLength={20}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddTag}
+                        disabled={formLoading || tags.length >= 5 || !tagInput.trim()}
+                        className="btn btn-secondary px-6"
+                      >
+                        + Toevoegen
+                      </button>
+                    </div>
+                    {tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/15 text-emerald-400 rounded-full text-sm font-medium"
+                          >
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTag(tag)}
+                              className="hover:text-emerald-300"
+                              disabled={formLoading}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-sm text-stone-500 mt-2">
+                      Voeg tags toe om je opdracht beter vindbaar te maken
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="border-t border-stone-800/50 pt-7">
@@ -378,11 +609,15 @@ export default function HomePage() {
                             </div>
                           )}
 
-                          {locatie && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-gray-300">{locatie}</span>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-300">{locatie}</span>
+                            {job.plaats && (
+                              <span className="text-gray-500">• {job.plaats}</span>
+                            )}
+                            {job.hybride_dagen_per_week && (
+                              <span className="text-gray-500">• {job.hybride_dagen_per_week}d/week</span>
+                            )}
+                          </div>
 
                           {job.inzet && (
                             <div className="flex items-center gap-2">
@@ -395,6 +630,35 @@ export default function HomePage() {
                             <div className="flex items-center gap-2">
                               <span className="text-gray-400">📅</span>
                               <span className="text-gray-300">{job.duur}</span>
+                            </div>
+                          )}
+
+                          {/* Tags */}
+                          {job.tags && JSON.parse(job.tags).length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-3">
+                              {JSON.parse(job.tags).slice(0, 3).map((tag: string) => (
+                                <span
+                                  key={tag}
+                                  className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded text-xs font-medium"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                              {JSON.parse(job.tags).length > 3 && (
+                                <span className="px-2 py-0.5 text-gray-500 text-xs">
+                                  +{JSON.parse(job.tags).length - 3}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Reacties counter */}
+                          {job._count?.reacties > 0 && (
+                            <div className="flex items-center gap-2 pt-2 border-t border-gray-800/50 mt-3">
+                              <span className="text-gray-400">💬</span>
+                              <span className="text-gray-400 text-xs">
+                                {job._count.reacties} {job._count.reacties === 1 ? "reactie" : "reacties"}
+                              </span>
                             </div>
                           )}
                         </div>

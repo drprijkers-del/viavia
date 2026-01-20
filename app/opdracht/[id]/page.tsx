@@ -101,6 +101,23 @@ export default async function OpdrachDetail({
             </p>
           </div>
 
+          {/* Tags */}
+          {opdracht.tags && JSON.parse(opdracht.tags).length > 0 && (
+            <div className="glass rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8">
+              <p className="text-gray-400 text-sm mb-3">Tags</p>
+              <div className="flex flex-wrap gap-2">
+                {JSON.parse(opdracht.tags).map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1.5 bg-emerald-500/15 text-emerald-400 rounded-full text-sm font-medium ring-1 ring-emerald-500/30"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mb-6 sm:mb-8">
             {/* Locatie */}
@@ -110,7 +127,13 @@ export default async function OpdrachDetail({
                 {opdracht.locatie === "Remote" && "Remote"}
                 {opdracht.locatie === "OnSite" && "Op locatie"}
                 {opdracht.locatie === "Hybride" && "Hybride"}
+                {opdracht.plaats && ` - ${opdracht.plaats}`}
               </p>
+              {opdracht.hybride_dagen_per_week && (
+                <p className="text-gray-400 text-sm mt-2">
+                  {opdracht.hybride_dagen_per_week} {opdracht.hybride_dagen_per_week === 1 ? "dag" : "dagen"} per week op locatie
+                </p>
+              )}
             </div>
 
             {/* Tarief */}
