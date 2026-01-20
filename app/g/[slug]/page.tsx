@@ -204,13 +204,20 @@ export default function GroupBoardPage() {
     navigator.clipboard.writeText(inviteUrl);
 
     // Also prepare a friendly message for WhatsApp
-    const friendlyMessage = `Hey! 👋
+    const friendlyMessage = `🎯 *${currentGroup.name || "ViaVia"} - Nodiging*
 
-Plaats je freelance opdrachten in deze app, dan blijven ze zichtbaar voor de hele groep!
+👋 Hey! Ik nodig je uit om deel te nemen aan ons freelance opdrachten overzicht.
 
+✨ *Wat kun je ermee:*
+• Plaats je eigen freelance opdrachten
+• Bekijk opdrachten van anderen
+• Altijd een actueel overzicht
+• Nooit meer terugscrollen in WhatsApp
+
+📱 Klik hier om toegang te krijgen:
 ${inviteUrl}
 
-Zo houden we overzicht zonder terug te scrollen in WhatsApp 📱✨`;
+💼 _Handig voor het delen en vinden van opdrachten!_`;
 
     if (confirm("Link gekopieerd! Wil je deze ook direct delen via WhatsApp?")) {
       window.open(`https://wa.me/?text=${encodeURIComponent(friendlyMessage)}`, "_blank");
@@ -225,7 +232,22 @@ Zo houden we overzicht zonder terug te scrollen in WhatsApp 📱✨`;
 
   function shareWhatsApp() {
     const url = window.location.href;
-    const text = `Check deze freelance opdrachten: ${url}`;
+    const groupName = group?.name || "ViaVia";
+
+    const text = `🚀 *${groupName} - Freelance Opdrachten*
+
+👋 Hey! Hier vind je alle freelance opdrachten uit onze groep op één plek.
+
+✨ *Voordelen:*
+• Altijd een overzicht van alle opdrachten
+• Nooit meer terugscrollen in WhatsApp
+• Direct reageren op opdrachten
+• Makkelijk delen met je netwerk
+
+📱 Bekijk hier: ${url}
+
+💡 _Plaats ook je eigen opdrachten en help anderen!_`;
+
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
@@ -759,19 +781,61 @@ Zo houden we overzicht zonder terug te scrollen in WhatsApp 📱✨`;
                 <div className="animate-spin w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-3"></div>
                 <p className="text-gray-500">Laden...</p>
               </div>
-            ) : opdrachten.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="text-7xl mb-4">📭</div>
-                <p className="text-gray-500 mb-6">Nog geen opdrachten</p>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl transition-colors"
-                >
-                  Plaats eerste opdracht
-                </button>
-              </div>
             ) : (
-              opdrachten.map((job) => {
+              <>
+                {/* Example/Template Card - always visible */}
+                <button
+                  onClick={() => {
+                    if (myGroups.length > 1) {
+                      setShowGroupSelector(true);
+                    } else {
+                      setShowForm(true);
+                    }
+                  }}
+                  className="block w-full bg-[#1A1A1A]/40 hover:bg-[#1A1A1A]/60 border border-dashed border-gray-700/50 rounded-2xl p-6 transition-all text-left"
+                >
+                  <div className="flex gap-4">
+                    {/* Avatar */}
+                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-gray-600 to-gray-700 flex items-center justify-center text-white text-lg font-bold shrink-0 opacity-40">
+                      ?
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-500 leading-tight mb-1">
+                            Plaats je opdracht hier...
+                          </h3>
+                          <p className="text-sm text-gray-600">Je bedrijfsnaam</p>
+                        </div>
+                        <span className="text-xs bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-full font-medium shrink-0">
+                          + Nieuw
+                        </span>
+                      </div>
+
+                      {/* Key info - scannable grid */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-600 font-semibold">€85</span>
+                          <span className="text-gray-700">/uur</span>
+                        </div>
+                        <div className="text-gray-600">Remote</div>
+                        <div className="text-gray-600">32 uur/week</div>
+                        <div className="text-gray-600">3 maanden</div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
+                {opdrachten.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-sm">
+                      Klik op het voorbeeld hierboven om je eerste opdracht te plaatsen
+                    </p>
+                  </div>
+                ) : (
+                  opdrachten.map((job) => {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const reactiesCount = job._count?.reacties || 0;
 
@@ -835,7 +899,9 @@ Zo houden we overzicht zonder terug te scrollen in WhatsApp 📱✨`;
                     </div>
                   </Link>
                 );
-              })
+                  })
+                )}
+              </>
             )}
           </div>
         )}
