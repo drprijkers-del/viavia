@@ -10,8 +10,27 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Group {
+  id                      String    @id @default(cuid())
+  slug                    String    @unique // short, URL-friendly
+  name                    String?   // optional group name
+  code_hash               String?   // bcrypt hash of 6-char code (optional, for spam protection)
+
+  // Relations
+  opdrachten              Opdracht[]
+
+  // Timestamps
+  created_at              DateTime  @default(now())
+
+  @@index([slug])
+}
+
 model Opdracht {
   id                      String    @id @default(cuid())
+
+  // Group relation (required)
+  group_id                String
+  group                   Group     @relation(fields: [group_id], references: [id], onDelete: Cascade)
 
   // Basis info (altijd verplicht)
   titel                   String    // bijv "Senior React Developer"
@@ -49,6 +68,7 @@ model Opdracht {
 
   @@index([status])
   @@index([created_at])
+  @@index([group_id])
 }
 
 model Reactie {

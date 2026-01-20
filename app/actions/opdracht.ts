@@ -8,6 +8,7 @@ import {
 } from "@/lib/utils";
 
 export interface CreateOpdracht {
+  groupId: string; // required for group association
   titel: string;
   bedrijf: string;
   omschrijving: string;
@@ -23,6 +24,10 @@ export interface CreateOpdracht {
 
 export async function createOpdracht(data: CreateOpdracht) {
   // Validate required fields
+  if (!data.groupId) {
+    return { error: "Groep ID is verplicht" };
+  }
+
   if (!data.titel || !data.bedrijf || !data.omschrijving || !data.plaatser_naam) {
     return { error: "Functie, bedrijf, omschrijving en naam zijn verplicht" };
   }
@@ -40,6 +45,7 @@ export async function createOpdracht(data: CreateOpdracht) {
 
     const opdracht = await db.opdracht.create({
       data: {
+        group_id: data.groupId,
         titel: data.titel.trim(),
         bedrijf: data.bedrijf.trim(),
         omschrijving: data.omschrijving.trim(),

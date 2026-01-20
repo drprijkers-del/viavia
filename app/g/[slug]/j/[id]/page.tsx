@@ -5,9 +5,9 @@ import Link from "next/link";
 export default async function OpdrachtDetail({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string; id: string }>;
 }) {
-  const { id } = await params;
+  const { slug, id } = await params;
   const opdracht = await getOpdracht(id);
 
   if (!opdracht) {
@@ -18,7 +18,7 @@ export default async function OpdrachtDetail({
           <h2 className="text-xl font-semibold text-white mb-4">
             Opdracht niet gevonden
           </h2>
-          <Link href="/">
+          <Link href={`/g/${slug}`}>
             <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl transition-colors">
               ← Terug
             </button>
@@ -40,7 +40,7 @@ export default async function OpdrachtDetail({
       {/* Simple header */}
       <div className="border-b border-gray-800/50 bg-black/40 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-2xl mx-auto px-6 py-4">
-          <Link href="/">
+          <Link href={`/g/${slug}`}>
             <button className="text-sm text-gray-400 hover:text-white transition-colors">
               ← Terug
             </button>

@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 
 export interface ListOpdrachtQuery {
+  groupId?: string; // filter by group
   status?: "OPEN" | "INGEVULD" | "ALL";
   locatie?: "Remote" | "OnSite" | "Hybride";
   search?: string;
@@ -12,6 +13,10 @@ export interface ListOpdrachtQuery {
 export async function listOpdrachten(query?: ListOpdrachtQuery) {
   try {
     const where: any = {};
+
+    if (query?.groupId) {
+      where.group_id = query.groupId;
+    }
 
     if (query?.status && query.status !== "ALL") {
       where.status = query.status;
@@ -25,12 +30,12 @@ export async function listOpdrachten(query?: ListOpdrachtQuery) {
       // PostgreSQL supports case-insensitive search with mode option
       where.OR = [
         { titel: { contains: query.search, mode: "insensitive" } },
-        { tags: { contains: query.search, mode: "insensitive" } },
+        { bedrijf: { contains: query.search, mode: "insensitive" } },
       ];
     }
 
-    const orderBy = query?.sort === "oldest" 
-      ? { created_at: "asc" as const } 
+    const orderBy = query?.sort === "oldest"
+      ? { created_at: "asc" as const }
       : { created_at: "desc" as const };
 
     const opdrachten = await db.opdracht.findMany({
