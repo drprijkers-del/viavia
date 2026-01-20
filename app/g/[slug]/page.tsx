@@ -862,7 +862,14 @@ ${inviteUrl}
                             <h3 className="text-lg font-semibold text-white leading-tight mb-1">
                               {job.titel}
                             </h3>
-                            <p className="text-sm text-gray-500">{job.bedrijf}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm text-gray-500">{job.bedrijf}</p>
+                              {job.group && job.group.slug !== slug && (
+                                <span className="text-xs bg-gray-800 text-gray-500 px-2 py-0.5 rounded">
+                                  via {job.group.name || "ViaVia"}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           {isNew && (
                             <span className="text-xs bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-full font-medium flex-shrink-0">

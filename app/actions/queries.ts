@@ -42,6 +42,12 @@ export async function listOpdrachten(query?: ListOpdrachtQuery) {
       where,
       orderBy,
       include: {
+        group: {
+          select: {
+            slug: true,
+            name: true,
+          },
+        },
         _count: {
           select: { reacties: true },
         },
@@ -60,6 +66,12 @@ export async function getOpdracht(id: string) {
     const opdracht = await db.opdracht.findUnique({
       where: { id },
       include: {
+        group: {
+          select: {
+            slug: true,
+            name: true,
+          },
+        },
         reacties: {
           orderBy: { created_at: "desc" as const },
         },

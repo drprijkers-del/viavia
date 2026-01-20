@@ -115,6 +115,16 @@ ${shareUrl}`;
               {opdracht.titel}
             </h1>
             <p className="text-xl text-gray-400">{opdracht.bedrijf}</p>
+            {opdracht.group && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-xs text-gray-500">Geplaatst in:</span>
+                <Link href={`/g/${opdracht.group.slug}`}>
+                  <span className="text-xs bg-emerald-600/10 text-emerald-400 px-3 py-1.5 rounded-full hover:bg-emerald-600/20 transition-colors">
+                    {opdracht.group.name || "ViaVia"}
+                  </span>
+                </Link>
+              </div>
+            )}
             {isFilled && (
               <span className="inline-block mt-3 text-xs bg-gray-800 text-gray-500 px-3 py-1.5 rounded-full">
                 ✓ Ingevuld
