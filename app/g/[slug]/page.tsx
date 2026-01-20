@@ -206,6 +206,34 @@ export default function GroupBoardPage() {
     sessionStorage.removeItem(`group_${slug}_show_banner`);
   }
 
+  function inviteToGroup() {
+    if (!isCreator || !group) {
+      alert("Alleen de creator kan anderen uitnodigen");
+      return;
+    }
+
+    // Find current group in myGroups to get the code
+    const currentGroup = myGroups.find(g => g.slug === slug);
+    if (!currentGroup) {
+      alert("Groep niet gevonden in je lijst");
+      return;
+    }
+
+    // Create invite data with single group
+    const inviteData = [{
+      slug: currentGroup.slug,
+      name: currentGroup.name,
+      code: currentGroup.code,
+      createdAt: currentGroup.createdAt
+    }];
+
+    const encoded = btoa(JSON.stringify(inviteData));
+    const inviteUrl = `${window.location.origin}/?import=${encoded}`;
+
+    navigator.clipboard.writeText(inviteUrl);
+    alert("Uitnodigingslink gekopieerd! Deel deze link met je groepsleden zodat zij ook toegang krijgen tot dit groepsoverzicht.");
+  }
+
   function copyLink() {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
@@ -304,6 +332,18 @@ export default function GroupBoardPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              {!showForm && isCreator && (
+                <button
+                  onClick={inviteToGroup}
+                  className="text-sm text-emerald-600 hover:text-emerald-500 transition-colors flex items-center gap-1"
+                  title="Nodig anderen uit voor deze groep"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Nodig uit
+                </button>
+              )}
               {showForm && (
                 <button
                   onClick={() => setShowForm(false)}
