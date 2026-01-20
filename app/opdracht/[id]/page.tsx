@@ -1,5 +1,5 @@
 import { getOpdracht } from "@/app/actions/queries";
-import { formatTariff, createWhatsAppLink } from "@/lib/utils";
+import { formatTariff } from "@/lib/utils";
 import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import ReactieForm from "@/app/components/ReactieForm";
@@ -32,11 +32,6 @@ export default async function OpdrachDetail({
     );
   }
 
-  const whatsappLink = createWhatsAppLink(
-    opdracht.plaatser_whatsapp,
-    `Hoi ${opdracht.plaatser_naam}, ik ben geïnteresseerd in je opdracht: "${opdracht.titel}". Kan jij mij meer vertellen?`
-  );
-
   const isFilled = opdracht.status === "INGEVULD";
 
   return (
@@ -50,7 +45,7 @@ export default async function OpdrachDetail({
             </Link>
             <div className="flex items-center gap-3">
               <ShareButton opdrachtId={opdracht.id} titel={opdracht.titel} />
-              <span className={`badge ${isFilled ? "badge-filled" : "badge-open"}`}>
+              <span className={`badge px-4 py-2 ${isFilled ? "badge-filled" : "badge-open"}`}>
                 {isFilled ? "✓ Ingevuld" : "🟢 Open"}
               </span>
             </div>
@@ -74,12 +69,6 @@ export default async function OpdrachDetail({
 
             {/* Action buttons */}
             <div className="space-y-3">
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <button className="btn w-full py-4 text-base bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg">
-                  💬 Chat via WhatsApp
-                </button>
-              </a>
-
               <RecommendButton opdrachtId={opdracht.id} titel={opdracht.titel} />
 
               {/* Mark as filled */}

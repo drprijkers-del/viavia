@@ -193,7 +193,7 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               {!showForm && (
                 <Link href="/kandidaten">
-                  <button className="btn btn-outline text-xs px-3 py-2">
+                  <button className="btn btn-outline text-xs px-3 py-1.5">
                     Kandidaten
                   </button>
                 </Link>
@@ -201,7 +201,7 @@ export default function HomePage() {
               {showForm && (
                 <button
                   onClick={() => setShowForm(false)}
-                  className="btn btn-outline"
+                  className="btn btn-outline text-xs px-3 py-1.5"
                 >
                   ← Terug
                 </button>
@@ -224,7 +224,7 @@ export default function HomePage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-7">
+            <form onSubmit={handleSubmit} className="space-y-8">
               <div>
                 <label className="block text-base font-medium mb-3 text-stone-200">
                   📝 Wat is de opdracht? *
@@ -260,7 +260,7 @@ export default function HomePage() {
                   Locatie & Werkplek
                 </h3>
 
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div>
                     <label className="block text-base font-medium mb-3 text-stone-200">
                       📍 Type locatie *
@@ -332,7 +332,7 @@ export default function HomePage() {
                   Tarief & Details
                 </h3>
 
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div>
                     <label className="block text-base font-medium mb-3 text-stone-200">
                       💰 Uurtarief (€) *
@@ -677,7 +677,7 @@ export default function HomePage() {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:via-emerald-500 hover:to-teal-500 text-white rounded-full shadow-2xl hover:scale-110 transition-all duration-200 flex items-center justify-center z-40"
+          className="fixed bottom-6 right-6 w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:via-emerald-500 hover:to-teal-500 text-white rounded-full shadow-2xl hover:scale-110 transition-all duration-200 flex items-center justify-center z-40"
           style={{ boxShadow: '0 0 40px rgba(16, 185, 129, 0.4), 0 0 80px rgba(16, 185, 129, 0.2)' }}
         >
           <span className="text-3xl md:text-4xl font-bold">+</span>
