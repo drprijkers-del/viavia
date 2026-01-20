@@ -38,8 +38,29 @@ export default function OpdrachtDetailClient({ opdracht, slug }: OpdrachtDetailC
     const encoded = btoa(JSON.stringify(opdrachtData));
     const shareUrl = `${window.location.origin}/import-opdracht?data=${encoded}`;
 
-    navigator.clipboard.writeText(shareUrl);
-    setShowShareModal(true);
+    // Create a nice WhatsApp message with job details
+    const locationText = opdracht.locatie === "Remote" ? "Remote" : opdracht.locatie === "Hybride" ? "Hybride" : "Op locatie";
+    const description = opdracht.omschrijving.length > 120
+      ? opdracht.omschrijving.substring(0, 120) + "..."
+      : opdracht.omschrijving;
+
+    const whatsappMessage = `💼 *${opdracht.titel}*
+🏢 ${opdracht.bedrijf}
+
+📋 ${description}
+
+💰 €${opdracht.uurtarief}/uur ${opdracht.uren_per_week ? `• ${opdracht.uren_per_week} uur/week` : ''}
+📍 ${locationText}${opdracht.duur_maanden ? ` • ${opdracht.duur_maanden} maanden` : ''}
+
+🔗 Importeer in ViaVia:
+${shareUrl}`;
+
+    if (confirm("Wil je deze opdracht delen via WhatsApp?")) {
+      window.open(`https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`, "_blank");
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      setShowShareModal(true);
+    }
   }
 
   return (
