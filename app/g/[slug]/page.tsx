@@ -27,6 +27,43 @@ export default function GroupBoardPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteCodeInput, setDeleteCodeInput] = useState("");
   const [isCreator, setIsCreator] = useState(false);
+  const [myGroups, setMyGroups] = useState<any[]>([]);
+  const [showGroupSwitcher, setShowGroupSwitcher] = useState(false);
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+
+  // Load user's groups from localStorage and fetch their IDs
+  useEffect(() => {
+    async function loadMyGroups() {
+      const savedGroups = localStorage.getItem("my_groups");
+      if (savedGroups) {
+        try {
+          const groups = JSON.parse(savedGroups);
+
+          // Fetch group IDs for each saved group
+          const groupsWithIds = await Promise.all(
+            groups.map(async (g: any) => {
+              const groupData = await getGroup(g.slug);
+              return {
+                ...g,
+                id: groupData?.id,
+              };
+            })
+          );
+
+          setMyGroups(groupsWithIds.filter(g => g.id)); // Only keep groups that exist
+
+          // Pre-select current group for cross-posting
+          if (group) {
+            setSelectedGroups([group.id]);
+          }
+        } catch (e) {
+          console.error("Error loading groups:", e);
+        }
+      }
+    }
+
+    loadMyGroups();
+  }, [group]);
 
   // Load group data
   useEffect(() => {
@@ -112,8 +149,14 @@ export default function GroupBoardPage() {
     const formData = new FormData(form);
 
     try {
+      // Get group IDs from localStorage for selected groups
+      const groupIds = selectedGroups.length > 0
+        ? selectedGroups
+        : [group.id];
+
       const data: CreateOpdracht = {
         groupId: group.id,
+        groupIds: groupIds, // Pass all selected groups
         titel: formData.get("titel") as string,
         bedrijf: formData.get("bedrijf") as string,
         omschrijving: formData.get("omschrijving") as string,
@@ -132,7 +175,13 @@ export default function GroupBoardPage() {
       if (result.success) {
         form.reset();
         setShowForm(false);
+        setSelectedGroups([group.id]); // Reset to current group
         await loadOpdrachten();
+
+        // Show success message if posted to multiple groups
+        if (result.count && result.count > 1) {
+          alert(`Opdracht geplaatst in ${result.count} groepen!`);
+        }
       } else {
         setError(result.error || "Er is iets misgegaan");
       }
@@ -142,6 +191,18 @@ export default function GroupBoardPage() {
     } finally {
       setFormLoading(false);
     }
+  }
+
+  function toggleGroupSelection(groupId: string) {
+    setSelectedGroups(prev => {
+      if (prev.includes(groupId)) {
+        // Don't allow deselecting all groups
+        if (prev.length === 1) return prev;
+        return prev.filter(id => id !== groupId);
+      } else {
+        return [...prev, groupId];
+      }
+    });
   }
 
   function dismissBanner() {
@@ -255,9 +316,67 @@ export default function GroupBoardPage() {
         <div className="max-w-2xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-white">
-                {group.name || "ViaVia"}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-white">
+                  {group.name || "ViaVia"}
+                </h1>
+                {/* Group switcher - only show if user has multiple groups */}
+                {myGroups.length > 1 && !showForm && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowGroupSwitcher(!showGroupSwitcher)}
+                      className="text-gray-400 hover:text-white p-1 rounded transition-colors"
+                      title="Wissel van groep"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                      </svg>
+                    </button>
+
+                    {showGroupSwitcher && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowGroupSwitcher(false)}
+                        />
+                        <div className="absolute left-0 top-full mt-2 w-64 bg-[#1A1A1A] border border-gray-800 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
+                          {myGroups.map((g: any) => (
+                            <Link
+                              key={g.slug}
+                              href={`/g/${g.slug}`}
+                              className={`block px-4 py-3 hover:bg-white/5 transition-colors ${
+                                g.slug === slug ? 'bg-white/5' : ''
+                              }`}
+                              onClick={() => setShowGroupSwitcher(false)}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                                  {g.name?.charAt(0).toUpperCase() || "V"}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-white text-sm font-medium truncate">
+                                    {g.name || "ViaVia"}
+                                  </p>
+                                  {g.slug === slug && (
+                                    <p className="text-xs text-emerald-500">Actief</p>
+                                  )}
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                          <Link
+                            href="/"
+                            className="block px-4 py-3 border-t border-gray-800 hover:bg-white/5 transition-colors text-sm text-emerald-500"
+                            onClick={() => setShowGroupSwitcher(false)}
+                          >
+                            + Nieuwe groep maken
+                          </Link>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
               <p className="text-sm text-gray-500 mt-0.5">
                 Altijd het overzicht, zonder terugscrollen in WhatsApp.
               </p>
@@ -363,6 +482,49 @@ export default function GroupBoardPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Group selector - only show if user has multiple groups */}
+              {myGroups.length > 1 && (
+                <div className="mb-6 pb-6 border-b border-gray-800/50">
+                  <label className="block text-sm text-gray-400 mb-3">
+                    Plaats in groepen (selecteer één of meer)
+                  </label>
+                  <div className="space-y-2">
+                    {myGroups.map((g: any) => {
+                      const isSelected = selectedGroups.includes(g.id);
+                      return (
+                        <label
+                          key={g.id}
+                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                            isSelected
+                              ? 'bg-emerald-500/10 border border-emerald-500/30'
+                              : 'bg-[#0A0A0A] border border-gray-800 hover:border-gray-700'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleGroupSelection(g.id)}
+                            className="w-4 h-4 rounded border-gray-700 bg-[#0A0A0A] text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
+                            disabled={formLoading}
+                          />
+                          <div className="flex items-center gap-2 flex-1">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                              {g.name?.charAt(0).toUpperCase() || "V"}
+                            </div>
+                            <span className="text-white text-sm">
+                              {g.name || "ViaVia"}
+                            </span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-gray-600 mt-3">
+                    {selectedGroups.length} {selectedGroups.length === 1 ? 'groep' : 'groepen'} geselecteerd
+                  </p>
+                </div>
+              )}
+
               {/* Inline inputs - WhatsApp style */}
               <div className="flex items-center gap-3 text-base">
                 <label className="text-gray-400 w-32 flex-shrink-0">Functie:</label>

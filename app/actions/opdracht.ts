@@ -8,7 +8,8 @@ import {
 } from "@/lib/utils";
 
 export interface CreateOpdracht {
-  groupId: string; // required for group association
+  groupId: string; // required for group association (can be single or first in array)
+  groupIds?: string[]; // optional: post to multiple groups
   titel: string;
   bedrijf: string;
   omschrijving: string;
@@ -43,26 +44,40 @@ export async function createOpdracht(data: CreateOpdracht) {
   try {
     const normalizedPhone = normalizePhoneNumber(data.plaatser_whatsapp);
 
-    const opdracht = await db.opdracht.create({
-      data: {
-        group_id: data.groupId,
-        titel: data.titel.trim(),
-        bedrijf: data.bedrijf.trim(),
-        omschrijving: data.omschrijving.trim(),
-        uurtarief: data.uurtarief,
-        locatie: data.locatie,
-        locatie_detail: data.locatie_detail?.trim() || null,
-        uren_per_week: data.uren_per_week || null,
-        duur_maanden: data.duur_maanden || null,
-        teamgrootte: data.teamgrootte?.trim() || null,
-        plaatser_naam: data.plaatser_naam.trim(),
-        plaatser_whatsapp: normalizedPhone,
-        status: "OPEN",
-        edit_token: generateEditToken(),
-      },
-    });
+    // Determine which groups to post to
+    const targetGroups = data.groupIds && data.groupIds.length > 0
+      ? data.groupIds
+      : [data.groupId];
 
-    return { success: true, opdrachtId: opdracht.id };
+    // Create opdracht for each selected group
+    const createdOpdrachten = await Promise.all(
+      targetGroups.map(groupId =>
+        db.opdracht.create({
+          data: {
+            group_id: groupId,
+            titel: data.titel.trim(),
+            bedrijf: data.bedrijf.trim(),
+            omschrijving: data.omschrijving.trim(),
+            uurtarief: data.uurtarief,
+            locatie: data.locatie,
+            locatie_detail: data.locatie_detail?.trim() || null,
+            uren_per_week: data.uren_per_week || null,
+            duur_maanden: data.duur_maanden || null,
+            teamgrootte: data.teamgrootte?.trim() || null,
+            plaatser_naam: data.plaatser_naam.trim(),
+            plaatser_whatsapp: normalizedPhone,
+            status: "OPEN",
+            edit_token: generateEditToken(),
+          },
+        })
+      )
+    );
+
+    return {
+      success: true,
+      opdrachtId: createdOpdrachten[0].id,
+      count: createdOpdrachten.length
+    };
   } catch (error) {
     console.error("Error creating opdracht:", error);
     return { error: "Er is iets misgegaan bij het aanmaken van de opdracht" };
