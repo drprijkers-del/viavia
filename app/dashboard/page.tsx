@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import ViaViaLogo from "@/app/components/ViaViaLogo";
 import Link from "next/link";
+import OpenInAppBanner from "@/app/components/OpenInAppBanner";
 
 export default async function DashboardPage() {
   // Check if auth is configured
@@ -86,6 +87,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="app-frame-wide">
+      <OpenInAppBanner />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <ViaViaLogo size="sm" href="/dashboard" />

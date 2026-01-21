@@ -2,11 +2,13 @@
   "name": "ViaVia",
   "short_name": "ViaVia",
   "description": "Freelance opdrachten, zonder WhatsApp-scrollen",
-  "start_url": "/",
+  "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#2C2C2E",
   "theme_color": "#34C759",
   "orientation": "portrait",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192.svg",
