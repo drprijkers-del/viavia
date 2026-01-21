@@ -45,7 +45,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
       </head>
-      <body className="bg-[#2C2C2E] text-gray-100 antialiased">
+      <body className="antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

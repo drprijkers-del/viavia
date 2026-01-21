@@ -267,8 +267,8 @@ ${url}
       <div className="app-frame">
         <div className="app-container flex items-center justify-center" style={{ minHeight: "80vh" }}>
           <div className="text-center">
-            <div className="animate-spin w-10 h-10 border-2 border-[#34C759] border-t-transparent rounded-full mx-auto mb-3"></div>
-            <p className="text-secondary">Laden...</p>
+            <div className="animate-spin w-10 h-10 border-2 border-accent border-t-transparent rounded-full mx-auto mb-3"></div>
+            <p className="text-muted">Laden...</p>
           </div>
         </div>
       </div>
@@ -301,7 +301,7 @@ ${url}
         {/* Toast */}
         {toast.show && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
-            <div className="bg-[#2C2C2E] border border-[#34C759]/30 rounded-full px-6 py-3 shadow-lg">
+            <div className="bg-surface border border-accent/30 rounded-full px-6 py-3 shadow-lg">
               <p className="text-white text-sm font-medium">{toast.message}</p>
             </div>
           </div>
@@ -314,7 +314,7 @@ ${url}
               <h2 className="text-xl font-semibold text-white mb-2">
                 Groep verwijderen
               </h2>
-              <p className="text-secondary mb-2">
+              <p className="text-muted mb-2">
                 Weet je zeker dat je <span className="text-white font-semibold">{groupToDelete.name}</span> wilt verwijderen?
               </p>
               <p className="text-[#FF453A] text-sm mb-6">
@@ -322,7 +322,7 @@ ${url}
               </p>
 
               <div className="mb-6">
-                <label className="block text-sm text-secondary mb-2">
+                <label className="block text-sm text-muted mb-2">
                   Voer de groepscode in ter bevestiging:
                 </label>
                 <input
@@ -363,7 +363,7 @@ ${url}
 
         {/* Share Banner */}
         {showBanner && (
-          <div className="card mb-6 bg-[#34C759]/10 border border-[#34C759]/30">
+          <div className="card mb-6 bg-[#34C759]/10 border border-accent/30">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -399,7 +399,7 @@ ${url}
               <h2 className="text-xl font-semibold text-white mb-2">
                 In welke groepen plaatsen?
               </h2>
-              <p className="text-secondary text-sm mb-6">
+              <p className="text-muted text-sm mb-6">
                 Selecteer één of meer groepen waar je deze opdracht wilt plaatsen
               </p>
               <div className="list-gap mb-6 max-h-60 overflow-y-auto">
@@ -409,7 +409,7 @@ ${url}
                     <label
                       key={g.id}
                       className={`card card-interactive ${
-                        isSelected ? 'bg-[#34C759]/10 border border-[#34C759]/30' : ''
+                        isSelected ? 'bg-[#34C759]/10 border border-accent/30' : ''
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -417,9 +417,9 @@ ${url}
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleGroupSelection(g.id)}
-                          className="w-4 h-4 rounded border-[#3A3A3C] bg-[#1C1C1E] text-[#34C759] focus:ring-[#34C759] focus:ring-offset-0"
+                          className="w-4 h-4 rounded border-border bg-bg text-accent focus:ring-[#34C759] focus:ring-offset-0"
                         />
-                        <div className="w-6 h-6 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-xs font-bold">
+                        <div className="w-6 h-6 rounded-full bg-linear-to-br from-accent to-green-600 flex items-center justify-center text-white text-xs font-bold">
                           {g.name?.charAt(0).toUpperCase() || "V"}
                         </div>
                         <span className="text-white text-sm">
@@ -504,7 +504,7 @@ ${url}
               <h2 className="text-xl font-semibold text-white">Nieuwe opdracht</h2>
               <button
                 onClick={() => setShowForm(false)}
-                className="text-sm text-secondary hover:text-white transition-colors"
+                className="text-sm text-muted hover:text-white transition-colors"
               >
                 Annuleer
               </button>
@@ -518,17 +518,17 @@ ${url}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {myGroups.length > 1 && selectedGroups.length > 0 && (
-                <div className="mb-6 pb-6 border-b border-[#3A3A3C]">
-                  <label className="block text-sm text-secondary mb-3">
+                <div className="mb-6 pb-6 border-b border-border">
+                  <label className="block text-sm text-muted mb-3">
                     Plaatsen in {selectedGroups.length} groep{selectedGroups.length === 1 ? '' : 'en'}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {myGroups.filter(g => selectedGroups.includes(g.id)).map((g: any) => (
                       <div
                         key={g.id}
-                        className="bg-[#34C759]/10 border border-[#34C759]/30 px-3 py-1.5 rounded-lg flex items-center gap-2"
+                        className="bg-[#34C759]/10 border border-accent/30 px-3 py-1.5 rounded-lg flex items-center gap-2"
                       >
-                        <div className="w-4 h-4 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-xs font-bold">
+                        <div className="w-4 h-4 rounded-full bg-linear-to-br from-accent to-green-600 flex items-center justify-center text-white text-xs font-bold">
                           {g.name?.charAt(0).toUpperCase() || "V"}
                         </div>
                         <span className="text-white text-sm">{g.name || "ViaVia"}</span>
@@ -552,17 +552,17 @@ ${url}
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm text-secondary mb-1">Functie</label>
+                  <label className="block text-sm text-muted mb-1">Functie</label>
                   <input type="text" name="titel" className="input" placeholder="Senior React Developer" required disabled={formLoading} />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-secondary mb-1">Bedrijf</label>
+                  <label className="block text-sm text-muted mb-1">Bedrijf</label>
                   <input type="text" name="bedrijf" className="input" placeholder="Coolblue" required disabled={formLoading} />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-secondary mb-1">Uurtarief</label>
+                  <label className="block text-sm text-muted mb-1">Uurtarief</label>
                   <div className="flex items-center gap-2">
                     <span className="text-tertiary">€</span>
                     <input type="number" name="uurtarief" className="input" placeholder="100" min="0" step="5" required disabled={formLoading} />
@@ -571,7 +571,7 @@ ${url}
                 </div>
 
                 <div>
-                  <label className="block text-sm text-secondary mb-1">Locatie</label>
+                  <label className="block text-sm text-muted mb-1">Locatie</label>
                   <select name="locatie" className="input" required disabled={formLoading}>
                     <option value="Remote">Remote</option>
                     <option value="Hybride">Hybride</option>
@@ -580,39 +580,39 @@ ${url}
                 </div>
 
                 <div>
-                  <label className="block text-sm text-secondary mb-1">Plaats (optioneel)</label>
+                  <label className="block text-sm text-muted mb-1">Plaats (optioneel)</label>
                   <input type="text" name="locatie_detail" className="input" placeholder="Amsterdam" disabled={formLoading} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm text-secondary mb-1">Uren/week</label>
+                    <label className="block text-sm text-muted mb-1">Uren/week</label>
                     <input type="number" name="uren_per_week" className="input" placeholder="32" min="0" max="40" disabled={formLoading} />
                   </div>
                   <div>
-                    <label className="block text-sm text-secondary mb-1">Duur (mnd)</label>
+                    <label className="block text-sm text-muted mb-1">Duur (mnd)</label>
                     <input type="number" name="duur_maanden" className="input" placeholder="6" min="1" max="24" disabled={formLoading} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm text-secondary mb-1">Team (optioneel)</label>
+                  <label className="block text-sm text-muted mb-1">Team (optioneel)</label>
                   <input type="text" name="teamgrootte" className="input" placeholder="2-5" disabled={formLoading} />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-secondary mb-1">Omschrijving</label>
+                  <label className="block text-sm text-muted mb-1">Omschrijving</label>
                   <textarea name="omschrijving" className="textarea" placeholder="Korte beschrijving" rows={3} maxLength={280} required disabled={formLoading} />
                 </div>
 
-                <div className="border-t border-[#3A3A3C] pt-4 mt-4">
+                <div className="border-t border-border pt-4 mt-4">
                   <div>
-                    <label className="block text-sm text-secondary mb-1">Jouw naam</label>
+                    <label className="block text-sm text-muted mb-1">Jouw naam</label>
                     <input type="text" name="plaatser_naam" className="input" placeholder="John Doe" required disabled={formLoading} />
                   </div>
 
                   <div className="mt-3">
-                    <label className="block text-sm text-secondary mb-1">WhatsApp</label>
+                    <label className="block text-sm text-muted mb-1">WhatsApp</label>
                     <input type="tel" name="plaatser_whatsapp" className="input" placeholder="+31612345678" required disabled={formLoading} />
                   </div>
                 </div>
@@ -630,8 +630,8 @@ ${url}
           <div className="list-gap">
             {loading ? (
               <div className="text-center py-16">
-                <div className="animate-spin w-10 h-10 border-2 border-[#34C759] border-t-transparent rounded-full mx-auto mb-3"></div>
-                <p className="text-secondary">Laden...</p>
+                <div className="animate-spin w-10 h-10 border-2 border-accent border-t-transparent rounded-full mx-auto mb-3"></div>
+                <p className="text-muted">Laden...</p>
               </div>
             ) : filteredOpdrachten.length === 0 && opdrachten.length === 0 ? (
               <>
@@ -648,7 +648,7 @@ ${url}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-medium mb-0.5">Plaats je opdracht hier...</h3>
-                      <p className="text-sm text-secondary mb-1.5">Je bedrijfsnaam</p>
+                      <p className="text-sm text-muted mb-1.5">Je bedrijfsnaam</p>
                       <div className="meta-info text-xs">
                         <span className="text-accent font-semibold">€85/uur</span>
                         <span className="meta-separator"></span>
@@ -667,7 +667,7 @@ ${url}
               </>
             ) : filteredOpdrachten.length === 0 ? (
               <div className="text-center py-16">
-                <p className="text-secondary">Geen resultaten voor "{searchQuery}"</p>
+                <p className="text-muted">Geen resultaten voor "{searchQuery}"</p>
               </div>
             ) : (
               filteredOpdrachten.map((job, index) => {
@@ -682,7 +682,7 @@ ${url}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <div className="flex gap-3">
-                      <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-lg font-bold shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-linear-to-br from-accent to-green-600 flex items-center justify-center text-white text-lg font-bold shrink-0">
                         {job.bedrijf?.charAt(0).toUpperCase() || "?"}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -690,7 +690,7 @@ ${url}
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
                               <h3 className="text-white font-medium leading-tight">{job.titel}</h3>
-                              <p className="text-sm text-secondary">{job.bedrijf}</p>
+                              <p className="text-sm text-muted">{job.bedrijf}</p>
                             </div>
                             {isNew && (
                               <span className="badge badge-open text-[10px] px-2 py-0.5 shrink-0">NIEUW</span>

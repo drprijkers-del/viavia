@@ -60,7 +60,7 @@ export default function NewJobPage() {
         <div className="flex items-center justify-between mb-8 mt-6">
           <ViaViaLogo size="sm" />
           <Link href="/dashboard">
-            <button className="text-sm text-secondary hover:text-white transition-colors">
+            <button className="text-sm text-muted hover:text-white transition-colors">
               ← Dashboard
             </button>
           </Link>
@@ -71,7 +71,7 @@ export default function NewJobPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Functie *</label>
+              <label className="block text-sm text-muted mb-2">Functie *</label>
               <input
                 type="text"
                 name="title"
@@ -84,7 +84,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Bedrijf *</label>
+              <label className="block text-sm text-muted mb-2">Bedrijf *</label>
               <input
                 type="text"
                 name="company"
@@ -97,7 +97,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Omschrijving *</label>
+              <label className="block text-sm text-muted mb-2">Omschrijving *</label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -110,7 +110,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Uurtarief (€) *</label>
+              <label className="block text-sm text-muted mb-2">Uurtarief (€) *</label>
               <input
                 type="number"
                 name="rate"
@@ -124,7 +124,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Locatie *</label>
+              <label className="block text-sm text-muted mb-2">Locatie *</label>
               <select
                 name="locationType"
                 value={formData.locationType}
@@ -148,7 +148,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Uren per week</label>
+              <label className="block text-sm text-muted mb-2">Uren per week</label>
               <input
                 type="number"
                 name="hoursPerWeek"
@@ -162,7 +162,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Duur (maanden)</label>
+              <label className="block text-sm text-muted mb-2">Duur (maanden)</label>
               <input
                 type="number"
                 name="months"
@@ -175,7 +175,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Teamgrootte</label>
+              <label className="block text-sm text-muted mb-2">Teamgrootte</label>
               <input
                 type="text"
                 name="teamSize"
@@ -187,7 +187,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">Jouw naam *</label>
+              <label className="block text-sm text-muted mb-2">Jouw naam *</label>
               <input
                 type="text"
                 name="posterName"
@@ -200,7 +200,7 @@ export default function NewJobPage() {
             </div>
 
             <div className="card">
-              <label className="block text-sm text-secondary mb-2">WhatsApp nummer *</label>
+              <label className="block text-sm text-muted mb-2">WhatsApp nummer *</label>
               <input
                 type="tel"
                 name="posterWhatsapp"

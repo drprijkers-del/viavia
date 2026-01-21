@@ -79,7 +79,7 @@ ${shareUrl}`;
               <h2 className="text-xl font-semibold text-white mb-2">
                 Opdracht gedeeld!
               </h2>
-              <p className="text-secondary mb-6">
+              <p className="text-muted mb-6">
                 De link is gekopieerd. Deel deze met anderen zodat zij deze opdracht kunnen importeren.
               </p>
               <button
@@ -100,7 +100,7 @@ ${shareUrl}`;
           </div>
           <div className="flex items-center justify-between">
             <Link href={`/g/${slug}`}>
-              <button className="text-sm text-secondary hover:text-white transition-colors">
+              <button className="text-sm text-muted hover:text-white transition-colors">
                 ← Terug
               </button>
             </Link>
@@ -121,7 +121,7 @@ ${shareUrl}`;
             <h1 className={`text-2xl font-bold mb-1 leading-tight ${isFilled ? "line-through text-tertiary" : "text-white"}`}>
               {opdracht.titel}
             </h1>
-            <p className="text-lg text-secondary mb-3">{opdracht.bedrijf}</p>
+            <p className="text-lg text-muted mb-3">{opdracht.bedrijf}</p>
             <div className="flex items-center gap-2">
               {opdracht.group && (
                 <Link href={`/g/${opdracht.group.slug}`}>
@@ -139,7 +139,7 @@ ${shareUrl}`;
           </div>
 
           {/* Key Facts - Single Row */}
-          <div className="mb-6 pb-6 border-b border-[#3A3A3C]">
+          <div className="mb-6 pb-6 border-b border-border">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-tertiary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@ ${shareUrl}`;
 
           {/* Description */}
           <div className="mb-6">
-            <h3 className="text-secondary text-sm mb-2">Omschrijving</h3>
+            <h3 className="text-muted text-sm mb-2">Omschrijving</h3>
             <p className="text-white text-base leading-relaxed whitespace-pre-wrap">
               {displayDescription}
             </p>
@@ -213,9 +213,9 @@ ${shareUrl}`;
           </div>
 
           {/* Contact */}
-          <div className="pt-6 border-t border-[#3A3A3C] mb-6">
+          <div className="pt-6 border-t border-border mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-accent to-green-600 flex items-center justify-center text-white font-bold">
                 {opdracht.plaatser_naam?.charAt(0).toUpperCase() || "?"}
               </div>
               <div>

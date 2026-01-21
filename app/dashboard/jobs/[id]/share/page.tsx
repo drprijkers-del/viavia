@@ -98,94 +98,90 @@ ${jobUrl}`;
 
   if (loading) {
     return (
-      <div className="app-frame">
-        <div className="app-container">
-          <p className="text-center text-secondary mt-12">Laden...</p>
-        </div>
+      <div className="app-frame flex items-center justify-center">
+        <p className="text-muted">Laden...</p>
       </div>
     );
   }
 
   return (
     <div className="app-frame">
-      <div className="app-container pb-24">
-        <div className="flex items-center justify-between mb-8 mt-6">
-          <ViaViaLogo size="sm" />
-          <Link href="/dashboard">
-            <button className="text-sm text-secondary hover:text-white transition-colors">
-              ← Dashboard
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <ViaViaLogo size="sm" />
+        <Link href="/dashboard">
+          <button className="text-sm text-muted hover:text-white transition-colors">
+            ← Dashboard
+          </button>
+        </Link>
+      </div>
+
+      {/* Title */}
+      <h1 className="text-2xl font-bold mb-2">Deel in WhatsApp groepen</h1>
+      <p className="text-muted mb-6">
+        Selecteer in welke groepen je deze opdracht wilt delen
+      </p>
+
+      {groups.length === 0 ? (
+        <div className="card text-center mb-6">
+          <p className="text-muted mb-4">Je hebt nog geen groepen</p>
+          <Link href="/dashboard/groups/new">
+            <button className="btn btn-secondary text-sm">
+              Maak een groep
             </button>
           </Link>
         </div>
-
-        <div className="max-w-md mx-auto">
-          <h1 className="text-2xl font-bold text-white mb-2">Deel in WhatsApp groepen</h1>
-          <p className="text-secondary mb-6">
-            Selecteer in welke groepen je deze opdracht wilt delen
-          </p>
-
-          {groups.length === 0 ? (
-            <div className="card text-center py-8 mb-6">
-              <p className="text-secondary mb-4">Je hebt nog geen groepen</p>
-              <Link href="/dashboard/groups/new">
-                <button className="btn btn-secondary">
-                  Maak een groep
-                </button>
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3 mb-6">
-              {groups.map((group) => (
-                <button
-                  key={group.id}
-                  onClick={() => toggleGroup(group.id)}
-                  className={`card w-full text-left transition-all ${
-                    selectedGroups.includes(group.id)
-                      ? "ring-2 ring-accent"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-semibold">{group.name}</p>
-                      <p className="text-xs text-tertiary">
-                        {group._count.jobShares} opdrachten
-                      </p>
-                    </div>
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      selectedGroups.includes(group.id)
-                        ? "bg-accent border-accent"
-                        : "border-tertiary"
-                    }`}>
-                      {selectedGroups.includes(group.id) && (
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="space-y-3">
+      ) : (
+        <div className="space-y-3 mb-6">
+          {groups.map((group) => (
             <button
-              onClick={handleShare}
-              disabled={sharing || selectedGroups.length === 0}
-              className="btn btn-primary w-full py-4"
+              key={group.id}
+              onClick={() => toggleGroup(group.id)}
+              className={`card w-full text-left transition-all ${
+                selectedGroups.includes(group.id)
+                  ? "border-accent ring-2 ring-accent"
+                  : ""
+              }`}
             >
-              {sharing ? "Bezig..." : `Deel in WhatsApp (${selectedGroups.length})`}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold">{group.name}</p>
+                  <p className="text-xs text-tertiary">
+                    {group._count.jobShares} opdrachten
+                  </p>
+                </div>
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                  selectedGroups.includes(group.id)
+                    ? "bg-accent border-accent"
+                    : "border-tertiary"
+                }`}>
+                  {selectedGroups.includes(group.id) && (
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
             </button>
-
-            <button
-              onClick={copyMessage}
-              className="btn btn-secondary w-full"
-            >
-              Kopieer bericht
-            </button>
-          </div>
+          ))}
         </div>
+      )}
+
+      <div className="space-y-3">
+        <button
+          onClick={handleShare}
+          disabled={sharing || selectedGroups.length === 0}
+          className="btn btn-primary w-full py-4"
+        >
+          {sharing ? "Bezig..." : `Deel in WhatsApp (${selectedGroups.length})`}
+        </button>
+
+        <button
+          onClick={copyMessage}
+          className="btn btn-secondary w-full"
+        >
+          Kopieer bericht
+        </button>
       </div>
     </div>
   );

@@ -73,76 +73,79 @@ export default async function JoinGroupPage({ params }: { params: Promise<{ toke
 
   return (
     <div className="app-frame">
-      <div className="app-container pb-24">
-        <div className="flex items-center justify-between mb-8 mt-6">
-          <ViaViaLogo size="sm" href="/" />
-          <Link href={`/login?callbackUrl=/join/${token}`}>
-            <button className="text-sm text-accent hover:opacity-80 transition-opacity">
-              Inloggen
-            </button>
-          </Link>
-        </div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <ViaViaLogo size="sm" href="/" />
+        <Link href={`/login?callbackUrl=/join/${token}`}>
+          <button className="text-sm text-accent hover:opacity-80 transition-opacity">
+            Inloggen
+          </button>
+        </Link>
+      </div>
 
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
-            {group.name?.charAt(0).toUpperCase() || "V"}
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            {group.name || "ViaVia Groep"}
-          </h1>
-          <p className="text-secondary">
-            {group._count.members} {group._count.members === 1 ? "lid" : "leden"} · {group._count.jobShares} {group._count.jobShares === 1 ? "opdracht" : "opdrachten"}
-          </p>
+      {/* Group Info */}
+      <div className="text-center mb-8">
+        <div className="w-20 h-20 rounded-full bg-linear-to-br from-accent to-green-600 flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
+          {group.name?.charAt(0).toUpperCase() || "V"}
         </div>
+        <h1 className="text-3xl font-bold mb-2">
+          {group.name || "ViaVia Groep"}
+        </h1>
+        <p className="text-muted">
+          {group._count.members} {group._count.members === 1 ? "lid" : "leden"} · {group._count.jobShares} {group._count.jobShares === 1 ? "opdracht" : "opdrachten"}
+        </p>
+      </div>
 
-        <div className="card mb-6 text-center">
-          <h2 className="text-lg font-semibold text-white mb-2">
-            Je bent uitgenodigd!
+      {/* Invite Card */}
+      <div className="card mb-6 text-center">
+        <h2 className="text-lg font-semibold mb-2">
+          Je bent uitgenodigd!
+        </h2>
+        <p className="text-muted text-sm mb-4">
+          Log in om lid te worden en alle opdrachten te zien
+        </p>
+        <Link href={`/login?callbackUrl=/join/${token}`}>
+          <button className="btn btn-primary w-full">
+            Log in om deel te nemen
+          </button>
+        </Link>
+      </div>
+
+      {/* Recent Jobs */}
+      {recentJobs.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold mb-4">
+            Recente opdrachten
           </h2>
-          <p className="text-secondary text-sm mb-4">
-            Log in om lid te worden en alle opdrachten te zien
-          </p>
-          <Link href={`/login?callbackUrl=/join/${token}`}>
-            <button className="btn btn-primary w-full">
-              Log in om deel te nemen
-            </button>
-          </Link>
-        </div>
-
-        {recentJobs.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-white mb-4">
-              Recente opdrachten
-            </h2>
-            <div className="space-y-3">
-              {recentJobs.map((job) => (
-                <Link key={job.id} href={`/jobs/${job.id}`}>
-                  <div className="job-card cursor-pointer">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-white font-semibold flex-1">
-                        {job.title}
-                      </h3>
-                    </div>
-                    <p className="text-sm text-secondary mb-2">{job.company}</p>
-                    <div className="flex items-center gap-2 text-xs text-tertiary">
-                      <span className="text-accent font-semibold">
-                        €{job.rate}/uur
-                      </span>
-                      <span>•</span>
-                      <span>{job.locationType}</span>
-                    </div>
+          <div className="space-y-3">
+            {recentJobs.map((job) => (
+              <Link key={job.id} href={`/jobs/${job.id}`}>
+                <div className="job-card">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold flex-1">
+                      {job.title}
+                    </h3>
                   </div>
-                </Link>
-              ))}
-            </div>
+                  <p className="text-sm text-muted mb-2">{job.company}</p>
+                  <div className="flex items-center gap-2 text-xs text-tertiary">
+                    <span className="text-accent font-semibold">
+                      €{job.rate}/uur
+                    </span>
+                    <span>•</span>
+                    <span>{job.locationType}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
-        )}
-
-        <div className="mt-8 text-center">
-          <p className="text-xs text-tertiary">
-            ViaVia - Freelance opdrachten delen zonder WhatsApp-scrollen
-          </p>
         </div>
+      )}
+
+      {/* Footer */}
+      <div className="mt-8 text-center">
+        <p className="text-xs text-tertiary">
+          ViaVia - Freelance opdrachten delen zonder WhatsApp-scrollen
+        </p>
       </div>
     </div>
   );

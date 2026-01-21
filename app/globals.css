@@ -1,5 +1,54 @@
 @import "tailwindcss";
 
+/* ===================================
+   DESIGN TOKENS - Food App Style
+   =================================== */
+:root {
+  /* Colors - Calm dark gray (NOT black) */
+  --bg: #1C1C1E;
+  --surface: #2C2C2E;
+  --surface2: #3A3A3C;
+  --text: #FFFFFF;
+  --muted: #8E8E93;
+  --border: #3A3A3C;
+  --accent: #34C759;
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.4);
+
+  /* Spacing */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+}
+
+/* ===================================
+   TAILWIND UTILITY OVERRIDES
+   =================================== */
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+}
+
+/* ===================================
+   BASE STYLES
+   =================================== */
 * {
   margin: 0;
   padding: 0;
@@ -11,8 +60,8 @@ html {
 }
 
 body {
-  background: #2C2C2E;
-  color: #F2F2F7;
+  background: var(--bg);
+  color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -22,39 +71,25 @@ body {
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* App Frame */
+/* ===================================
+   APP FRAME - Centered Canvas
+   =================================== */
 .app-frame {
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.app-container {
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
+  padding: var(--space-md);
 }
 
-/* Typography */
-h1 {
-  @apply text-3xl font-bold text-white;
-}
-
-h2 {
-  @apply text-xl font-semibold text-white;
-}
-
-h3 {
-  @apply text-base font-medium text-white;
-}
-
-/* Cards */
+/* ===================================
+   CARDS
+   =================================== */
 .card {
-  background: #3A3A3C;
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
   transition: all 0.2s ease;
 }
 
@@ -68,13 +103,16 @@ h3 {
 }
 
 .card-hover:hover {
-  background: #48484A;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: var(--surface2);
+  box-shadow: var(--shadow-elevated);
 }
 
-/* Buttons */
+/* ===================================
+   BUTTONS
+   =================================== */
 .btn {
-  @apply inline-flex items-center justify-center px-4 py-3 rounded-full font-medium gap-2;
+  @apply inline-flex items-center justify-center px-4 py-3 font-medium gap-2;
+  border-radius: var(--radius-pill);
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
@@ -85,7 +123,7 @@ h3 {
 }
 
 .btn-primary {
-  background: #34C759;
+  background: var(--accent);
   color: white;
   box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
 }
@@ -96,25 +134,48 @@ h3 {
 }
 
 .btn-secondary {
-  background: #48484A;
-  color: #F2F2F7;
+  background: var(--surface2);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  background: #58585A;
+  background: #48484A;
 }
 
 .btn-ghost {
   background: transparent;
-  color: #8E8E93;
+  color: var(--muted);
 }
 
 .btn-ghost:hover {
-  background: #3A3A3C;
-  color: #F2F2F7;
+  background: var(--surface);
+  color: var(--text);
 }
 
-/* Forms */
+/* ===================================
+   FORMS
+   =================================== */
+.input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.input::placeholder {
+  color: #636366;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
+}
+
 input[type="text"],
 input[type="email"],
 input[type="number"],
@@ -123,10 +184,10 @@ select,
 textarea {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: #2C2C2E;
-  border: 1px solid #48484A;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  color: white;
+  color: var(--text);
   font-size: 1rem;
   transition: all 0.2s ease;
 }
@@ -140,7 +201,7 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #34C759;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
 }
 
@@ -149,41 +210,9 @@ textarea {
   resize: vertical;
 }
 
-.input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  background: #2C2C2E;
-  border: 1px solid #48484A;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-}
-
-.input::placeholder {
-  color: #636366;
-}
-
-.input:focus {
-  outline: none;
-  border-color: #34C759;
-  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
-}
-
-.textarea {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  background: #2C2C2E;
-  border: 1px solid #48484A;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  min-height: 100px;
-  resize: vertical;
-}
-
-/* Badge */
+/* ===================================
+   BADGES
+   =================================== */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -197,28 +226,30 @@ textarea {
 
 .badge-open {
   background: rgba(52, 199, 89, 0.15);
-  color: #34C759;
+  color: var(--accent);
 }
 
 .badge-filled {
-  background: #48484A;
-  color: #8E8E93;
+  background: var(--surface2);
+  color: var(--muted);
 }
 
-/* Job Card */
+/* ===================================
+   JOB CARD
+   =================================== */
 .job-card {
-  background: #3A3A3C;
-  border-radius: 20px;
+  background: var(--surface);
+  border-radius: var(--radius-card);
   padding: 1.25rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-card);
   transition: all 0.2s ease;
   cursor: pointer;
   animation: slideUp 0.3s ease-out;
 }
 
 .job-card:hover {
-  background: #48484A;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: var(--surface2);
+  box-shadow: var(--shadow-elevated);
   transform: translateY(-2px);
 }
 
@@ -226,46 +257,9 @@ textarea {
   transform: scale(0.98);
 }
 
-.job-card-filled {
-  opacity: 0.5;
-}
-
-.job-card-filled .job-title {
-  text-decoration: line-through;
-  color: #8E8E93;
-}
-
-/* Floating Action Button */
-.fab {
-  position: fixed;
-  bottom: calc(1.5rem + env(safe-area-inset-bottom));
-  right: 1.5rem;
-  width: 56px;
-  height: 56px;
-  background: #34C759;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.4);
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-  z-index: 40;
-}
-
-.fab:hover {
-  background: #30B350;
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(52, 199, 89, 0.5);
-}
-
-.fab:active {
-  transform: scale(0.95);
-}
-
-/* Modal */
+/* ===================================
+   MODAL
+   =================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -279,15 +273,47 @@ textarea {
 }
 
 .modal {
-  background: #3A3A3C;
-  border-radius: 20px;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
   padding: 1.5rem;
   max-width: 480px;
   width: 100%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-elevated);
 }
 
-/* Animations */
+/* ===================================
+   TOAST
+   =================================== */
+.toast {
+  position: fixed;
+  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface2);
+  color: var(--text);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-elevated);
+  z-index: 60;
+  animation: toastIn 0.3s ease-out;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -331,16 +357,11 @@ textarea {
   animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Divider */
-.divider {
-  height: 1px;
-  background: #48484A;
-  margin: 1rem 0;
-}
-
-/* Text Colors */
+/* ===================================
+   UTILITY CLASSES
+   =================================== */
 .text-primary {
-  color: #F2F2F7;
+  color: var(--text);
 }
 
 .text-secondary {
@@ -352,25 +373,27 @@ textarea {
 }
 
 .text-accent {
-  color: #34C759;
+  color: var(--accent);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1rem 0;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+.list-gap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #48484A;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #58585A;
+.meta-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
 }
 
 /* Touch Feedback */
@@ -383,24 +406,20 @@ textarea {
   opacity: 0.8;
 }
 
-/* List Spacing */
-.list-gap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Meta Info */
-.meta-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: #8E8E93;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.meta-separator::before {
-  content: "•";
-  margin: 0 0.375rem;
-  color: #636366;
+::-webkit-scrollbar-thumb {
+  background: var(--surface2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #48484A;
 }
