@@ -11,7 +11,7 @@ html {
 }
 
 body {
-  background: #1C1C1E;
+  background: #2C2C2E;
   color: #F2F2F7;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
@@ -19,7 +19,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* App Frame */
@@ -51,10 +51,10 @@ h3 {
 
 /* Cards */
 .card {
-  background: #2C2C2E;
-  border-radius: 16px;
-  padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: #3A3A3C;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
 
@@ -68,8 +68,8 @@ h3 {
 }
 
 .card-hover:hover {
-  background: #323234;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background: #48484A;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 /* Buttons */
@@ -96,12 +96,12 @@ h3 {
 }
 
 .btn-secondary {
-  background: #3A3A3C;
+  background: #48484A;
   color: #F2F2F7;
 }
 
 .btn-secondary:hover {
-  background: #48484A;
+  background: #58585A;
 }
 
 .btn-ghost {
@@ -110,20 +110,21 @@ h3 {
 }
 
 .btn-ghost:hover {
-  background: #2C2C2E;
+  background: #3A3A3C;
   color: #F2F2F7;
 }
 
 /* Forms */
 input[type="text"],
+input[type="email"],
 input[type="number"],
 input[type="tel"],
 select,
 textarea {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: #1C1C1E;
-  border: 1px solid #3A3A3C;
+  background: #2C2C2E;
+  border: 1px solid #48484A;
   border-radius: 12px;
   color: white;
   font-size: 1rem;
@@ -151,8 +152,8 @@ textarea {
 .input {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: #1C1C1E;
-  border: 1px solid #3A3A3C;
+  background: #2C2C2E;
+  border: 1px solid #48484A;
   border-radius: 12px;
   color: white;
   font-size: 1rem;
@@ -172,8 +173,8 @@ textarea {
 .textarea {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: #1C1C1E;
-  border: 1px solid #3A3A3C;
+  background: #2C2C2E;
+  border: 1px solid #48484A;
   border-radius: 12px;
   color: white;
   font-size: 1rem;
@@ -200,24 +201,24 @@ textarea {
 }
 
 .badge-filled {
-  background: #3A3A3C;
+  background: #48484A;
   color: #8E8E93;
 }
 
 /* Job Card */
 .job-card {
-  background: #2C2C2E;
-  border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: #3A3A3C;
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
   animation: slideUp 0.3s ease-out;
 }
 
 .job-card:hover {
-  background: #323234;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: #48484A;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
 }
 
@@ -237,7 +238,7 @@ textarea {
 /* Floating Action Button */
 .fab {
   position: fixed;
-  bottom: 1.5rem;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
   right: 1.5rem;
   width: 56px;
   height: 56px;
@@ -278,12 +279,12 @@ textarea {
 }
 
 .modal {
-  background: #2C2C2E;
+  background: #3A3A3C;
   border-radius: 20px;
   padding: 1.5rem;
   max-width: 480px;
   width: 100%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Animations */
@@ -333,7 +334,7 @@ textarea {
 /* Divider */
 .divider {
   height: 1px;
-  background: #3A3A3C;
+  background: #48484A;
   margin: 1rem 0;
 }
 
@@ -364,12 +365,12 @@ textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3A3A3C;
+  background: #48484A;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #48484A;
+  background: #58585A;
 }
 
 /* Touch Feedback */

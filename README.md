@@ -159,3 +159,45 @@ Enjoy! 🎉
 ---
 
 Built with ❤️ for WhatsApp freelance communities.
+
+## 🔐 Environment Variables
+
+Required for production:
+
+```bash
+# Database
+POSTGRES_URL="postgresql://..."
+
+# Auth
+NEXTAUTH_URL="https://yourdomain.com"
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+
+# Email (Resend)
+AUTH_RESEND_KEY="re_..."
+EMAIL_FROM="noreply@yourdomain.com"
+```
+
+## 📱 PWA Installation Testing
+
+### iOS (Safari)
+1. Open app in Safari
+2. Tap Share button (⬆️)
+3. Scroll and tap "Add to Home Screen"
+4. Tap "Add"
+
+### Android (Chrome)
+1. Open app in Chrome
+2. Look for install prompt (auto-appears)
+3. Or: Menu (⋮) → "Install app"
+
+## 🔑 Auth Setup
+
+This app uses **NextAuth.js** with **magic link authentication** via Resend.
+
+1. Sign up at [resend.com](https://resend.com)
+2. Get API key
+3. Add `AUTH_RESEND_KEY` to `.env.local`
+4. Set `EMAIL_FROM` to verified sender
+5. Generate `NEXTAUTH_SECRET`: `openssl rand -base64 32`
+
+No password required—users receive email login links.

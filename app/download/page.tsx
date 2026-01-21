@@ -24,7 +24,7 @@ export default function DownloadPage() {
 
   async function handleInstall() {
     if (!installPrompt) {
-      alert("Installeren niet beschikbaar. Gebruik het browsermenu of volg de instructies hieronder.");
+      alert("Gebruik het browsermenu of volg de instructies hieronder om te installeren.");
       return;
     }
 
@@ -43,7 +43,7 @@ export default function DownloadPage() {
           <ViaViaLogo size="sm" />
           <Link href="/">
             <button className="text-sm text-secondary hover:text-white transition-colors">
-              ← Terug
+              ← Home
             </button>
           </Link>
         </div>
@@ -51,37 +51,37 @@ export default function DownloadPage() {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white mb-3">
-              Download ViaVia
+              Installeer ViaVia
             </h1>
             <p className="text-secondary">
-              Installeer ViaVia als app op je apparaat
+              Gebruik ViaVia als app op je telefoon
             </p>
           </div>
 
           {/* QR Code */}
-          <div className="card text-center mb-8">
+          <div className="card text-center mb-6">
             <div className="inline-block p-4 bg-white rounded-xl">
               <QRCodeSVG
                 value={appUrl}
-                size={200}
+                size={180}
                 level="M"
                 includeMargin={false}
               />
             </div>
             <p className="text-sm text-tertiary mt-4">
-              Scan met je telefoon om ViaVia te openen
+              Scan met je telefoon
             </p>
           </div>
 
           {/* Install Buttons */}
-          <div className="flex flex-col gap-4 mb-8">
+          <div className="flex flex-col gap-3 mb-8">
             <button
               onClick={handleInstall}
               className="btn btn-primary py-4 text-lg"
             >
               Installeer ViaVia
             </button>
-            <Link href="/dashboard">
+            <Link href="/app">
               <button className="btn btn-secondary py-4 text-lg w-full">
                 Open app
               </button>
@@ -97,8 +97,8 @@ export default function DownloadPage() {
               </h2>
               <ol className="text-sm text-secondary space-y-2 list-decimal list-inside">
                 <li>Open ViaVia in <strong>Safari</strong></li>
-                <li>Tik op het <strong>Deel</strong>-icoon (⬆️) onderaan</li>
-                <li>Scroll naar beneden en tik op <strong>&apos;Zet op beginscherm&apos;</strong></li>
+                <li>Tik op <strong>Deel</strong> (⬆️)</li>
+                <li>Kies <strong>&apos;Zet op beginscherm&apos;</strong></li>
                 <li>Tik op <strong>&apos;Voeg toe&apos;</strong></li>
               </ol>
             </div>
@@ -110,17 +110,11 @@ export default function DownloadPage() {
               </h2>
               <ol className="text-sm text-secondary space-y-2 list-decimal list-inside">
                 <li>Open ViaVia in <strong>Chrome</strong></li>
-                <li>Tik op het <strong>menu</strong> (⋮) rechtsboven</li>
-                <li>Tik op <strong>&apos;App installeren&apos;</strong> of <strong>&apos;Toevoegen aan startscherm&apos;</strong></li>
+                <li>Tik op het <strong>menu</strong> (⋮)</li>
+                <li>Kies <strong>&apos;App installeren&apos;</strong></li>
                 <li>Tik op <strong>&apos;Installeren&apos;</strong></li>
               </ol>
             </div>
-          </div>
-
-          <div className="card mt-8 text-center">
-            <p className="text-sm text-tertiary">
-              Na installatie werkt ViaVia als een normale app op je telefoon
-            </p>
           </div>
         </div>
       </div>
