@@ -29,6 +29,7 @@ export default function GroupBoardPage() {
   const [groupToDelete, setGroupToDelete] = useState<{ slug: string; name: string; code: string } | null>(null);
   const [deleteCodeInput, setDeleteCodeInput] = useState("");
   const [deleteError, setDeleteError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function loadMyGroups() {
@@ -422,7 +423,7 @@ ${url}
         )}
 
         {/* Header */}
-        <div className="text-center mb-8 mt-6">
+        <div className="text-center mb-6 mt-6">
           <h1 className="text-2xl font-bold text-white mb-1">
             {group.name || "ViaVia"}
           </h1>
@@ -430,6 +431,24 @@ ${url}
             Altijd het overzicht, geen scrollen in WhatsApp
           </p>
         </div>
+
+        {/* Search Bar */}
+        {!showForm && opdrachten.length > 0 && (
+          <div className="mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Zoek op functie, bedrijf..."
+                className="input pl-10"
+              />
+              <svg className="w-5 h-5 text-tertiary absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+        )}
 
         {/* Form */}
         {showForm && (
@@ -600,7 +619,17 @@ ${url}
                 </div>
               </>
             ) : (
-              opdrachten.map((job) => {
+              opdrachten
+                .filter((job) => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    job.titel?.toLowerCase().includes(query) ||
+                    job.bedrijf?.toLowerCase().includes(query) ||
+                    job.omschrijving?.toLowerCase().includes(query)
+                  );
+                })
+                .map((job) => {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const reactiesCount = job._count?.reacties || 0;
 
