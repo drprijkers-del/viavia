@@ -14,7 +14,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await signIn("resend", { email, redirect: false });
+      const result = await signIn("resend", {
+        email,
+        redirect: false,
+        callbackUrl: "/dashboard"
+      });
+      console.log("SignIn result:", result);
       setSent(true);
     } catch (error) {
       console.error("Login error:", error);
