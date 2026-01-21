@@ -1,1 +1,2 @@
-92946
+ sleep 6 echo 
+✅ Server gestart. Wacht even... tail -30 dev.log
