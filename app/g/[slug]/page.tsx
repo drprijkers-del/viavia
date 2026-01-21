@@ -672,7 +672,6 @@ ${url}
             ) : (
               filteredOpdrachten.map((job, index) => {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
-                const reactiesCount = job._count?.reacties || 0;
 
                 return (
                   <Link
@@ -711,12 +710,6 @@ ${url}
                             <>
                               <span className="meta-separator"></span>
                               <span>{job.duur_maanden}mnd</span>
-                            </>
-                          )}
-                          {reactiesCount > 0 && (
-                            <>
-                              <span className="meta-separator"></span>
-                              <span className="text-tertiary">{reactiesCount} 💬</span>
                             </>
                           )}
                         </div>

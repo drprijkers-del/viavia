@@ -48,9 +48,6 @@ export async function listOpdrachten(query?: ListOpdrachtQuery) {
             name: true,
           },
         },
-        _count: {
-          select: { reacties: true },
-        },
       },
     });
 
@@ -72,12 +69,6 @@ export async function getOpdracht(id: string) {
             name: true,
           },
         },
-        reacties: {
-          orderBy: { created_at: "desc" as const },
-        },
-        _count: {
-          select: { reacties: true },
-        },
       },
     });
     return opdracht;
@@ -87,11 +78,3 @@ export async function getOpdracht(id: string) {
   }
 }
 
-export async function getReacties(opdrachtId: string) {
-  const reacties = await db.reactie.findMany({
-    where: { opdracht_id: opdrachtId },
-    orderBy: { created_at: "desc" },
-  });
-
-  return reacties;
-}
