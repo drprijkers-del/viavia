@@ -2,7 +2,9 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
 import ViaViaLogo from "@/app/components/ViaViaLogo";
 
@@ -10,6 +12,7 @@ type LoginState = "idle" | "loading" | "success" | "error";
 
 function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const [email, setEmail] = useState("");
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const [state, setState] = useState<LoginState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -17,6 +20,7 @@ function LoginForm({ callbackUrl }: { callbackUrl: string }) {
     e.preventDefault();
     setErrorMessage("");
     setState("loading");
+    setSubmittedEmail(email);
 
     try {
       const result = await signIn("resend", {
@@ -38,47 +42,82 @@ function LoginForm({ callbackUrl }: { callbackUrl: string }) {
     }
   }
 
+  async function handleResend() {
+    setState("loading");
+    setErrorMessage("");
+
+    try {
+      const result = await signIn("resend", {
+        email: submittedEmail,
+        redirect: false,
+        callbackUrl
+      });
+
+      if (result?.error) {
+        setState("error");
+        setErrorMessage("Kon email niet opnieuw versturen. Probeer het later.");
+      } else {
+        setState("success");
+      }
+    } catch (err) {
+      console.error("Resend error:", err);
+      setState("error");
+      setErrorMessage("Er ging iets mis. Probeer het later opnieuw.");
+    }
+  }
+
   if (state === "success") {
     return (
-      <div className="card max-w-sm w-full">
-        <div className="text-center mb-4">
+      <div className="card w-full">
+        <div className="text-center mb-6">
           <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
           <h1 className="text-xl font-bold mb-2">Check je email</h1>
-          <p className="text-muted text-sm mb-4">
+          <p className="text-muted text-sm mb-2">
             We hebben een inloglink gestuurd naar
           </p>
-          <p className="font-medium mb-4">{email}</p>
+          <p className="font-semibold text-accent">{submittedEmail}</p>
         </div>
 
-        <div className="bg-bg rounded-xl p-4 mb-4">
+        <div className="bg-bg rounded-xl p-4 mb-6">
           <p className="text-muted text-sm text-center">
-            Klik op de link in de email om in te loggen. Geen email? Check je spam folder.
+            Klik op de link in de email om in te loggen.
+            <br />
+            <span className="text-tertiary">Geen email? Check je spam folder.</span>
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setState("idle");
-            setEmail("");
-          }}
-          className="w-full text-accent text-sm hover:opacity-80 transition-opacity"
-        >
-          Ander emailadres gebruiken
-        </button>
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={handleResend}
+            className="btn btn-secondary w-full"
+          >
+            Opnieuw versturen
+          </button>
+          <button
+            onClick={() => {
+              setState("idle");
+              setEmail("");
+              setSubmittedEmail("");
+            }}
+            className="text-accent text-sm hover:opacity-80 transition-opacity py-2"
+          >
+            Wijzig emailadres
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="card max-w-sm w-full">
+    <div className="card w-full">
       <div className="text-center mb-6">
-        <h1 className="text-xl font-bold mb-2">Inloggen of registreren</h1>
+        <h1 className="text-xl font-bold mb-2">Inloggen</h1>
         <p className="text-muted text-sm">
-          Vul je email in. We sturen je een inloglink.
+          Geen wachtwoord nodig. We sturen een veilige inloglink.
         </p>
       </div>
 
@@ -134,11 +173,11 @@ function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
 function LoginFormShell() {
   return (
-    <div className="card max-w-sm w-full">
+    <div className="card w-full">
       <div className="text-center mb-6">
-        <h1 className="text-xl font-bold mb-2">Inloggen of registreren</h1>
+        <h1 className="text-xl font-bold mb-2">Inloggen</h1>
         <p className="text-muted text-sm">
-          Vul je email in. We sturen je een inloglink.
+          Geen wachtwoord nodig. We sturen een veilige inloglink.
         </p>
       </div>
       <div>
@@ -162,27 +201,52 @@ function LoginFormShell() {
 
 function LoginWithParams() {
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-  return <LoginForm callbackUrl={callbackUrl} />;
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      router.push(callbackUrl);
+    }
+  }, [status, session, router, callbackUrl]);
+
+  // Show loading while checking session
+  if (status === "loading") {
+    return <LoginFormShell />;
+  }
+
+  // Show form if not logged in
+  if (status === "unauthenticated") {
+    return <LoginForm callbackUrl={callbackUrl} />;
+  }
+
+  // Session exists, will redirect
+  return (
+    <div className="card w-full text-center">
+      <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+      <p className="text-muted">Je wordt doorgestuurd...</p>
+    </div>
+  );
 }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-12">
-        <Link href="/" className="mb-8">
-          <ViaViaLogo size="md" />
-        </Link>
+    <div className="app-frame flex flex-col items-center justify-center" style={{ minHeight: "100vh" }}>
+      <Link href="/" className="mb-8">
+        <ViaViaLogo size="md" />
+      </Link>
 
+      <div className="w-full max-w-sm">
         <Suspense fallback={<LoginFormShell />}>
           <LoginWithParams />
         </Suspense>
-
-        <Link href="/" className="mt-6 text-muted text-sm hover:text-white transition-colors">
-          ← Terug naar home
-        </Link>
       </div>
+
+      <Link href="/" className="mt-6 text-muted text-sm hover:text-white transition-colors">
+        ← Terug naar home
+      </Link>
     </div>
   );
 }
