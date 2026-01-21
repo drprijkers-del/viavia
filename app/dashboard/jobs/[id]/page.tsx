@@ -5,12 +5,13 @@ import { notFound } from "next/navigation";
 import ViaViaLogo from "@/app/components/ViaViaLogo";
 import Link from "next/link";
 
-export default async function JobDetailPage({ params }: { params: { id: string } }) {
+export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const job = await prisma.job.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       createdBy: {
         select: { name: true, email: true }

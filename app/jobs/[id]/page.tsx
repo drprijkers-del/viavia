@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import ViaViaLogo from "@/app/components/ViaViaLogo";
 import Link from "next/link";
 
-export default async function PublicJobPage({ params }: { params: { id: string } }) {
+export default async function PublicJobPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const job = await prisma.job.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       shares: {
         include: {
