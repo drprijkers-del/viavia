@@ -423,3 +423,78 @@ textarea {
 ::-webkit-scrollbar-thumb:hover {
   background: #48484A;
 }
+
+/* ===================================
+   FAB (Floating Action Button)
+   =================================== */
+.fab {
+  position: fixed;
+  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+  right: var(--space-md);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+  transition: all 0.2s ease;
+  z-index: 40;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(52, 199, 89, 0.5);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+/* ===================================
+   APP CONTAINER
+   =================================== */
+.app-container {
+  width: 100%;
+}
+
+/* ===================================
+   META SEPARATOR
+   =================================== */
+.meta-separator {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #636366;
+}
+
+/* ===================================
+   TEXTAREA (explicit)
+   =================================== */
+.textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.textarea::placeholder {
+  color: #636366;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
+}

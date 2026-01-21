@@ -1,203 +1,122 @@
-# ViaVia - Freelance Opdrachtenboard voor WhatsApp Groepen
+# ViaVia - Freelance Opdrachten voor WhatsApp Groepen
 
-Een ultra-lightweight, mobiele-first web-app voor het plaatsen en vinden van freelance opdrachten in WhatsApp groepen. **Geen inloggen. Geen gedoe. Direct contact.**
+Een ultra-lightweight, mobiele-first web-app voor het delen van freelance opdrachten in WhatsApp groepen.
 
-## 🎯 Features
+## Hoe werkt het?
 
-✅ **Opdrachten plaatsen** - Minimale invoer, maximale duidelijkheid  
-✅ **Live board** - Filters op status, locatie, search op titel/skills  
-✅ **Reacties** - Zie wie geïnteresseerd is + aantal reacties  
-✅ **Directe contact** - Contacteer plaatser via WhatsApp  
-✅ **Status beheer** - Markeer opdrachten als ingevuld (via token)  
-✅ **Delen** - Share naar WhatsApp of copy link  
-✅ **Responsief** - Perfect op mobiel (375px+)  
+**Voor groep-beheerders (account vereist):**
+1. Maak een account aan via magic link
+2. Maak een groep aan
+3. Deel de groepslink in je WhatsApp-groep
 
-## 🏗️ Tech Stack
+**Voor groepsleden (geen account nodig):**
+1. Open de gedeelde link
+2. Bekijk alle opdrachten
+3. Plaats zelf opdrachten
+4. Reageer direct via WhatsApp
+
+## Features
+
+- **Publieke groepen** - Iedereen met de link kan opdrachten bekijken en plaatsen
+- **Geen account nodig** - Alleen groep-beheerders hebben een account nodig
+- **WhatsApp integratie** - Direct contact via WhatsApp deep links
+- **PWA** - Installeer als app op je homescreen
+- **Mobiel-first** - Geoptimaliseerd voor smartphones
+
+## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
-- **Database**: SQLite + Prisma ORM
+- **Database**: PostgreSQL + Prisma ORM
+- **Auth**: NextAuth.js met magic link (Resend)
 - **Styling**: TailwindCSS 4
-- **Language**: TypeScript
 - **Deployment**: Vercel
 
-## 🚀 Quick Start
+## Environment Variables
 
-### 1. Install
-```bash
-npm install
-```
-
-### 2. Database
-```bash
-export DATABASE_URL="file:./prisma/dev.db"
-npx prisma migrate dev --name init
-```
-
-### 3. Run
-```bash
-npm run dev
-# Open http://localhost:3000
-```
-
-## 📋 Features Implemented
-
-- ✅ Create opdracht (form with validation)
-- ✅ List board with filters (status, locatie)
-- ✅ Search by title/tags
-- ✅ Detail page with all opdracht info
-- ✅ Reactions with counter
-- ✅ Contact plaatser via WhatsApp (wa.me deep link)
-- ✅ Share opdracht to WhatsApp (native share + fallback copy)
-- ✅ Mark as filled (token-protected, only for plaatser)
-- ✅ Responsive mobile-first design
-- ✅ All UI in Dutch (Nederlands)
-
-## 📦 Environment
-
-Create `.env.local`:
-```env
-DATABASE_URL="file:./prisma/dev.db"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
-## 🔧 Useful Commands
+Maak een `.env.local` bestand met:
 
 ```bash
-npm run dev              # Start dev server
-npm run build            # Build for production
-npm start                # Run production
-npm run lint             # ESLint
+# Database (Vercel Postgres of andere PostgreSQL)
+POSTGRES_URL="postgresql://user:password@host:5432/dbname"
 
-npx prisma studio       # Visual DB editor
-npx prisma migrate dev  # Create migration
-```
+# NextAuth
+NEXTAUTH_URL="https://your-domain.com"
+NEXTAUTH_SECRET="generate-with: openssl rand -base64 32"
 
-## 🌐 Deploy to Vercel
-
-1. Push to GitHub
-2. Import repo in Vercel dashboard
-3. Add env var: `DATABASE_URL = file:./.vercel/data.db`
-4. Deploy!
-
-## 📂 Project Structure
-
-```
-your-matrix/
-├── app/
-│   ├── actions/
-│   │   ├── opdracht.ts      # Create/update
-│   │   └── queries.ts        # Read queries
-│   ├── components/
-│   │   ├── OpdrachtenList.tsx
-│   │   ├── ReactieForm.tsx
-│   │   ├── ReactieList.tsx
-│   │   ├── ShareButton.tsx
-│   │   └── MarkAsFilledButton.tsx
-│   ├── opdracht/
-│   │   ├── [id]/page.tsx    # Detail
-│   │   └── nieuw/page.tsx   # Create
-│   ├── layout.tsx
-│   ├── page.tsx             # Home/board
-│   └── globals.css
-├── lib/
-│   ├── db.ts               # Prisma client
-│   └── utils.ts            # Helpers
-├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
-├── .env.local
-└── package.json
-```
-
-## 🔐 How It Works
-
-**No authentication** - Anyone with the link can post & react.
-
-**Edit Token** - Each opdracht gets a random 32-char hex token on creation. It's passed in the URL:
-```
-/opdracht/abc123?token=xyz789def456...
-```
-Only with the token can you mark the opdracht as "INGEVULD" (filled).
-
-**Phone Numbers** - Stored as +31612345678 format. Auto-normalized from 0612345678 (assumes NL).
-
-## 📱 Mobile First
-
-- Responsive from 375px (iPhone SE) to desktop
-- Touch-friendly button sizing (44px+)
-- Native share API (fallback: copy-to-clipboard)
-- WhatsApp deep links (wa.me)
-
-## 📝 Data Model
-
-### Opdracht
-- titel, omschrijving, locatie (Remote/OnSite/Hybride)
-- plaats, hybride_dagen_per_week (if Hybride)
-- uurtarief_min/max (in cents), valuta
-- startdatum, duur, inzet
-- tags (JSON array, max 5)
-- plaatser_naam, plaatser_whatsapp
-- status (OPEN | INGEVULD), edit_token
-- created_at, updated_at
-
-### Reactie
-- opdracht_id (FK)
-- naam, bericht, whatsapp_nummer
-- created_at
-
-## 🚀 Ready to Use!
-
-The MVP is fully functional. You can:
-1. Post opdrachten with all relevant details
-2. Search & filter on the board
-3. See reactions + contact details
-4. Share opdrachten to WhatsApp
-5. Mark as filled (with token)
-
-Enjoy! 🎉
-
----
-
-Built with ❤️ for WhatsApp freelance communities.
-
-## 🔐 Environment Variables
-
-Required for production:
-
-```bash
-# Database
-POSTGRES_URL="postgresql://..."
-
-# Auth
-NEXTAUTH_URL="https://yourdomain.com"
-NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
-
-# Email (Resend)
+# Email Provider (Resend)
 AUTH_RESEND_KEY="re_..."
 EMAIL_FROM="noreply@yourdomain.com"
 ```
 
-## 📱 PWA Installation Testing
+### Resend Setup
 
-### iOS (Safari)
-1. Open app in Safari
-2. Tap Share button (⬆️)
-3. Scroll and tap "Add to Home Screen"
-4. Tap "Add"
+1. Maak een account op [resend.com](https://resend.com)
+2. Verifieer je domein of gebruik `onboarding@resend.dev` voor testen
+3. Genereer een API key
+4. Voeg `AUTH_RESEND_KEY` toe aan je environment
+
+### NEXTAUTH_SECRET genereren
+
+```bash
+openssl rand -base64 32
+```
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Generate Prisma client
+npx prisma generate
+
+# Push database schema
+npx prisma db push
+
+# Start development server
+npm run dev
+```
+
+## Deployment (Vercel)
+
+1. Push naar GitHub
+2. Import in Vercel dashboard
+3. Voeg environment variables toe:
+   - `POSTGRES_URL`
+   - `NEXTAUTH_URL`
+   - `NEXTAUTH_SECRET`
+   - `AUTH_RESEND_KEY`
+   - `EMAIL_FROM`
+4. Deploy!
+
+## PWA Installatie
+
+### iPhone/iPad (Safari)
+1. Tik op Deel (⬆️)
+2. Scroll naar "Zet op beginscherm"
+3. Tik op "Voeg toe"
 
 ### Android (Chrome)
-1. Open app in Chrome
-2. Look for install prompt (auto-appears)
-3. Or: Menu (⋮) → "Install app"
+1. Wacht op de install prompt, of:
+2. Menu (⋮) → "App installeren"
 
-## 🔑 Auth Setup
+## Project Structuur
 
-This app uses **NextAuth.js** with **magic link authentication** via Resend.
+```
+app/
+├── actions/          # Server actions
+├── components/       # Shared components
+├── dashboard/        # Authenticated pages
+├── g/[slug]/         # Public group pages
+├── login/            # Auth pages
+├── download/         # PWA install page
+└── page.tsx          # Landing page
+```
 
-1. Sign up at [resend.com](https://resend.com)
-2. Get API key
-3. Add `AUTH_RESEND_KEY` to `.env.local`
-4. Set `EMAIL_FROM` to verified sender
-5. Generate `NEXTAUTH_SECRET`: `openssl rand -base64 32`
+## License
 
-No password required—users receive email login links.
+MIT
+
+---
+
+Built with ❤️ for WhatsApp freelance communities.
