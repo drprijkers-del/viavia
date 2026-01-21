@@ -10,59 +10,178 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// NextAuth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  whatsappNumber  String?
+
+  accounts        Account[]
+  sessions        Session[]
+  createdGroups   GroupV2[]
+  groupMemberships GroupMember[]
+  createdJobs     Job[]
+  jobShares       JobShare[]
+
+  createdAt       DateTime  @default(now())
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// New app models (v2 - run in parallel with legacy)
+model GroupV2 {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  name         String?
+  inviteToken  String        @unique @default(cuid())
+  createdById  String
+
+  createdBy    User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  members      GroupMember[]
+  jobShares    JobShare[]
+
+  createdAt    DateTime      @default(now())
+
+  @@index([slug])
+  @@index([inviteToken])
+  @@map("GroupV2")
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      String   @default("MEMBER") // ADMIN or MEMBER
+
+  group     GroupV2  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  joinedAt  DateTime @default(now())
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@index([groupId])
+}
+
+model Job {
+  id              String     @id @default(cuid())
+  createdById     String
+
+  title           String
+  company         String
+  description     String
+  rate            Int
+  locationType    String     @default("Remote") // Remote, Hybride, OnSite
+  locationDetail  String?
+  hoursPerWeek    Int?
+  months          Int?
+  teamSize        String?
+
+  posterName      String
+  posterWhatsapp  String
+
+  status          String     @default("OPEN") // OPEN, FILLED
+  editToken       String     @unique @default(cuid())
+
+  createdBy       User       @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  shares          JobShare[]
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([createdById])
+}
+
+model JobShare {
+  id         String   @id @default(cuid())
+  jobId      String
+  groupId    String
+  sharedById String
+
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  group      GroupV2  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  sharedBy   User     @relation(fields: [sharedById], references: [id], onDelete: Cascade)
+
+  sharedAt   DateTime @default(now())
+
+  @@unique([jobId, groupId])
+  @@index([jobId])
+  @@index([groupId])
+  @@index([sharedById])
+}
+
+// Legacy models (keep for backward compatibility)
 model Group {
   id                      String    @id @default(cuid())
-  slug                    String    @unique // short, URL-friendly
-  name                    String?   // optional group name
-  code_hash               String?   // bcrypt hash of 6-char code (optional, for spam protection)
-
-  // Relations
-  opdrachten              Opdracht[]
-
-  // Timestamps
+  slug                    String    @unique
+  name                    String?
+  code_hash               String?
   created_at              DateTime  @default(now())
+
+  opdrachten              Opdracht[]
 
   @@index([slug])
 }
 
 model Opdracht {
   id                      String    @id @default(cuid())
-
-  // Group relation (required)
   group_id                String
   group                   Group     @relation(fields: [group_id], references: [id], onDelete: Cascade)
 
-  // Basis info (altijd verplicht)
-  titel                   String    // bijv "Senior React Developer"
-  bedrijf                 String    // bijv "Coolblue"
-  omschrijving            String    // max 3-4 regels
-
-  // Financieel (1 vast tarief)
-  uurtarief               Int       // in euros, bijv 100 = €100/uur
-
-  // Locatie (simpel, 1 veld)
-  locatie                 String    @default("Remote") // Remote, Hybride, OnSite
-  locatie_detail          String?   // bijv "Amsterdam" (alleen bij Hybride/OnSite)
-
-  // Tijd (vaste getallen, geen ranges)
-  uren_per_week           Int?      // bijv 32
-  duur_maanden            Int?      // bijv 6
-
-  // Team
-  teamgrootte             String?   // bijv "2-5" of "10+"
-
-  // Contact
+  titel                   String
+  bedrijf                 String
+  omschrijving            String
+  uurtarief               Int
+  locatie                 String    @default("Remote")
+  locatie_detail          String?
+  uren_per_week           Int?
+  duur_maanden            Int?
+  teamgrootte             String?
   plaatser_naam           String
-  plaatser_whatsapp       String    // format: +31612345678
+  plaatser_whatsapp       String
+  status                  String    @default("OPEN")
+  edit_token              String    @unique
 
-  // Status
-  status                  String    @default("OPEN") // OPEN, INGEVULD
-  edit_token              String    @unique // voor delete/edit zonder auth
+  reacties                Reactie[]
 
-  // Relations
-  reacties                Reactie[] // wordt NIET getoond, alleen geteld
-
-  // Timestamps
   created_at              DateTime  @default(now())
   updated_at              DateTime  @updatedAt
 
@@ -79,7 +198,6 @@ model Reactie {
   whatsapp_nummer         String?
   created_at              DateTime  @default(now())
 
-  // Relations
   opdracht                Opdracht  @relation(fields: [opdracht_id], references: [id], onDelete: Cascade)
 
   @@index([opdracht_id])
