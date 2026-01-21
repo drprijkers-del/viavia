@@ -11,6 +11,21 @@ export async function POST(req: Request) {
 
   const data = await req.json();
 
+  // Verify user has access to selected groups
+  if (data.groupIds && data.groupIds.length > 0) {
+    const membershipCount = await prisma.groupMember.count({
+      where: {
+        userId: session.user.id,
+        groupId: { in: data.groupIds }
+      }
+    });
+
+    if (membershipCount !== data.groupIds.length) {
+      return NextResponse.json({ error: "Invalid group access" }, { status: 403 });
+    }
+  }
+
+  // Create job with shares in selected groups
   const job = await prisma.job.create({
     data: {
       createdById: session.user.id,
@@ -25,6 +40,21 @@ export async function POST(req: Request) {
       teamSize: data.teamSize || null,
       posterName: data.posterName,
       posterWhatsapp: data.posterWhatsapp,
+      // Create shares for selected groups
+      shares: data.groupIds && data.groupIds.length > 0 ? {
+        create: data.groupIds.map((groupId: string) => ({
+          groupId
+        }))
+      } : undefined
+    },
+    include: {
+      shares: {
+        include: {
+          group: {
+            select: { name: true, slug: true }
+          }
+        }
+      }
     }
   });
 
