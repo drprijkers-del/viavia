@@ -462,14 +462,24 @@ ${url}
         )}
 
         {/* Header */}
-        <div className="text-center mb-6 mt-6">
-          <h1 className="text-3xl font-bold text-white mb-1">
-            {group.name || "ViaVia"}
-          </h1>
-          <p className="text-xs text-tertiary">
-            {opdrachten.length} {opdrachten.length === 1 ? 'opdracht' : 'opdrachten'}
-            {opdrachten.length > 0 && ` · ${getLastUpdatedText()}`}
-          </p>
+        <div className="mb-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/">
+              <button className="text-sm text-secondary hover:text-white transition-colors">
+                ← Home
+              </button>
+            </Link>
+            <div className="flex-1"></div>
+          </div>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-white mb-1">
+              {group.name || "ViaVia"}
+            </h1>
+            <p className="text-xs text-tertiary">
+              {opdrachten.length} {opdrachten.length === 1 ? 'opdracht' : 'opdrachten'}
+              {opdrachten.length > 0 && ` · ${getLastUpdatedText()}`}
+            </p>
+          </div>
         </div>
 
         {/* Search Bar */}
