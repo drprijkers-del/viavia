@@ -191,7 +191,7 @@ export default function DashboardClient({ groups, jobs, userEmail, userId }: Das
                     Bekijk groep
                   </button>
                 </Link>
-                <Link href={`/g/${selectedGroup.group.slug}/new`}>
+                <Link href="/dashboard/jobs/new">
                   <button className="btn btn-primary text-sm py-2">
                     + Opdracht
                   </button>
@@ -239,7 +239,7 @@ export default function DashboardClient({ groups, jobs, userEmail, userId }: Das
               </div>
               <h3 className="font-semibold mb-1">Nog geen opdrachten</h3>
               <p className="text-sm text-muted mb-4">Deel je eerste opdracht met deze groep.</p>
-              <Link href={`/g/${selectedGroup?.group.slug}/new`}>
+              <Link href="/dashboard/jobs/new">
                 <button className="btn btn-primary">
                   + Nieuwe opdracht
                 </button>
