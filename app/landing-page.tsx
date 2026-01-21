@@ -147,9 +147,29 @@ export default function LandingPage() {
 
   function handleQRScan(scannedCode: string) {
     setShowQRScanner(false);
-    setJoinCode(scannedCode.toUpperCase());
+
+    // Check if it's an import URL
+    if (scannedCode.includes('?import=')) {
+      try {
+        const url = new URL(scannedCode);
+        const importParam = url.searchParams.get('import');
+        if (importParam) {
+          const decoded = atob(importParam);
+          const groups = JSON.parse(decoded) as SavedGroup[];
+          setImportData(groups);
+          setShowImportPrompt(true);
+          return;
+        }
+      } catch (e) {
+        console.error("Invalid import QR:", e);
+      }
+    }
+
+    // Otherwise treat as group code
+    const code = scannedCode.toUpperCase().trim();
+    setJoinCode(code);
     setShowJoinModal(true);
-    handleJoinGroupWithCode(scannedCode);
+    handleJoinGroupWithCode(code);
   }
 
   async function handleJoinGroupWithCode(code: string) {
