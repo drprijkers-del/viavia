@@ -14,6 +14,21 @@ export default {
     signIn: "/login",
     verifyRequest: "/login/check-email",
   },
+  // Cookie settings for PWA session sharing
+  // Cookies set on the domain work in both browser and PWA standalone mode
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production"
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -28,18 +43,17 @@ export default {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // After sign in, always go through our callback handler
-      // This handles PWA redirect logic
+      // After sign in from magic link, go to success page
       if (url.startsWith(baseUrl)) {
-        // Internal URL - route through callback
         const targetUrl = url.replace(baseUrl, "");
-        // Don't redirect callback to itself
-        if (targetUrl.startsWith("/auth/callback")) {
+        // Don't redirect success page to itself
+        if (targetUrl.startsWith("/auth/success")) {
           return url;
         }
-        return `${baseUrl}/auth/callback?callbackUrl=${encodeURIComponent(targetUrl || "/dashboard")}`;
+        // After login, always show success page first
+        // The success page will guide user to open PWA
+        return `${baseUrl}/auth/success`;
       }
-      // External URL - just use it
       return url;
     },
   },

@@ -72,9 +72,7 @@ export default function DashboardClient({ groups, jobs, userEmail, userId }: Das
     ? jobs.filter(job => job.shares.some(s => s.groupId === selectedGroupId))
     : [];
 
-  const isAdmin = selectedGroup?.role === "ADMIN";
-
-  // Empty state: no groups
+  // Empty state: no groups (fallback, normally redirected server-side)
   if (groups.length === 0) {
     return (
       <div className="dashboard-shell">

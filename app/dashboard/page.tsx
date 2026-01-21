@@ -36,6 +36,12 @@ export default async function DashboardPage() {
     orderBy: { joinedAt: "desc" }
   });
 
+  // If user has no groups, redirect to create first group
+  // This implements getPostLoginRoute logic server-side
+  if (groups.length === 0) {
+    redirect("/dashboard/groups/new");
+  }
+
   // Get all jobs from user's groups
   const jobs = await prisma.job.findMany({
     where: {
