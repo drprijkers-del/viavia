@@ -205,10 +205,11 @@ textarea {
 .job-card {
   background: #2C2C2E;
   border-radius: 16px;
-  padding: 1.25rem;
+  padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
   cursor: pointer;
+  animation: slideUp 0.3s ease-out;
 }
 
 .job-card:hover {

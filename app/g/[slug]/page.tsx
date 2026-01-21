@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { listOpdrachten } from "@/app/actions/queries";
 import { createOpdracht, CreateOpdracht } from "@/app/actions/opdracht";
-import { getGroup, verifyGroupCode, deleteGroup } from "@/app/actions/group";
+import { getGroup, deleteGroup } from "@/app/actions/group";
 
 export default function GroupBoardPage() {
   const params = useParams();
@@ -21,7 +21,6 @@ export default function GroupBoardPage() {
   const [error, setError] = useState("");
   const [showBanner, setShowBanner] = useState(false);
   const [groupCode, setGroupCode] = useState<string | null>(null);
-  const [isCreator, setIsCreator] = useState(false);
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [showGroupSelector, setShowGroupSelector] = useState(false);
@@ -30,6 +29,7 @@ export default function GroupBoardPage() {
   const [deleteCodeInput, setDeleteCodeInput] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
 
   useEffect(() => {
     async function loadMyGroups() {
@@ -79,7 +79,6 @@ export default function GroupBoardPage() {
         setShowBanner(true);
         if (storedCode) {
           setGroupCode(storedCode);
-          setIsCreator(true);
         }
       }
     }
@@ -106,6 +105,11 @@ export default function GroupBoardPage() {
       loadOpdrachten();
     }
   }, [group, loadOpdrachten]);
+
+  function showToast(message: string) {
+    setToast({ message, show: true });
+    setTimeout(() => setToast({ message: "", show: false }), 3000);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -143,9 +147,10 @@ export default function GroupBoardPage() {
         setShowForm(false);
         setSelectedGroups([group.id]);
         await loadOpdrachten();
+        showToast("✓ Opdracht aangemaakt");
 
         if (result.count && result.count > 1) {
-          alert(`Opdracht geplaatst in ${result.count} groepen!`);
+          showToast(`✓ Opdracht geplaatst in ${result.count} groepen`);
         }
       } else {
         setError(result.error || "Er is iets misgegaan");
@@ -231,6 +236,31 @@ ${url}
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
+  const filteredOpdrachten = opdrachten.filter((job) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      job.titel?.toLowerCase().includes(query) ||
+      job.bedrijf?.toLowerCase().includes(query) ||
+      job.omschrijving?.toLowerCase().includes(query)
+    );
+  });
+
+  const getLastUpdatedText = () => {
+    if (opdrachten.length === 0) return "";
+    const mostRecent = opdrachten[0];
+    const createdAt = new Date(mostRecent.created_at);
+    const now = new Date();
+    const diffMs = now.getTime() - createdAt.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 1) return "zojuist bijgewerkt";
+    if (diffHours < 24) return `${diffHours}u geleden bijgewerkt`;
+    if (diffDays === 1) return "gisteren bijgewerkt";
+    return `${diffDays} dagen geleden bijgewerkt`;
+  };
+
   if (groupLoading) {
     return (
       <div className="app-frame">
@@ -267,6 +297,15 @@ ${url}
   return (
     <div className="app-frame">
       <div className="app-container pb-24">
+        {/* Toast */}
+        {toast.show && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+            <div className="bg-[#2C2C2E] border border-[#34C759]/30 rounded-full px-6 py-3 shadow-lg">
+              <p className="text-white text-sm font-medium">{toast.message}</p>
+            </div>
+          </div>
+        )}
+
         {/* Delete Modal */}
         {showDeleteModal && groupToDelete && (
           <div className="modal-overlay">
@@ -424,17 +463,18 @@ ${url}
 
         {/* Header */}
         <div className="text-center mb-6 mt-6">
-          <h1 className="text-2xl font-bold text-white mb-1">
+          <h1 className="text-3xl font-bold text-white mb-1">
             {group.name || "ViaVia"}
           </h1>
-          <p className="text-sm text-tertiary">
-            Altijd het overzicht, geen scrollen in WhatsApp
+          <p className="text-xs text-tertiary">
+            {opdrachten.length} {opdrachten.length === 1 ? 'opdracht' : 'opdrachten'}
+            {opdrachten.length > 0 && ` · ${getLastUpdatedText()}`}
           </p>
         </div>
 
         {/* Search Bar */}
         {!showForm && opdrachten.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-5">
             <div className="relative">
               <input
                 type="text"
@@ -586,7 +626,7 @@ ${url}
                 <div className="animate-spin w-10 h-10 border-2 border-[#34C759] border-t-transparent rounded-full mx-auto mb-3"></div>
                 <p className="text-secondary">Laden...</p>
               </div>
-            ) : opdrachten.length === 0 ? (
+            ) : filteredOpdrachten.length === 0 && opdrachten.length === 0 ? (
               <>
                 <div onClick={() => {
                   if (myGroups.length > 1) {
@@ -600,9 +640,9 @@ ${url}
                       ?
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white font-medium mb-1">Plaats je opdracht hier...</h3>
-                      <p className="text-sm text-secondary mb-2">Je bedrijfsnaam</p>
-                      <div className="meta-info">
+                      <h3 className="text-white font-medium mb-0.5">Plaats je opdracht hier...</h3>
+                      <p className="text-sm text-secondary mb-1.5">Je bedrijfsnaam</p>
+                      <div className="meta-info text-xs">
                         <span className="text-accent font-semibold">€85/uur</span>
                         <span className="meta-separator"></span>
                         <span>Remote</span>
@@ -612,42 +652,45 @@ ${url}
                     </div>
                   </div>
                 </div>
-                <div className="text-center py-8">
+                <div className="text-center py-6">
                   <p className="text-sm text-tertiary">
-                    Klik op het voorbeeld om je eerste opdracht te plaatsen
+                    Hier verschijnen opdrachten uit je WhatsApp-groep
                   </p>
                 </div>
               </>
+            ) : filteredOpdrachten.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-secondary">Geen resultaten voor "{searchQuery}"</p>
+              </div>
             ) : (
-              opdrachten
-                .filter((job) => {
-                  if (!searchQuery) return true;
-                  const query = searchQuery.toLowerCase();
-                  return (
-                    job.titel?.toLowerCase().includes(query) ||
-                    job.bedrijf?.toLowerCase().includes(query) ||
-                    job.omschrijving?.toLowerCase().includes(query)
-                  );
-                })
-                .map((job) => {
+              filteredOpdrachten.map((job, index) => {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const reactiesCount = job._count?.reacties || 0;
 
                 return (
-                  <Link key={job.id} href={`/g/${slug}/j/${job.id}`} className="job-card">
+                  <Link
+                    key={job.id}
+                    href={`/g/${slug}/j/${job.id}`}
+                    className="job-card"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
                     <div className="flex gap-3">
                       <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-lg font-bold shrink-0">
                         {job.bedrijf?.charAt(0).toUpperCase() || "?"}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <h3 className="text-white font-medium">{job.titel}</h3>
-                          {isNew && (
-                            <span className="badge badge-open text-[10px] px-2 py-0.5">NIEUW</span>
-                          )}
+                        <div className="mb-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-white font-medium leading-tight">{job.titel}</h3>
+                              <p className="text-sm text-secondary">{job.bedrijf}</p>
+                            </div>
+                            {isNew && (
+                              <span className="badge badge-open text-[10px] px-2 py-0.5 shrink-0">NIEUW</span>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-sm text-secondary mb-2">{job.bedrijf}</p>
-                        <div className="meta-info">
+                        <div className="meta-info text-xs">
                           <span className="text-accent font-semibold">€{job.uurtarief}/uur</span>
                           <span className="meta-separator"></span>
                           <span>{job.locatie === "Remote" ? "Remote" : job.locatie === "Hybride" ? "Hybride" : "Op locatie"}</span>
@@ -657,14 +700,19 @@ ${url}
                               <span>{job.uren_per_week}u/w</span>
                             </>
                           )}
+                          {job.duur_maanden && (
+                            <>
+                              <span className="meta-separator"></span>
+                              <span>{job.duur_maanden}mnd</span>
+                            </>
+                          )}
+                          {reactiesCount > 0 && (
+                            <>
+                              <span className="meta-separator"></span>
+                              <span className="text-tertiary">{reactiesCount} 💬</span>
+                            </>
+                          )}
                         </div>
-                        {reactiesCount > 0 && (
-                          <div className="mt-2 pt-2 border-t border-[#3A3A3C]">
-                            <span className="text-xs text-tertiary">
-                              {reactiesCount} {reactiesCount === 1 ? "reactie" : "reacties"}
-                            </span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </Link>
