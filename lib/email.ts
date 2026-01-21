@@ -1,5 +1,3 @@
-import nodemailer from "nodemailer";
-
 export async function sendVerificationRequest(params: {
   identifier: string;
   url: string;
@@ -20,25 +18,29 @@ export async function sendVerificationRequest(params: {
     return;
   }
 
-  // In production: send via Resend
+  // In production: send via Resend API directly (works better on Vercel)
   const { host } = new URL(url);
-  const transport = nodemailer.createTransport({
-    host: "smtp.resend.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "resend",
-      pass: process.env.AUTH_RESEND_KEY,
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.AUTH_RESEND_KEY}`,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({
+      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      to: identifier,
+      subject: `Inloggen bij ${host}`,
+      text: text({ url, host }),
+      html: html({ url, host }),
+    }),
   });
 
-  await transport.sendMail({
-    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
-    to: identifier,
-    subject: `Inloggen bij ${host}`,
-    text: text({ url, host }),
-    html: html({ url, host }),
-  });
+  if (!response.ok) {
+    const error = await response.text();
+    console.error("Resend API error:", error);
+    throw new Error(`Failed to send email: ${error}`);
+  }
 }
 
 function html({ url, host }: { url: string; host: string }) {
