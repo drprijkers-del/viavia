@@ -5,7 +5,18 @@ import ViaViaLogo from "@/app/components/ViaViaLogo";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const session = await auth();
+  // Check if auth is configured
+  if (!process.env.NEXTAUTH_SECRET) {
+    redirect("/");
+  }
+
+  let session;
+  try {
+    session = await auth();
+  } catch (error) {
+    console.error("Auth error:", error);
+    redirect("/");
+  }
 
   if (!session?.user?.id) {
     redirect("/login");
