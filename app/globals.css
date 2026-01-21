@@ -17,6 +17,9 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* App Frame */

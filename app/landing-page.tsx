@@ -6,6 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { QRCodeSVG } from "qrcode.react";
 import { createGroup, joinGroupWithCode } from "@/app/actions/group";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 const QRScanner = dynamic(() => import("@/app/components/QRScanner"), {
   ssr: false,
@@ -197,6 +198,10 @@ export default function LandingPage() {
 
       setShowJoinModal(false);
       setJoinCode("");
+
+      // Trigger PWA install prompt on user action
+      window.dispatchEvent(new Event("pwa_trigger_install"));
+
       router.push(`/g/${result.group.slug}`);
     } else {
       setJoinError(result.error || "Groep niet gevonden");
@@ -218,6 +223,9 @@ export default function LandingPage() {
   return (
     <div className="app-frame">
       <div className="app-container">
+        {/* PWA Install Prompt */}
+        <PWAInstallPrompt />
+
         {/* QR Scanner */}
         {showQRScanner && (
           <QRScanner
