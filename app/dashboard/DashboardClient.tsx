@@ -245,6 +245,22 @@ export default function DashboardClient({ groups, jobs, userEmail, userId }: Das
             </Link>
           </div>
         )}
+
+        {/* Footer */}
+        <footer className="mt-auto pt-8 pb-4 text-center text-xs text-tertiary">
+          <p>
+            <a
+              href="https://github.com/drprijkers-del/viavia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-muted transition-colors"
+            >
+              Open Source
+            </a>
+            <span className="mx-2">·</span>
+            Powered by DnZ Productions
+          </p>
+        </footer>
       </main>
     </div>
   );
