@@ -33,6 +33,8 @@ export default function LandingPage() {
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrCodeToShow, setQrCodeToShow] = useState<string | null>(null);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showExportQR, setShowExportQR] = useState(false);
+  const [exportUrl, setExportUrl] = useState("");
 
   useEffect(() => {
     const savedGroups = localStorage.getItem("my_groups");
@@ -109,8 +111,8 @@ export default function LandingPage() {
     const encoded = btoa(JSON.stringify(myGroups));
     const url = `${window.location.origin}/?import=${encoded}`;
 
-    navigator.clipboard.writeText(url);
-    alert("Export link gekopieerd! Plak deze URL op een ander device om je groepen te importeren.");
+    setExportUrl(url);
+    setShowExportQR(true);
   }
 
   function handleImport() {
@@ -202,6 +204,49 @@ export default function LandingPage() {
             onScan={handleQRScan}
             onClose={() => setShowQRScanner(false)}
           />
+        )}
+
+        {/* Export QR Modal */}
+        {showExportQR && exportUrl && (
+          <div className="modal-overlay">
+            <div className="modal animate-scale-in">
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Sync met ander device
+              </h2>
+              <p className="text-secondary text-sm mb-6">
+                Scan deze QR code op je andere device om al je groepen te synchroniseren
+              </p>
+              <div className="bg-white p-6 rounded-2xl mb-6 w-full flex justify-center">
+                <QRCodeSVG value={exportUrl} size={200} level="H" />
+              </div>
+              <div className="mb-6">
+                <p className="text-tertiary text-xs mb-2 text-center">Of kopieer deze link:</p>
+                <div className="bg-[#1C1C1E] border border-[#3A3A3C] rounded-xl p-3">
+                  <p className="text-white text-xs break-all">{exportUrl}</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(exportUrl);
+                    alert("Link gekopieerd!");
+                  }}
+                  className="btn btn-secondary flex-1"
+                >
+                  Kopieer link
+                </button>
+                <button
+                  onClick={() => {
+                    setShowExportQR(false);
+                    setExportUrl("");
+                  }}
+                  className="btn btn-primary flex-1"
+                >
+                  Sluiten
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* QR Code Display Modal */}
