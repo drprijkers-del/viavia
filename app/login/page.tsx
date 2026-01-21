@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import ViaViaLogo from "@/app/components/ViaViaLogo";
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -17,7 +21,7 @@ export default function LoginPage() {
       const result = await signIn("resend", {
         email,
         redirect: false,
-        callbackUrl: "/dashboard"
+        callbackUrl
       });
       console.log("SignIn result:", result);
       setSent(true);
