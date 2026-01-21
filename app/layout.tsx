@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ViaVia - Freelance Opdrachtenboard",
-  description: "Plaats en vind freelance opdrachten via WhatsApp groepen. Direct contact met opdrachtgever.",
+  title: "ViaVia - Freelance opdrachten, zonder WhatsApp-scrollen",
+  description: "Beheer via-via opdrachten voor al je WhatsApp-groepen op één plek. Reageren doe je gewoon via WhatsApp.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -13,6 +13,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icons/icon-192.svg",
     apple: "/icons/icon-192.svg",
+  },
+  openGraph: {
+    title: "ViaVia - Freelance opdrachten, zonder WhatsApp-scrollen",
+    description: "Beheer via-via opdrachten voor al je WhatsApp-groepen op één plek.",
+    type: "website",
+    locale: "nl_NL",
   },
 };
 
