@@ -2,17 +2,19 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import ViaViaLogo from "@/app/components/ViaViaLogo";
+import CopyButton from "@/app/components/CopyButton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function GroupDetailPage({ params }: { params: { slug: string } }) {
+export default async function GroupDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const membership = await prisma.groupMember.findFirst({
     where: {
       userId: session.user.id,
-      group: { slug: params.slug }
+      group: { slug }
     },
     include: {
       group: {
@@ -66,15 +68,7 @@ export default async function GroupDetailPage({ params }: { params: { slug: stri
               readOnly
               className="input flex-1"
             />
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(inviteUrl);
-                alert("Link gekopieerd!");
-              }}
-              className="btn btn-secondary"
-            >
-              Kopieer
-            </button>
+            <CopyButton text={inviteUrl} />
           </div>
           <p className="text-xs text-tertiary mt-3">
             Deel deze link in je WhatsApp-groep zodat anderen kunnen toetreden
