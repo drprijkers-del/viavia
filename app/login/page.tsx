@@ -42,7 +42,7 @@ function LoginForm() {
 
   if (sent) {
     return (
-      <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] max-w-sm w-full">
+      <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E]">
         <div className="text-center mb-4">
           <div className="w-16 h-16 rounded-full bg-[#34C759]/20 flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-[#34C759]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +76,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] max-w-sm w-full">
+    <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E]">
       <div className="text-center mb-6">
         <h1 className="text-xl font-bold text-white mb-2">Inloggen of registreren</h1>
         <p className="text-[#8E8E93] text-sm">
@@ -136,7 +136,7 @@ function LoginForm() {
 
 function LoadingState() {
   return (
-    <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] max-w-sm w-full">
+    <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E]">
       <div className="flex items-center justify-center py-8">
         <svg className="animate-spin h-8 w-8 text-[#34C759]" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -149,8 +149,8 @@ function LoadingState() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-12">
+    <div className="px-5 py-12 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col items-center justify-center">
         <Link href="/" className="mb-8">
           <ViaViaLogo size="md" />
         </Link>
