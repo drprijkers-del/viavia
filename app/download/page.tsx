@@ -38,7 +38,7 @@ export default function DownloadPage() {
 
   if (isStandalone) {
     return (
-      <div className="px-5 py-12 flex flex-col min-h-screen">
+      <div className="min-h-screen bg-[#1C1C1E] px-5 py-12 flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <div className="w-20 h-20 rounded-2xl bg-[#34C759] flex items-center justify-center mx-auto mb-6">
             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@ export default function DownloadPage() {
           <h1 className="text-2xl font-bold text-white mb-2">Al geïnstalleerd!</h1>
           <p className="text-[#8E8E93] mb-6">ViaVia draait als app op je apparaat.</p>
           <Link href="/dashboard">
-            <button className="bg-[#34C759] hover:bg-[#2DB84E] text-white font-medium rounded-full px-8 py-3 transition-colors">
+            <button className="bg-[#34C759] hover:bg-[#2DB84E] text-white font-semibold rounded-2xl px-8 py-4 transition-colors">
               Open Dashboard
             </button>
           </Link>
@@ -58,7 +58,7 @@ export default function DownloadPage() {
   }
 
   return (
-    <div className="px-5 py-8">
+    <div className="min-h-screen bg-[#1C1C1E] px-5 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <ViaViaLogo size="sm" />
@@ -83,7 +83,7 @@ export default function DownloadPage() {
       {installPrompt && (
         <button
           onClick={handleInstall}
-          className="w-full bg-[#34C759] hover:bg-[#2DB84E] text-white font-medium rounded-full py-4 text-lg mb-6 transition-colors"
+          className="w-full bg-[#34C759] hover:bg-[#2DB84E] text-white font-semibold rounded-2xl py-4 text-lg mb-6 transition-colors"
         >
           Installeer nu
         </button>
@@ -91,22 +91,22 @@ export default function DownloadPage() {
 
       {/* iOS Instructions */}
       {isIOS && !installPrompt && (
-        <div className="bg-[#1C1C1E] rounded-2xl p-5 border border-[#2C2C2E] mb-6">
+        <div className="bg-[#2C2C2E] rounded-2xl p-5 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-2xl">🍎</span>
             <h2 className="text-white font-semibold">iPhone / iPad</h2>
           </div>
           <ol className="space-y-3">
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">1</span>
+              <span className="w-6 h-6 rounded-full bg-[#34C759] flex items-center justify-center text-white text-sm font-bold shrink-0">1</span>
               <span className="text-[#8E8E93] text-sm pt-0.5">Tik op <strong className="text-white">Deel</strong> (⬆️) onderaan</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">2</span>
+              <span className="w-6 h-6 rounded-full bg-[#34C759] flex items-center justify-center text-white text-sm font-bold shrink-0">2</span>
               <span className="text-[#8E8E93] text-sm pt-0.5">Scroll en tik op <strong className="text-white">Zet op beginscherm</strong></span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">3</span>
+              <span className="w-6 h-6 rounded-full bg-[#34C759] flex items-center justify-center text-white text-sm font-bold shrink-0">3</span>
               <span className="text-[#8E8E93] text-sm pt-0.5">Tik op <strong className="text-white">Voeg toe</strong></span>
             </li>
           </ol>
@@ -115,18 +115,18 @@ export default function DownloadPage() {
 
       {/* Android Instructions (if no prompt) */}
       {isAndroid && !installPrompt && (
-        <div className="bg-[#1C1C1E] rounded-2xl p-5 border border-[#2C2C2E] mb-6">
+        <div className="bg-[#2C2C2E] rounded-2xl p-5 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-2xl">🤖</span>
             <h2 className="text-white font-semibold">Android</h2>
           </div>
           <ol className="space-y-3">
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">1</span>
+              <span className="w-6 h-6 rounded-full bg-[#34C759] flex items-center justify-center text-white text-sm font-bold shrink-0">1</span>
               <span className="text-[#8E8E93] text-sm pt-0.5">Tik op het <strong className="text-white">menu</strong> (⋮) rechtsboven</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">2</span>
+              <span className="w-6 h-6 rounded-full bg-[#34C759] flex items-center justify-center text-white text-sm font-bold shrink-0">2</span>
               <span className="text-[#8E8E93] text-sm pt-0.5">Tik op <strong className="text-white">App installeren</strong></span>
             </li>
           </ol>
@@ -135,7 +135,7 @@ export default function DownloadPage() {
 
       {/* Desktop: QR Code */}
       {!isIOS && !isAndroid && (
-        <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] mb-6 text-center">
+        <div className="bg-[#2C2C2E] rounded-2xl p-6 mb-6 text-center">
           <p className="text-[#8E8E93] text-sm mb-4">Scan met je telefoon</p>
           <div className="inline-block p-4 bg-white rounded-xl">
             <QRCodeSVG
@@ -150,8 +150,8 @@ export default function DownloadPage() {
 
       {/* Both platform instructions for desktop */}
       {!isIOS && !isAndroid && (
-        <div className="space-y-4 mb-6">
-          <div className="bg-[#1C1C1E] rounded-2xl p-4 border border-[#2C2C2E]">
+        <div className="space-y-3 mb-6">
+          <div className="bg-[#2C2C2E] rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <span className="text-xl">🍎</span>
               <div>
@@ -160,7 +160,7 @@ export default function DownloadPage() {
               </div>
             </div>
           </div>
-          <div className="bg-[#1C1C1E] rounded-2xl p-4 border border-[#2C2C2E]">
+          <div className="bg-[#2C2C2E] rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <span className="text-xl">🤖</span>
               <div>
@@ -174,7 +174,7 @@ export default function DownloadPage() {
 
       {/* Continue to app */}
       <Link href="/dashboard" className="block">
-        <button className="w-full bg-[#2C2C2E] hover:bg-[#3A3A3C] text-white font-medium rounded-full py-3.5 transition-colors">
+        <button className="w-full bg-[#2C2C2E] hover:bg-[#3A3A3C] text-white font-medium rounded-2xl py-4 transition-colors">
           Ga verder in browser
         </button>
       </Link>
