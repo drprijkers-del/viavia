@@ -145,121 +145,112 @@ export default function DashboardClient({ groups, jobs, userEmail, userId }: Das
 
       {/* Main Content */}
       <main className="dashboard-main">
-        {/* Mobile Header */}
-        <div className="flex items-center justify-between mb-4 md:hidden">
-          <ViaViaLogo size="sm" href="/dashboard" />
-          <Link href="/api/auth/signout" className="text-sm text-muted hover:text-white transition-colors">
-            Uitloggen
-          </Link>
-        </div>
-
-        {/* Mobile Group Tabs */}
-        <div className="group-tabs-mobile">
-          {groups.map(({ group }) => (
-            <button
-              key={group.id}
-              onClick={() => setSelectedGroupId(group.id)}
-              className={`group-tab ${selectedGroupId === group.id ? "active" : ""}`}
-            >
-              <div
-                className="group-tab-avatar"
-                style={{ background: `linear-gradient(135deg, var(--accent), #30B350)` }}
-              >
-                {group.name?.charAt(0).toUpperCase() || "V"}
-              </div>
-              <span className="group-tab-name">{group.name || "Naamloze groep"}</span>
-            </button>
-          ))}
-          <Link href="/dashboard/groups/new" className="group-tab">
-            <span className="text-accent">+ Nieuw</span>
-          </Link>
-        </div>
-
-        {/* Group Header */}
-        {selectedGroup && (
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-xl font-bold">{selectedGroup.group.name || "Naamloze groep"}</h1>
-              <p className="text-sm text-muted">
-                {selectedGroup.group._count.members} {selectedGroup.group._count.members === 1 ? "lid" : "leden"} · {filteredJobs.length} {filteredJobs.length === 1 ? "opdracht" : "opdrachten"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href={`/g/${selectedGroup.group.slug}`}>
-                <button className="btn btn-secondary text-sm py-2">
-                  Bekijk groep
-                </button>
-              </Link>
-              <Link href={`/g/${selectedGroup.group.slug}/new`}>
-                <button className="btn btn-primary text-sm py-2">
-                  + Opdracht
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Job List */}
-        {filteredJobs.length > 0 ? (
-          <div className="dashboard-job-list">
-            {filteredJobs.map((job) => {
-              const isOwner = job.createdById === userId;
-              const groupSlug = selectedGroup?.group.slug;
-              return (
-                <Link key={job.id} href={`/g/${groupSlug}/j/${job.id}`}>
-                  <div className="dashboard-job-card">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-base">{job.title}</h3>
-                        <p className="text-sm text-muted">{job.company}</p>
-                      </div>
-                      {isOwner && (
-                        <span className="badge badge-open shrink-0">Jouw</span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                      <span className="text-accent font-semibold">€{job.rate}/uur</span>
-                      <span className="text-muted">{job.locationType}</span>
-                      {job.hoursPerWeek && (
-                        <span className="text-muted">{job.hoursPerWeek} uur/week</span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="dashboard-empty">
-            <div className="dashboard-empty-icon">
-              <svg className="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold mb-1">Nog geen opdrachten</h3>
-            <p className="text-sm text-muted mb-4">Deel je eerste opdracht met deze groep.</p>
-            <Link href={`/g/${selectedGroup?.group.slug}/new`}>
-              <button className="btn btn-primary">
-                + Nieuwe opdracht
-              </button>
+        <div className="flex-1">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between mb-4 md:hidden">
+            <ViaViaLogo size="sm" href="/dashboard" />
+            <Link href="/api/auth/signout" className="text-sm text-muted hover:text-white transition-colors">
+              Uitloggen
             </Link>
           </div>
-        )}
+
+          {/* Mobile Group Tabs */}
+          <div className="group-tabs-mobile">
+            {groups.map(({ group }) => (
+              <button
+                key={group.id}
+                onClick={() => setSelectedGroupId(group.id)}
+                className={`group-tab ${selectedGroupId === group.id ? "active" : ""}`}
+              >
+                <div
+                  className="group-tab-avatar"
+                  style={{ background: `linear-gradient(135deg, var(--accent), #30B350)` }}
+                >
+                  {group.name?.charAt(0).toUpperCase() || "V"}
+                </div>
+                <span className="group-tab-name">{group.name || "Naamloze groep"}</span>
+              </button>
+            ))}
+            <Link href="/dashboard/groups/new" className="group-tab">
+              <span className="text-accent">+ Nieuw</span>
+            </Link>
+          </div>
+
+          {/* Group Header */}
+          {selectedGroup && (
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-xl font-bold">{selectedGroup.group.name || "Naamloze groep"}</h1>
+                <p className="text-sm text-muted">
+                  {selectedGroup.group._count.members} {selectedGroup.group._count.members === 1 ? "lid" : "leden"} · {filteredJobs.length} {filteredJobs.length === 1 ? "opdracht" : "opdrachten"}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link href={`/g/${selectedGroup.group.slug}`}>
+                  <button className="btn btn-secondary text-sm py-2">
+                    Bekijk groep
+                  </button>
+                </Link>
+                <Link href={`/g/${selectedGroup.group.slug}/new`}>
+                  <button className="btn btn-primary text-sm py-2">
+                    + Opdracht
+                  </button>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Job List */}
+          {filteredJobs.length > 0 ? (
+            <div className="dashboard-job-list">
+              {filteredJobs.map((job) => {
+                const isOwner = job.createdById === userId;
+                const groupSlug = selectedGroup?.group.slug;
+                return (
+                  <Link key={job.id} href={`/g/${groupSlug}/j/${job.id}`}>
+                    <div className="dashboard-job-card">
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base">{job.title}</h3>
+                          <p className="text-sm text-muted">{job.company}</p>
+                        </div>
+                        {isOwner && (
+                          <span className="badge badge-open shrink-0">Jouw</span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                        <span className="text-accent font-semibold">€{job.rate}/uur</span>
+                        <span className="text-muted">{job.locationType}</span>
+                        {job.hoursPerWeek && (
+                          <span className="text-muted">{job.hoursPerWeek} uur/week</span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="dashboard-empty">
+              <div className="dashboard-empty-icon">
+                <svg className="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold mb-1">Nog geen opdrachten</h3>
+              <p className="text-sm text-muted mb-4">Deel je eerste opdracht met deze groep.</p>
+              <Link href={`/g/${selectedGroup?.group.slug}/new`}>
+                <button className="btn btn-primary">
+                  + Nieuwe opdracht
+                </button>
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* Footer */}
-        <footer className="mt-auto pt-8 pb-4 text-center text-xs text-tertiary">
-          <p>
-            <a
-              href="https://github.com/drprijkers-del/viavia"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-muted transition-colors"
-            >
-              Open Source
-            </a>
-            <span className="mx-2">·</span>
-            Powered by DnZ Productions
-          </p>
+        <footer className="pt-8 pb-4 text-center text-xs text-tertiary">
+          <p>Powered by DnZ Productions</p>
         </footer>
       </main>
     </div>
