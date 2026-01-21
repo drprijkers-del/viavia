@@ -25,8 +25,11 @@ export default function GroupBoardPage() {
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [showGroupSelector, setShowGroupSelector] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<{ slug: string; name: string; code: string } | null>(null);
+  const [deleteCodeInput, setDeleteCodeInput] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
-  // Load user's groups from localStorage and fetch their IDs
   useEffect(() => {
     async function loadMyGroups() {
       const savedGroups = localStorage.getItem("my_groups");
@@ -34,7 +37,6 @@ export default function GroupBoardPage() {
         try {
           const groups = JSON.parse(savedGroups);
 
-          // Fetch group IDs for each saved group
           const groupsWithIds = await Promise.all(
             groups.map(async (g: any) => {
               const groupData = await getGroup(g.slug);
@@ -45,9 +47,8 @@ export default function GroupBoardPage() {
             })
           );
 
-          setMyGroups(groupsWithIds.filter(g => g.id)); // Only keep groups that exist
+          setMyGroups(groupsWithIds.filter(g => g.id));
 
-          // Pre-select current group for cross-posting
           if (group) {
             setSelectedGroups([group.id]);
           }
@@ -60,7 +61,6 @@ export default function GroupBoardPage() {
     loadMyGroups();
   }, [group]);
 
-  // Load group data
   useEffect(() => {
     async function loadGroup() {
       setGroupLoading(true);
@@ -72,14 +72,13 @@ export default function GroupBoardPage() {
         return;
       }
 
-      // Check for share banner
       const showBannerFlag = sessionStorage.getItem(`group_${slug}_show_banner`);
       const storedCode = sessionStorage.getItem(`group_${slug}_code`);
       if (showBannerFlag === "true") {
         setShowBanner(true);
         if (storedCode) {
           setGroupCode(storedCode);
-          setIsCreator(true); // User created this group
+          setIsCreator(true);
         }
       }
     }
@@ -116,14 +115,13 @@ export default function GroupBoardPage() {
     const formData = new FormData(form);
 
     try {
-      // Get group IDs from localStorage for selected groups
       const groupIds = selectedGroups.length > 0
         ? selectedGroups
         : [group.id];
 
       const data: CreateOpdracht = {
         groupId: group.id,
-        groupIds: groupIds, // Pass all selected groups
+        groupIds: groupIds,
         titel: formData.get("titel") as string,
         bedrijf: formData.get("bedrijf") as string,
         omschrijving: formData.get("omschrijving") as string,
@@ -142,10 +140,9 @@ export default function GroupBoardPage() {
       if (result.success) {
         form.reset();
         setShowForm(false);
-        setSelectedGroups([group.id]); // Reset to current group
+        setSelectedGroups([group.id]);
         await loadOpdrachten();
 
-        // Show success message if posted to multiple groups
         if (result.count && result.count > 1) {
           alert(`Opdracht geplaatst in ${result.count} groepen!`);
         }
@@ -163,7 +160,6 @@ export default function GroupBoardPage() {
   function toggleGroupSelection(groupId: string) {
     setSelectedGroups(prev => {
       if (prev.includes(groupId)) {
-        // Don't allow deselecting all groups
         if (prev.length === 1) return prev;
         return prev.filter(id => id !== groupId);
       } else {
@@ -177,57 +173,39 @@ export default function GroupBoardPage() {
     sessionStorage.removeItem(`group_${slug}_show_banner`);
   }
 
-  function inviteToGroup() {
-    if (!isCreator || !group) {
-      alert("Alleen de creator kan anderen uitnodigen");
+  async function handleDeleteGroup() {
+    if (!groupToDelete) return;
+
+    if (deleteCodeInput !== groupToDelete.code) {
+      setDeleteError("Onjuiste groepscode");
       return;
     }
 
-    // Find current group in myGroups to get the code
-    const currentGroup = myGroups.find(g => g.slug === slug);
-    if (!currentGroup) {
-      alert("Groep niet gevonden in je lijst");
-      return;
+    setDeleteError("");
+
+    const result = await deleteGroup(groupToDelete.slug, groupToDelete.code);
+    if (result.success) {
+      const updatedGroups = myGroups.filter(g => g.slug !== groupToDelete.slug);
+      localStorage.setItem("my_groups", JSON.stringify(updatedGroups));
+      setMyGroups(updatedGroups);
+
+      sessionStorage.removeItem(`group_${groupToDelete.slug}_show_banner`);
+      sessionStorage.removeItem(`group_${groupToDelete.slug}_code`);
+
+      setShowDeleteModal(false);
+      setGroupToDelete(null);
+      setDeleteCodeInput("");
+
+      if (groupToDelete.slug === slug) {
+        if (updatedGroups.length > 0) {
+          router.push(`/g/${updatedGroups[0].slug}`);
+        } else {
+          router.push("/");
+        }
+      }
+    } else {
+      setDeleteError(result.error || "Er is iets misgegaan");
     }
-
-    // Create invite data with single group
-    const inviteData = [{
-      slug: currentGroup.slug,
-      name: currentGroup.name,
-      code: currentGroup.code,
-      createdAt: currentGroup.createdAt
-    }];
-
-    const encoded = btoa(JSON.stringify(inviteData));
-    const inviteUrl = `${window.location.origin}/?import=${encoded}`;
-
-    navigator.clipboard.writeText(inviteUrl);
-
-    // Also prepare a friendly message for WhatsApp
-    const friendlyMessage = `🎯 *${currentGroup.name || "ViaVia"} - Nodiging*
-
-👋 Hey! Ik nodig je uit om deel te nemen aan ons freelance opdrachten overzicht.
-
-✨ *Wat kun je ermee:*
-• Plaats je eigen freelance opdrachten
-• Bekijk opdrachten van anderen
-• Altijd een actueel overzicht
-• Nooit meer terugscrollen in WhatsApp
-
-📱 Klik hier om toegang te krijgen:
-${inviteUrl}
-
-💼 _Handig voor het delen en vinden van opdrachten!_`;
-
-    if (confirm("Link gekopieerd! Wil je deze ook direct delen via WhatsApp?")) {
-      window.open(`https://wa.me/?text=${encodeURIComponent(friendlyMessage)}`, "_blank");
-    }
-  }
-
-  function copyLink() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url);
-    alert("Link gekopieerd!");
   }
 
   function shareWhatsApp() {
@@ -252,13 +230,14 @@ ${url}
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
-
   if (groupLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-          <p className="text-gray-500">Laden...</p>
+      <div className="app-frame">
+        <div className="app-container flex items-center justify-center" style={{ minHeight: "80vh" }}>
+          <div className="text-center">
+            <div className="animate-spin w-10 h-10 border-2 border-[#34C759] border-t-transparent rounded-full mx-auto mb-3"></div>
+            <p className="text-secondary">Laden...</p>
+          </div>
         </div>
       </div>
     );
@@ -266,299 +245,224 @@ ${url}
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-6">
-        <div className="text-center">
-          <div className="text-6xl mb-4">😞</div>
-          <h2 className="text-xl font-semibold text-white mb-4">
-            Groep niet gevonden
-          </h2>
-          <Link href="/">
-            <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl transition-colors">
-              ← Terug naar home
-            </button>
-          </Link>
+      <div className="app-frame">
+        <div className="app-container flex items-center justify-center" style={{ minHeight: "80vh" }}>
+          <div className="text-center">
+            <div className="text-6xl mb-4">😞</div>
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Groep niet gevonden
+            </h2>
+            <Link href="/">
+              <button className="btn btn-primary">
+                ← Terug naar home
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-24 flex flex-col items-center">
-      {/* Share Banner - shown once after creation */}
-      {showBanner && (
-        <div className="w-full bg-emerald-600/10 border-b border-emerald-500/30">
-          <div className="max-w-2xl mx-auto px-6 py-4">
+    <div className="app-frame">
+      <div className="app-container pb-24">
+        {/* Delete Modal */}
+        {showDeleteModal && groupToDelete && (
+          <div className="modal-overlay">
+            <div className="modal animate-scale-in">
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Groep verwijderen
+              </h2>
+              <p className="text-secondary mb-2">
+                Weet je zeker dat je <span className="text-white font-semibold">{groupToDelete.name}</span> wilt verwijderen?
+              </p>
+              <p className="text-[#FF453A] text-sm mb-6">
+                ⚠️ Alle opdrachten in deze groep worden ook permanent verwijderd.
+              </p>
+
+              <div className="mb-6">
+                <label className="block text-sm text-secondary mb-2">
+                  Voer de groepscode in ter bevestiging:
+                </label>
+                <input
+                  type="text"
+                  value={deleteCodeInput}
+                  onChange={(e) => setDeleteCodeInput(e.target.value)}
+                  className="input font-mono"
+                  placeholder="Groepscode"
+                  autoFocus
+                />
+                {deleteError && (
+                  <p className="text-[#FF453A] text-sm mt-2">{deleteError}</p>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setGroupToDelete(null);
+                    setDeleteCodeInput("");
+                    setDeleteError("");
+                  }}
+                  className="btn btn-secondary flex-1"
+                >
+                  Annuleren
+                </button>
+                <button
+                  onClick={handleDeleteGroup}
+                  className="flex-1 bg-[#FF453A] hover:bg-[#FF3B30] text-white font-medium py-3 rounded-full transition-all"
+                >
+                  Verwijderen
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Share Banner */}
+        {showBanner && (
+          <div className="card mb-6 bg-[#34C759]/10 border border-[#34C759]/30">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-emerald-400 text-lg">✓</span>
-                  <h3 className="text-white font-semibold">Klaar! Deel deze link in WhatsApp</h3>
+                  <span className="text-accent text-lg">✓</span>
+                  <h3 className="text-white font-medium">Klaar! Deel in WhatsApp</h3>
                 </div>
                 {groupCode && (
-                  <p className="text-sm text-emerald-300 mb-3">
-                    Groepscode: <span className="font-mono font-bold">{groupCode}</span> (alleen voor posten/bewerken)
+                  <p className="text-sm text-accent mb-3">
+                    Code: <span className="font-mono font-bold">{groupCode}</span>
                   </p>
                 )}
-                <div className="flex gap-2">
-                  <button
-                    onClick={shareWhatsApp}
-                    className="bg-[#25D366] hover:bg-[#20BA5A] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Deel in WhatsApp
-                  </button>
-                  <button
-                    onClick={copyLink}
-                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Kopieer link
-                  </button>
-                </div>
+                <button
+                  onClick={shareWhatsApp}
+                  className="btn btn-primary text-sm"
+                >
+                  Deel in WhatsApp
+                </button>
               </div>
               <button
                 onClick={dismissBanner}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-tertiary hover:text-white transition-colors"
               >
                 ✕
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Group Selector Modal */}
-      {showGroupSelector && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
-          <div className="bg-[#1A1A1A] border border-gray-800 rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-xl font-bold text-white mb-4">
-              In welke groepen plaatsen?
-            </h2>
-            <p className="text-gray-400 mb-6 text-sm">
-              Selecteer één of meer groepen waar je deze opdracht wilt plaatsen
-            </p>
-            <div className="space-y-2 mb-6 max-h-60 overflow-y-auto">
-              {myGroups.map((g: any) => {
-                const isSelected = selectedGroups.includes(g.id);
-                return (
-                  <label
-                    key={g.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                      isSelected
-                        ? 'bg-emerald-500/10 border border-emerald-500/30'
-                        : 'bg-[#0A0A0A] border border-gray-800 hover:border-gray-700'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleGroupSelection(g.id)}
-                      className="w-4 h-4 rounded border-gray-700 bg-[#0A0A0A] text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
-                    />
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                        {g.name?.charAt(0).toUpperCase() || "V"}
-                      </div>
-                      <span className="text-white text-sm">
-                        {g.name || "ViaVia"}
-                      </span>
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-            <p className="text-xs text-gray-500 mb-4">
-              {selectedGroups.length} {selectedGroups.length === 1 ? 'groep' : 'groepen'} geselecteerd
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowGroupSelector(false);
-                  setSelectedGroups([group.id]); // Reset selection
-                }}
-                className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 rounded-xl transition-colors"
-              >
-                Annuleren
-              </button>
-              <button
-                onClick={() => {
-                  if (selectedGroups.length === 0) {
-                    alert("Selecteer minimaal één groep");
-                    return;
-                  }
-                  setShowGroupSelector(false);
-                  setShowForm(true);
-                }}
-                disabled={selectedGroups.length === 0}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Verder
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="border-b border-gray-800/50 bg-black/40 backdrop-blur-xl sticky top-0 z-40 w-full">
-        <div className="max-w-2xl mx-auto px-6 py-5">
-          <div className="flex items-center justify-between gap-4 mb-4">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-white">
-                ViaVia
-              </h1>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Altijd het overzicht, zonder terugscrollen in WhatsApp.
+        {/* Group Selector Modal */}
+        {showGroupSelector && (
+          <div className="modal-overlay">
+            <div className="modal animate-scale-in">
+              <h2 className="text-xl font-semibold text-white mb-2">
+                In welke groepen plaatsen?
+              </h2>
+              <p className="text-secondary text-sm mb-6">
+                Selecteer één of meer groepen waar je deze opdracht wilt plaatsen
               </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {!showForm && isCreator && (
+              <div className="list-gap mb-6 max-h-60 overflow-y-auto">
+                {myGroups.map((g: any) => {
+                  const isSelected = selectedGroups.includes(g.id);
+                  return (
+                    <label
+                      key={g.id}
+                      className={`card card-interactive ${
+                        isSelected ? 'bg-[#34C759]/10 border border-[#34C759]/30' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleGroupSelection(g.id)}
+                          className="w-4 h-4 rounded border-[#3A3A3C] bg-[#1C1C1E] text-[#34C759] focus:ring-[#34C759] focus:ring-offset-0"
+                        />
+                        <div className="w-6 h-6 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-xs font-bold">
+                          {g.name?.charAt(0).toUpperCase() || "V"}
+                        </div>
+                        <span className="text-white text-sm">
+                          {g.name || "ViaVia"}
+                        </span>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-tertiary mb-4">
+                {selectedGroups.length} {selectedGroups.length === 1 ? 'groep' : 'groepen'} geselecteerd
+              </p>
+              <div className="flex gap-3">
                 <button
-                  onClick={inviteToGroup}
-                  className="text-sm text-emerald-600 hover:text-emerald-500 transition-colors flex items-center gap-1"
-                  title="Nodig anderen uit voor deze groep"
+                  onClick={() => {
+                    setShowGroupSelector(false);
+                    setSelectedGroups([group.id]);
+                  }}
+                  className="btn btn-secondary flex-1"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                  Nodig uit
+                  Annuleren
                 </button>
-              )}
-              {showForm && (
                 <button
-                  onClick={() => setShowForm(false)}
-                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                  onClick={() => {
+                    if (selectedGroups.length === 0) {
+                      alert("Selecteer minimaal één groep");
+                      return;
+                    }
+                    setShowGroupSelector(false);
+                    setShowForm(true);
+                  }}
+                  disabled={selectedGroups.length === 0}
+                  className="btn btn-primary flex-1"
                 >
-                  Annuleer
+                  Verder
                 </button>
-              )}
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Groups vertical list */}
-          {!showForm && (
-            <>
-              <div className="space-y-2">
-                {myGroups.map((g: any) => (
-                <div
-                  key={g.slug}
-                  className={`flex items-center justify-between px-4 py-2 rounded-lg border transition-colors ${
-                    g.slug === slug
-                      ? 'bg-emerald-500/20 border-emerald-500/50'
-                      : 'bg-[#1A1A1A] border-gray-800 hover:border-gray-700'
-                  }`}
-                >
-                  <Link href={`/g/${g.slug}`} className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                      {g.name?.charAt(0).toUpperCase() || "V"}
-                    </div>
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <span className={`text-sm font-medium truncate ${g.slug === slug ? 'text-white' : 'text-gray-300'}`}>
-                        {g.name || "ViaVia"}
-                      </span>
-                      {g.code && (
-                        <span className="text-xs font-mono text-gray-500 shrink-0">
-                          {g.code}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const groupUrl = `${window.location.origin}/g/${g.slug}`;
-                        const text = `Check deze freelance opdrachten: ${groupUrl}`;
-                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-                      }}
-                      className="text-emerald-600 hover:text-emerald-500 transition-colors p-1"
-                      title="Deel link in WhatsApp"
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                      </svg>
-                    </button>
-                    {g.code && (
-                      <button
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          if (confirm(`Weet je zeker dat je "${g.name || 'ViaVia'}" wilt verwijderen? Alle opdrachten worden ook verwijderd.`)) {
-                            const result = await deleteGroup(g.slug, g.code);
-                            if (result.success) {
-                              // Remove from localStorage
-                              const updatedGroups = myGroups.filter(group => group.slug !== g.slug);
-                              localStorage.setItem("my_groups", JSON.stringify(updatedGroups));
-                              setMyGroups(updatedGroups);
-
-                              // Clear session storage
-                              sessionStorage.removeItem(`group_${g.slug}_show_banner`);
-                              sessionStorage.removeItem(`group_${g.slug}_code`);
-
-                              // If we deleted the current group, redirect to home or another group
-                              if (g.slug === slug) {
-                                if (updatedGroups.length > 0) {
-                                  router.push(`/g/${updatedGroups[0].slug}`);
-                                } else {
-                                  router.push("/");
-                                }
-                              }
-                            } else {
-                              alert(result.error || "Er is iets misgegaan");
-                            }
-                          }
-                        }}
-                        className="text-gray-600 hover:text-red-400 transition-colors p-1"
-                        title="Verwijder groep"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                </div>
-                ))}
-              </div>
-
-              {/* New Group Button - separate from list */}
-              <Link
-                href="/"
-                className="mt-4 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600/10 border border-emerald-600/30 hover:bg-emerald-600/20 hover:border-emerald-500/50 text-emerald-400 text-sm font-medium transition-all"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Nieuwe groep maken
-              </Link>
-            </>
-          )}
+        {/* Header */}
+        <div className="text-center mb-8 mt-6">
+          <h1 className="text-2xl font-bold text-white mb-1">
+            {group.name || "ViaVia"}
+          </h1>
+          <p className="text-sm text-tertiary">
+            Altijd het overzicht, geen scrollen in WhatsApp
+          </p>
         </div>
-      </div>
 
-      <div className="w-full max-w-2xl px-6 py-8">
-        {/* Form - WhatsApp inline style */}
+        {/* Form */}
         {showForm && (
-          <div className="mb-8 bg-[#1A1A1A] rounded-2xl p-8 border border-gray-800/50">
-            <h2 className="text-2xl font-bold text-white mb-6">Nieuwe opdracht</h2>
+          <div className="card mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-white">Nieuwe opdracht</h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-sm text-secondary hover:text-white transition-colors"
+              >
+                Annuleer
+              </button>
+            </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6 text-red-400 text-sm">
+              <div className="bg-[#FF453A]/10 border border-[#FF453A]/30 rounded-xl p-4 mb-6 text-[#FF453A] text-sm">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Show selected groups info */}
+            <form onSubmit={handleSubmit} className="space-y-4">
               {myGroups.length > 1 && selectedGroups.length > 0 && (
-                <div className="mb-6 pb-6 border-b border-gray-800/50">
-                  <label className="block text-sm text-gray-400 mb-3">
-                    Wordt geplaatst in {selectedGroups.length} groep{selectedGroups.length === 1 ? '' : 'en'}
+                <div className="mb-6 pb-6 border-b border-[#3A3A3C]">
+                  <label className="block text-sm text-secondary mb-3">
+                    Plaatsen in {selectedGroups.length} groep{selectedGroups.length === 1 ? '' : 'en'}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {myGroups.filter(g => selectedGroups.includes(g.id)).map((g: any) => (
                       <div
                         key={g.id}
-                        className="bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-lg flex items-center gap-2"
+                        className="bg-[#34C759]/10 border border-[#34C759]/30 px-3 py-1.5 rounded-lg flex items-center gap-2"
                       >
-                        <div className="w-4 h-4 rounded-full bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                        <div className="w-4 h-4 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-xs font-bold">
                           {g.name?.charAt(0).toUpperCase() || "V"}
                         </div>
                         <span className="text-white text-sm">{g.name || "ViaVia"}</span>
@@ -569,7 +473,7 @@ ${url}
                               toggleGroupSelection(g.id);
                             }
                           }}
-                          className="text-emerald-400 hover:text-emerald-300 ml-1"
+                          className="text-accent hover:opacity-80 ml-1"
                           disabled={selectedGroups.length === 1}
                         >
                           ✕
@@ -580,329 +484,154 @@ ${url}
                 </div>
               )}
 
-              {/* Old group selector - removed */}
-              {false && myGroups.length > 1 && (
-                <div className="mb-6 pb-6 border-b border-gray-800/50">
-                  <label className="block text-sm text-gray-400 mb-3">
-                    Plaats in groepen (selecteer één of meer)
-                  </label>
-                  <div className="space-y-2">
-                    {myGroups.map((g: any) => {
-                      const isSelected = selectedGroups.includes(g.id);
-                      return (
-                        <label
-                          key={g.id}
-                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                            isSelected
-                              ? 'bg-emerald-500/10 border border-emerald-500/30'
-                              : 'bg-[#0A0A0A] border border-gray-800 hover:border-gray-700'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleGroupSelection(g.id)}
-                            className="w-4 h-4 rounded border-gray-700 bg-[#0A0A0A] text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
-                            disabled={formLoading}
-                          />
-                          <div className="flex items-center gap-2 flex-1">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                              {g.name?.charAt(0).toUpperCase() || "V"}
-                            </div>
-                            <span className="text-white text-sm">
-                              {g.name || "ViaVia"}
-                            </span>
-                          </div>
-                        </label>
-                      );
-                    })}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm text-secondary mb-1">Functie</label>
+                  <input type="text" name="titel" className="input" placeholder="Senior React Developer" required disabled={formLoading} />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-secondary mb-1">Bedrijf</label>
+                  <input type="text" name="bedrijf" className="input" placeholder="Coolblue" required disabled={formLoading} />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-secondary mb-1">Uurtarief</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-tertiary">€</span>
+                    <input type="number" name="uurtarief" className="input" placeholder="100" min="0" step="5" required disabled={formLoading} />
+                    <span className="text-tertiary text-sm">/uur</span>
                   </div>
-                  <p className="text-xs text-gray-600 mt-3">
-                    {selectedGroups.length} {selectedGroups.length === 1 ? 'groep' : 'groepen'} geselecteerd
-                  </p>
-                </div>
-              )}
-
-              {/* Inline inputs - WhatsApp style */}
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Functie:</label>
-                <input
-                  type="text"
-                  name="titel"
-                  className="flex-1 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                  placeholder="Senior React Developer"
-                  required
-                  disabled={formLoading}
-                />
-              </div>
-
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Bedrijf:</label>
-                <input
-                  type="text"
-                  name="bedrijf"
-                  className="flex-1 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                  placeholder="Coolblue"
-                  required
-                  disabled={formLoading}
-                />
-              </div>
-
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Uurtarief:</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">€</span>
-                  <input
-                    type="number"
-                    name="uurtarief"
-                    className="w-24 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                    placeholder="100"
-                    min="0"
-                    step="5"
-                    required
-                    disabled={formLoading}
-                  />
-                  <span className="text-gray-500 text-sm">/uur</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Locatie:</label>
-                <select
-                  name="locatie"
-                  className="flex-1 bg-transparent border-b border-gray-700 text-white focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                  required
-                  disabled={formLoading}
-                >
-                  <option value="Remote" className="bg-[#1A1A1A]">Remote</option>
-                  <option value="Hybride" className="bg-[#1A1A1A]">Hybride</option>
-                  <option value="OnSite" className="bg-[#1A1A1A]">Op locatie</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Plaats:</label>
-                <input
-                  type="text"
-                  name="locatie_detail"
-                  className="flex-1 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                  placeholder="Amsterdam (optioneel)"
-                  disabled={formLoading}
-                />
-              </div>
-
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Uren/week:</label>
-                <input
-                  type="number"
-                  name="uren_per_week"
-                  className="w-24 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                  placeholder="32"
-                  min="0"
-                  max="40"
-                  disabled={formLoading}
-                />
-              </div>
-
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Duur (mnd):</label>
-                <input
-                  type="number"
-                  name="duur_maanden"
-                  className="w-24 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                  placeholder="6"
-                  min="1"
-                  max="24"
-                  disabled={formLoading}
-                />
-              </div>
-
-              <div className="flex items-center gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0">Team:</label>
-                <input
-                  type="text"
-                  name="teamgrootte"
-                  className="flex-1 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                  placeholder="2-5 (optioneel)"
-                  disabled={formLoading}
-                />
-              </div>
-
-              <div className="flex items-start gap-3 text-base">
-                <label className="text-gray-400 w-32 flex-shrink-0 pt-2">Omschrijving:</label>
-                <textarea
-                  name="omschrijving"
-                  className="flex-1 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors resize-none"
-                  placeholder="Korte beschrijving (max 3-4 regels)"
-                  rows={3}
-                  maxLength={280}
-                  required
-                  disabled={formLoading}
-                />
-              </div>
-
-              <div className="border-t border-gray-800/50 pt-6 mt-6">
-                <div className="flex items-center gap-3 text-base">
-                  <label className="text-gray-400 w-32 flex-shrink-0">Jouw naam:</label>
-                  <input
-                    type="text"
-                    name="plaatser_naam"
-                    className="flex-1 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                    placeholder="John Doe"
-                    required
-                    disabled={formLoading}
-                  />
                 </div>
 
-                <div className="flex items-center gap-3 text-base mt-5">
-                  <label className="text-gray-400 w-32 flex-shrink-0">WhatsApp:</label>
-                  <input
-                    type="tel"
-                    name="plaatser_whatsapp"
-                    className="flex-1 bg-transparent border-b border-gray-700 text-white placeholder-gray-600 focus:border-emerald-500 focus:outline-none py-2 transition-colors"
-                    placeholder="+31612345678"
-                    required
-                    disabled={formLoading}
-                  />
+                <div>
+                  <label className="block text-sm text-secondary mb-1">Locatie</label>
+                  <select name="locatie" className="input" required disabled={formLoading}>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybride">Hybride</option>
+                    <option value="OnSite">Op locatie</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-secondary mb-1">Plaats (optioneel)</label>
+                  <input type="text" name="locatie_detail" className="input" placeholder="Amsterdam" disabled={formLoading} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm text-secondary mb-1">Uren/week</label>
+                    <input type="number" name="uren_per_week" className="input" placeholder="32" min="0" max="40" disabled={formLoading} />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-secondary mb-1">Duur (mnd)</label>
+                    <input type="number" name="duur_maanden" className="input" placeholder="6" min="1" max="24" disabled={formLoading} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-secondary mb-1">Team (optioneel)</label>
+                  <input type="text" name="teamgrootte" className="input" placeholder="2-5" disabled={formLoading} />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-secondary mb-1">Omschrijving</label>
+                  <textarea name="omschrijving" className="textarea" placeholder="Korte beschrijving" rows={3} maxLength={280} required disabled={formLoading} />
+                </div>
+
+                <div className="border-t border-[#3A3A3C] pt-4 mt-4">
+                  <div>
+                    <label className="block text-sm text-secondary mb-1">Jouw naam</label>
+                    <input type="text" name="plaatser_naam" className="input" placeholder="John Doe" required disabled={formLoading} />
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="block text-sm text-secondary mb-1">WhatsApp</label>
+                    <input type="tel" name="plaatser_whatsapp" className="input" placeholder="+31612345678" required disabled={formLoading} />
+                  </div>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={formLoading}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-8"
-              >
+              <button type="submit" disabled={formLoading} className="btn btn-primary w-full mt-6">
                 {formLoading ? "Plaatsen..." : "Plaats opdracht"}
               </button>
             </form>
           </div>
         )}
 
-        {/* Job Tiles - compact, scannable */}
+        {/* Job List */}
         {!showForm && (
-          <div className="space-y-4">
+          <div className="list-gap">
             {loading ? (
               <div className="text-center py-16">
-                <div className="animate-spin w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-                <p className="text-gray-500">Laden...</p>
+                <div className="animate-spin w-10 h-10 border-2 border-[#34C759] border-t-transparent rounded-full mx-auto mb-3"></div>
+                <p className="text-secondary">Laden...</p>
               </div>
             ) : opdrachten.length === 0 ? (
               <>
-                {/* Example/Template Card - only shown when no opdrachten */}
-                <button
-                  onClick={() => {
-                    if (myGroups.length > 1) {
-                      setShowGroupSelector(true);
-                    } else {
-                      setShowForm(true);
-                    }
-                  }}
-                  className="block w-full bg-[#1A1A1A]/40 hover:bg-[#1A1A1A]/60 border border-dashed border-gray-700/50 rounded-2xl p-6 transition-all text-left"
-                >
-                  <div className="flex gap-4">
-                    {/* Avatar */}
-                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-gray-600 to-gray-700 flex items-center justify-center text-white text-lg font-bold shrink-0 opacity-40">
+                <div onClick={() => {
+                  if (myGroups.length > 1) {
+                    setShowGroupSelector(true);
+                  } else {
+                    setShowForm(true);
+                  }
+                }} className="job-card opacity-50">
+                  <div className="flex gap-3">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#636366] to-[#48484A] flex items-center justify-center text-white text-lg font-bold shrink-0">
                       ?
                     </div>
-
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-500 leading-tight mb-1">
-                            Plaats je opdracht hier...
-                          </h3>
-                          <p className="text-sm text-gray-600">Je bedrijfsnaam</p>
-                        </div>
-                        <span className="text-xs bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-full font-medium shrink-0">
-                          + Nieuw
-                        </span>
-                      </div>
-
-                      {/* Key info - scannable grid */}
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-600 font-semibold">€85</span>
-                          <span className="text-gray-700">/uur</span>
-                        </div>
-                        <div className="text-gray-600">Remote</div>
-                        <div className="text-gray-600">32 uur/week</div>
-                        <div className="text-gray-600">3 maanden</div>
+                      <h3 className="text-white font-medium mb-1">Plaats je opdracht hier...</h3>
+                      <p className="text-sm text-secondary mb-2">Je bedrijfsnaam</p>
+                      <div className="meta-info">
+                        <span className="text-accent font-semibold">€85/uur</span>
+                        <span className="meta-separator"></span>
+                        <span>Remote</span>
+                        <span className="meta-separator"></span>
+                        <span>32u/w</span>
                       </div>
                     </div>
                   </div>
-                </button>
-
-                <div className="text-center py-12">
-                  <p className="text-gray-500 text-sm">
-                    Klik op het voorbeeld hierboven om je eerste opdracht te plaatsen
+                </div>
+                <div className="text-center py-8">
+                  <p className="text-sm text-tertiary">
+                    Klik op het voorbeeld om je eerste opdracht te plaatsen
                   </p>
                 </div>
               </>
             ) : (
-                  opdrachten.map((job) => {
+              opdrachten.map((job) => {
                 const isNew = new Date(job.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const reactiesCount = job._count?.reacties || 0;
 
                 return (
-                  <Link
-                    key={job.id}
-                    href={`/g/${slug}/j/${job.id}`}
-                    className="block bg-[#1A1A1A] hover:bg-[#222] border border-gray-800/50 rounded-2xl p-6 transition-all"
-                  >
-                    <div className="flex gap-4">
-                      {/* Avatar */}
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
+                  <Link key={job.id} href={`/g/${slug}/j/${job.id}`} className="job-card">
+                    <div className="flex gap-3">
+                      <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-lg font-bold shrink-0">
                         {job.bedrijf?.charAt(0).toUpperCase() || "?"}
                       </div>
-
-                      {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-white leading-tight mb-1">
-                              {job.titel}
-                            </h3>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-gray-500">{job.bedrijf}</p>
-                              {job.group && job.group.slug !== slug && (
-                                <span className="text-xs bg-gray-800 text-gray-500 px-2 py-0.5 rounded">
-                                  via {job.group.name || "ViaVia"}
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h3 className="text-white font-medium">{job.titel}</h3>
                           {isNew && (
-                            <span className="text-xs bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-full font-medium flex-shrink-0">
-                              NIEUW
-                            </span>
+                            <span className="badge badge-open text-[10px] px-2 py-0.5">NIEUW</span>
                           )}
                         </div>
-
-                        {/* Key info - scannable grid */}
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <span className="text-emerald-400 font-semibold">€{job.uurtarief}</span>
-                            <span className="text-gray-600">/uur</span>
-                          </div>
-                          <div className="text-gray-400">
-                            {job.locatie === "Remote" && "Remote"}
-                            {job.locatie === "Hybride" && "Hybride"}
-                            {job.locatie === "OnSite" && "Op locatie"}
-                            {job.locatie_detail && ` · ${job.locatie_detail}`}
-                          </div>
+                        <p className="text-sm text-secondary mb-2">{job.bedrijf}</p>
+                        <div className="meta-info">
+                          <span className="text-accent font-semibold">€{job.uurtarief}/uur</span>
+                          <span className="meta-separator"></span>
+                          <span>{job.locatie === "Remote" ? "Remote" : job.locatie === "Hybride" ? "Hybride" : "Op locatie"}</span>
                           {job.uren_per_week && (
-                            <div className="text-gray-400">{job.uren_per_week} uur/week</div>
-                          )}
-                          {job.duur_maanden && (
-                            <div className="text-gray-400">{job.duur_maanden} maanden</div>
+                            <>
+                              <span className="meta-separator"></span>
+                              <span>{job.uren_per_week}u/w</span>
+                            </>
                           )}
                         </div>
-
-                        {/* Reacties counter */}
                         {reactiesCount > 0 && (
-                          <div className="mt-3 pt-3 border-t border-gray-800/50">
-                            <span className="text-xs text-gray-600">
+                          <div className="mt-2 pt-2 border-t border-[#3A3A3C]">
+                            <span className="text-xs text-tertiary">
                               {reactiesCount} {reactiesCount === 1 ? "reactie" : "reacties"}
                             </span>
                           </div>
@@ -911,13 +640,13 @@ ${url}
                     </div>
                   </Link>
                 );
-                  })
+              })
             )}
           </div>
         )}
       </div>
 
-      {/* Floating Action Button */}
+      {/* FAB */}
       {!showForm && (
         <button
           onClick={() => {
@@ -927,12 +656,11 @@ ${url}
               setShowForm(true);
             }
           }}
-          className="fixed bottom-6 right-6 w-16 h-16 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-2xl hover:scale-110 transition-all flex items-center justify-center z-40"
+          className="fab"
         >
-          <span className="text-3xl font-bold">+</span>
+          <span className="text-3xl">+</span>
         </button>
       )}
-
     </div>
   );
 }

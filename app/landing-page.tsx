@@ -3,7 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { createGroup } from "@/app/actions/group";
+import dynamic from "next/dynamic";
+import { QRCodeSVG } from "qrcode.react";
+import { createGroup, joinGroupWithCode } from "@/app/actions/group";
+
+const QRScanner = dynamic(() => import("@/app/components/QRScanner"), {
+  ssr: false,
+});
 
 interface SavedGroup {
   slug: string;
@@ -21,8 +27,13 @@ export default function LandingPage() {
   const [myGroups, setMyGroups] = useState<SavedGroup[]>([]);
   const [showImportPrompt, setShowImportPrompt] = useState(false);
   const [importData, setImportData] = useState<SavedGroup[] | null>(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
+  const [joinError, setJoinError] = useState("");
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [qrCodeToShow, setQrCodeToShow] = useState<string | null>(null);
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
-  // Load user's groups from localStorage and check for import param
   useEffect(() => {
     const savedGroups = localStorage.getItem("my_groups");
     if (savedGroups) {
@@ -34,7 +45,6 @@ export default function LandingPage() {
       }
     }
 
-    // Check for import parameter in URL
     const importParam = searchParams.get("import");
     if (importParam) {
       try {
@@ -54,17 +64,15 @@ export default function LandingPage() {
 
     const result = await createGroup({
       name: groupName || undefined,
-      withCode: false,
+      withCode: true,
     });
 
     if (result.success && result.slug) {
-      // Store in sessionStorage for immediate access
       if (result.code) {
         sessionStorage.setItem(`group_${result.slug}_code`, result.code);
         sessionStorage.setItem(`group_${result.slug}_show_banner`, "true");
       }
 
-      // Save to localStorage for persistent group list
       const newGroup: SavedGroup = {
         slug: result.slug,
         name: groupName || undefined,
@@ -88,7 +96,6 @@ export default function LandingPage() {
     localStorage.setItem("my_groups", JSON.stringify(updatedGroups));
     setMyGroups(updatedGroups);
 
-    // Also remove from sessionStorage
     sessionStorage.removeItem(`group_${slug}_code`);
     sessionStorage.removeItem(`group_${slug}_show_banner`);
   }
@@ -109,7 +116,6 @@ export default function LandingPage() {
   function handleImport() {
     if (!importData) return;
 
-    // Merge with existing groups, avoiding duplicates
     const existingSlugs = new Set(myGroups.map(g => g.slug));
     const newGroups = importData.filter(g => !existingSlugs.has(g.slug));
 
@@ -117,7 +123,6 @@ export default function LandingPage() {
     localStorage.setItem("my_groups", JSON.stringify(mergedGroups));
     setMyGroups(mergedGroups);
 
-    // Store codes in sessionStorage
     newGroups.forEach(g => {
       if (g.code) {
         sessionStorage.setItem(`group_${g.slug}_code`, g.code);
@@ -127,7 +132,6 @@ export default function LandingPage() {
     setShowImportPrompt(false);
     setImportData(null);
 
-    // Clean URL
     router.replace("/");
 
     alert(`${newGroups.length} groep${newGroups.length === 1 ? '' : 'en'} geïmporteerd!`);
@@ -139,36 +143,191 @@ export default function LandingPage() {
     router.replace("/");
   }
 
+  function handleQRScan(scannedCode: string) {
+    setShowQRScanner(false);
+    setJoinCode(scannedCode.toUpperCase());
+    setShowJoinModal(true);
+    handleJoinGroupWithCode(scannedCode);
+  }
+
+  async function handleJoinGroupWithCode(code: string) {
+    const result = await joinGroupWithCode(code.trim());
+
+    if (result.success && result.group) {
+      const exists = myGroups.some(g => g.slug === result.group!.slug);
+      if (exists) {
+        setJoinError("Je hebt deze groep al in je lijst");
+        return;
+      }
+
+      const newGroup: SavedGroup = {
+        slug: result.group.slug,
+        name: result.group.name || undefined,
+        code: result.group.code,
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedGroups = [...myGroups, newGroup];
+      localStorage.setItem("my_groups", JSON.stringify(updatedGroups));
+      setMyGroups(updatedGroups);
+
+      sessionStorage.setItem(`group_${result.group.slug}_code`, result.group.code);
+
+      setShowJoinModal(false);
+      setJoinCode("");
+      router.push(`/g/${result.group.slug}`);
+    } else {
+      setJoinError(result.error || "Groep niet gevonden");
+    }
+  }
+
+  async function handleJoinGroup() {
+    if (!joinCode.trim()) {
+      setJoinError("Voer een groepscode in");
+      return;
+    }
+
+    setJoinError("");
+    await handleJoinGroupWithCode(joinCode);
+  }
+
   const hasGroups = myGroups.length > 0;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] py-12 px-6">
-      <div className="max-w-2xl mx-auto">
+    <div className="app-frame">
+      <div className="app-container">
+        {/* QR Scanner */}
+        {showQRScanner && (
+          <QRScanner
+            onScan={handleQRScan}
+            onClose={() => setShowQRScanner(false)}
+          />
+        )}
+
+        {/* QR Code Display Modal */}
+        {showQRModal && qrCodeToShow && (
+          <div className="modal-overlay">
+            <div className="modal animate-scale-in">
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Scan QR Code
+              </h2>
+              <p className="text-secondary text-sm mb-6">
+                Laat iemand anders deze QR code scannen om de groep toe te voegen
+              </p>
+              <div className="bg-white p-6 rounded-2xl mb-6 w-full flex justify-center">
+                <QRCodeSVG value={qrCodeToShow} size={200} level="H" />
+              </div>
+              <div className="mb-6 text-center">
+                <p className="text-tertiary text-xs mb-2">Of deel deze code:</p>
+                <p className="text-white font-mono text-2xl tracking-wider">{qrCodeToShow}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowQRModal(false);
+                  setQrCodeToShow(null);
+                }}
+                className="btn btn-primary w-full"
+              >
+                Sluiten
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Join Group Modal */}
+        {showJoinModal && (
+          <div className="modal-overlay">
+            <div className="modal animate-scale-in">
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Groep toevoegen
+              </h2>
+              <p className="text-secondary text-sm mb-6">
+                Voer de 6-cijferige groepscode in of scan een QR code
+              </p>
+
+              <button
+                onClick={() => {
+                  setShowJoinModal(false);
+                  setShowQRScanner(true);
+                }}
+                className="btn btn-secondary w-full mb-4"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+                Scan QR Code
+              </button>
+
+              <div className="relative mb-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full divider"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-[#2C2C2E] px-2 text-tertiary">Of typ de code</span>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <input
+                  type="text"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  className="input font-mono text-center text-2xl tracking-wider"
+                  placeholder="ABC123"
+                  maxLength={6}
+                  autoFocus
+                />
+                {joinError && (
+                  <p className="text-[#FF453A] text-sm mt-2">{joinError}</p>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowJoinModal(false);
+                    setJoinCode("");
+                    setJoinError("");
+                  }}
+                  className="btn btn-secondary flex-1"
+                >
+                  Annuleren
+                </button>
+                <button
+                  onClick={handleJoinGroup}
+                  className="btn btn-primary flex-1"
+                >
+                  Toevoegen
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Import Prompt Modal */}
         {showImportPrompt && importData && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
-            <div className="bg-[#1A1A1A] border border-gray-800 rounded-2xl p-8 max-w-md w-full">
-              <h2 className="text-xl font-bold text-white mb-4">
+          <div className="modal-overlay">
+            <div className="modal animate-scale-in">
+              <h2 className="text-xl font-semibold text-white mb-2">
                 Groepen importeren
               </h2>
-              <p className="text-gray-400 mb-6">
+              <p className="text-secondary mb-6">
                 Er {importData.length === 1 ? 'is' : 'zijn'} {importData.length} groep{importData.length === 1 ? '' : 'en'} gevonden om te importeren:
               </p>
-              <div className="space-y-2 mb-6 max-h-60 overflow-y-auto">
+              <div className="list-gap mb-6 max-h-60 overflow-y-auto">
                 {importData.map((group) => (
                   <div
                     key={group.slug}
-                    className="bg-[#0A0A0A] border border-gray-800 rounded-lg p-3"
+                    className="card"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white text-sm font-semibold">
                         {group.name?.charAt(0).toUpperCase() || "V"}
                       </div>
                       <span className="text-white text-sm">
                         {group.name || "ViaVia"}
                       </span>
                       {group.code && (
-                        <span className="text-xs text-gray-500 font-mono ml-auto">
+                        <span className="text-xs text-tertiary font-mono ml-auto">
                           {group.code}
                         </span>
                       )}
@@ -179,13 +338,13 @@ export default function LandingPage() {
               <div className="flex gap-3">
                 <button
                   onClick={cancelImport}
-                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 rounded-xl transition-colors"
+                  className="btn btn-secondary flex-1"
                 >
                   Annuleren
                 </button>
                 <button
                   onClick={handleImport}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition-colors"
+                  className="btn btn-primary flex-1"
                 >
                   Importeren
                 </button>
@@ -195,12 +354,12 @@ export default function LandingPage() {
         )}
 
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-3">
+        <div className="text-center mb-12 mt-8">
+          <h1 className="text-2xl font-bold text-white mb-1">
             ViaVia
           </h1>
-          <p className="text-lg text-gray-400">
-            Freelance opdrachten voor je WhatsApp groep
+          <p className="text-sm text-tertiary">
+            Freelance opdrachten overzicht
           </p>
         </div>
 
@@ -208,130 +367,191 @@ export default function LandingPage() {
         {hasGroups && !showForm && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">Mijn groepen</h2>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={exportGroups}
-                  className="text-sm text-gray-400 hover:text-emerald-500 transition-colors flex items-center gap-1"
-                  title="Exporteer groepen naar ander device"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Export
-                </button>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="text-sm text-emerald-500 hover:text-emerald-400 transition-colors"
-                >
-                  + Nieuwe groep
-                </button>
-              </div>
+              <h2 className="text-lg font-semibold text-white">Mijn groepen</h2>
+              <button
+                onClick={() => setShowForm(true)}
+                className="btn btn-ghost text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Nieuw
+              </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="list-gap">
               {myGroups.map((group) => (
                 <div
                   key={group.slug}
-                  className="bg-[#1A1A1A] border border-gray-800/50 rounded-xl p-4 flex items-center justify-between hover:border-gray-700 transition-colors"
+                  className="card card-hover"
                 >
-                  <Link href={`/g/${group.slug}`} className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {group.name?.charAt(0).toUpperCase() || "V"}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-medium truncate">
-                          {group.name || "ViaVia"}
-                        </h3>
-                        <p className="text-xs text-gray-500">
+                  <Link href={`/g/${group.slug}`} className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white font-semibold">
+                          {group.name?.charAt(0).toUpperCase() || "V"}
+                        </div>
+                        <div>
+                          <h3 className="text-white font-medium">
+                            {group.name || "ViaVia"}
+                          </h3>
                           {group.code && (
-                            <span className="font-mono">Code: {group.code}</span>
+                            <p className="text-xs text-tertiary font-mono">
+                              {group.code}
+                            </p>
                           )}
-                        </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {group.code && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setQrCodeToShow(group.code || null);
+                              setShowQRModal(true);
+                            }}
+                            className="text-accent hover:opacity-80 transition-opacity p-2 touch-feedback"
+                            title="Toon QR code"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (confirm("Weet je zeker dat je deze groep uit je lijst wilt verwijderen? De groep zelf blijft bestaan.")) {
+                              removeGroup(group.slug);
+                            }
+                          }}
+                          className="text-tertiary hover:text-[#FF453A] transition-colors p-2 touch-feedback"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   </Link>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (confirm("Weet je zeker dat je deze groep uit je lijst wilt verwijderen? De groep zelf blijft bestaan.")) {
-                        removeGroup(group.slug);
-                      }
-                    }}
-                    className="ml-4 text-gray-600 hover:text-red-400 transition-colors p-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
                 </div>
               ))}
+            </div>
+
+            <button
+              onClick={exportGroups}
+              className="btn btn-ghost w-full mt-4 text-sm"
+            >
+              Exporteer naar ander device
+            </button>
+          </div>
+        )}
+
+        {/* First Time User - Choice Cards */}
+        {!hasGroups && !showForm && !showJoinModal && (
+          <div className="list-gap">
+            <div
+              onClick={() => setShowForm(true)}
+              className="card card-interactive card-hover"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#34C759]/10 flex items-center justify-center shrink-0">
+                  <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-medium mb-1">
+                    Maak nieuwe groep
+                  </h3>
+                  <p className="text-sm text-secondary">
+                    Start een nieuw overzicht voor jouw WhatsApp groep
+                  </p>
+                </div>
+                <svg className="w-5 h-5 text-tertiary shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+
+            <div
+              onClick={() => setShowJoinModal(true)}
+              className="card card-interactive card-hover"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#34C759]/10 flex items-center justify-center shrink-0">
+                  <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-medium mb-1">
+                    Voeg groep toe
+                  </h3>
+                  <p className="text-sm text-secondary">
+                    Scan QR code of voer groepscode in
+                  </p>
+                </div>
+                <svg className="w-5 h-5 text-tertiary shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
           </div>
         )}
 
         {/* Create Group Form */}
-        {(!hasGroups || showForm) && (
-          <div className="bg-[#1A1A1A] border border-gray-800/50 rounded-2xl p-8">
-            {hasGroups && (
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white">
-                  Nieuwe groep maken
-                </h2>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="text-sm text-gray-400 hover:text-white transition-colors"
-                >
-                  Annuleer
-                </button>
-              </div>
-            )}
-
-            {!hasGroups && (
-              <h2 className="text-xl font-semibold text-white mb-6">
-                Maak overzicht voor je WhatsApp groep
+        {showForm && (
+          <div className="card">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-white">
+                {hasGroups ? "Nieuwe groep" : "Maak nieuwe groep"}
               </h2>
-            )}
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-sm text-secondary hover:text-white transition-colors"
+              >
+                Annuleer
+              </button>
+            </div>
 
-            {/* Optional group name */}
             <div className="mb-6">
-              <label className="block text-sm text-gray-400 mb-2">
+              <label className="block text-sm text-secondary mb-2">
                 Naam van de groep (optioneel)
               </label>
               <input
                 type="text"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                className="w-full bg-[#0A0A0A] border border-gray-800 text-white rounded-xl px-4 py-3 focus:border-emerald-500 focus:outline-none transition-colors"
+                className="input"
                 placeholder="Bijv. React Freelancers NL"
                 disabled={loading}
+                autoFocus={showForm}
               />
             </div>
 
-
-            {/* Create button */}
             <button
               onClick={handleCreateGroup}
               disabled={loading}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary w-full"
             >
               {loading ? "Aanmaken..." : "Maak groepsoverzicht"}
             </button>
 
-            {/* Info */}
-            <p className="text-xs text-gray-600 text-center mt-6">
+            <p className="text-xs text-tertiary text-center mt-4">
               Je krijgt direct een link om te delen in WhatsApp
             </p>
           </div>
         )}
 
         {/* Value prop */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500">
-            Altijd het overzicht, zonder terugscrollen in WhatsApp.
-          </p>
-        </div>
+        {!hasGroups && (
+          <div className="mt-12 text-center">
+            <p className="text-sm text-tertiary">
+              Altijd het overzicht, zonder terugscrollen in WhatsApp
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

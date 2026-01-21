@@ -113,6 +113,47 @@ export async function getGroup(slug: string) {
   }
 }
 
+export async function joinGroupWithCode(code: string) {
+  try {
+    // Find all groups and check which one matches the code
+    const groups = await db.group.findMany({
+      where: {
+        code_hash: {
+          not: null,
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        code_hash: true,
+      },
+    });
+
+    // Check each group's code
+    for (const group of groups) {
+      if (group.code_hash) {
+        const valid = await bcrypt.compare(code, group.code_hash);
+        if (valid) {
+          return {
+            success: true,
+            group: {
+              slug: group.slug,
+              name: group.name,
+              code: code, // Return the plain code so it can be stored
+            },
+          };
+        }
+      }
+    }
+
+    return { success: false, error: "Ongeldige groepscode" };
+  } catch (error) {
+    console.error("Error joining group:", error);
+    return { success: false, error: "Er is iets misgegaan" };
+  }
+}
+
 export async function deleteGroup(slug: string, code?: string) {
   try {
     const group = await db.group.findUnique({

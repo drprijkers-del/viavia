@@ -20,7 +20,6 @@ export default function OpdrachtDetailClient({ opdracht, slug }: OpdrachtDetailC
   const isFilled = opdracht.status === "INGEVULD";
 
   function shareOpdracht() {
-    // Create shareable opdracht data (without sensitive info like edit_token)
     const opdrachtData = {
       titel: opdracht.titel,
       bedrijf: opdracht.bedrijf,
@@ -38,7 +37,6 @@ export default function OpdrachtDetailClient({ opdracht, slug }: OpdrachtDetailC
     const encoded = btoa(JSON.stringify(opdrachtData));
     const shareUrl = `${window.location.origin}/import-opdracht?data=${encoded}`;
 
-    // Create a nice WhatsApp message with job details
     const locationText = opdracht.locatie === "Remote" ? "Remote" : opdracht.locatie === "Hybride" ? "Hybride" : "Op locatie";
     const description = opdracht.omschrijving.length > 120
       ? opdracht.omschrijving.substring(0, 120) + "..."
@@ -64,78 +62,73 @@ ${shareUrl}`;
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
-      {/* Share Modal */}
-      {showShareModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
-          <div className="bg-[#1A1A1A] border border-gray-800 rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-xl font-bold text-white mb-4">
-              Opdracht gedeeld!
-            </h2>
-            <p className="text-gray-400 mb-6">
-              De link is gekopieerd. Deel deze met anderen zodat zij deze opdracht kunnen importeren in hun eigen groepen.
-            </p>
-            <button
-              onClick={() => setShowShareModal(false)}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition-colors"
-            >
-              Sluiten
-            </button>
+    <div className="app-frame">
+      <div className="app-container pb-24">
+        {/* Share Modal */}
+        {showShareModal && (
+          <div className="modal-overlay">
+            <div className="modal animate-scale-in">
+              <h2 className="text-xl font-semibold text-white mb-2">
+                Opdracht gedeeld!
+              </h2>
+              <p className="text-secondary mb-6">
+                De link is gekopieerd. Deel deze met anderen zodat zij deze opdracht kunnen importeren.
+              </p>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="btn btn-primary w-full"
+              >
+                Sluiten
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Simple header */}
-      <div className="border-b border-gray-800/50 bg-black/40 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 mt-6">
           <Link href={`/g/${slug}`}>
-            <button className="text-sm text-gray-400 hover:text-white transition-colors">
+            <button className="text-sm text-secondary hover:text-white transition-colors">
               ← Terug
             </button>
           </Link>
           <button
             onClick={shareOpdracht}
-            className="text-sm text-emerald-600 hover:text-emerald-500 transition-colors flex items-center gap-1"
+            className="text-sm text-accent hover:opacity-80 transition-opacity"
             title="Deel opdracht"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
             Deel
           </button>
         </div>
-      </div>
 
-      <div className="max-w-2xl mx-auto px-6 py-8">
-        {/* Summary card - WhatsApp style */}
-        <div className="bg-[#1A1A1A] border border-gray-800/50 rounded-2xl p-8">
-          {/* Title */}
-          <div className="mb-8">
-            <h1 className={`text-3xl font-bold mb-2 ${isFilled ? "line-through text-gray-600" : "text-white"}`}>
+        {/* Detail Card */}
+        <div className="card">
+          <div className="mb-6">
+            <h1 className={`text-2xl font-bold mb-2 ${isFilled ? "line-through text-tertiary" : "text-white"}`}>
               {opdracht.titel}
             </h1>
-            <p className="text-xl text-gray-400">{opdracht.bedrijf}</p>
+            <p className="text-lg text-secondary">{opdracht.bedrijf}</p>
             {opdracht.group && (
-              <div className="mt-3 flex items-center gap-2">
-                <span className="text-xs text-gray-500">Geplaatst in:</span>
+              <div className="mt-3">
                 <Link href={`/g/${opdracht.group.slug}`}>
-                  <span className="text-xs bg-emerald-600/10 text-emerald-400 px-3 py-1.5 rounded-full hover:bg-emerald-600/20 transition-colors">
+                  <span className="badge badge-open text-xs">
                     {opdracht.group.name || "ViaVia"}
                   </span>
                 </Link>
               </div>
             )}
             {isFilled && (
-              <span className="inline-block mt-3 text-xs bg-gray-800 text-gray-500 px-3 py-1.5 rounded-full">
+              <span className="badge badge-filled mt-3 inline-block text-xs">
                 ✓ Ingevuld
               </span>
             )}
           </div>
 
-          {/* Key info - inline summary style */}
-          <div className="space-y-4 mb-8 pb-8 border-b border-gray-800/50">
+          <div className="space-y-3 mb-6 pb-6 border-b border-[#3A3A3C]">
             <div className="flex items-center gap-3">
-              <span className="text-gray-500 w-32">Locatie:</span>
+              <svg className="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
               <span className="text-white">
                 {opdracht.locatie === "Remote" && "Remote"}
                 {opdracht.locatie === "Hybride" && "Hybride"}
@@ -145,71 +138,69 @@ ${shareUrl}`;
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-gray-500 w-32">Uurtarief:</span>
-              <span className="text-emerald-400 font-semibold text-lg">
+              <svg className="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-accent font-semibold text-lg">
                 €{opdracht.uurtarief}/uur
               </span>
             </div>
 
             {opdracht.uren_per_week && (
               <div className="flex items-center gap-3">
-                <span className="text-gray-500 w-32">Uren per week:</span>
-                <span className="text-white">{opdracht.uren_per_week}</span>
+                <svg className="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-white">{opdracht.uren_per_week} uur/week</span>
               </div>
             )}
 
             {opdracht.duur_maanden && (
               <div className="flex items-center gap-3">
-                <span className="text-gray-500 w-32">Duur:</span>
+                <svg className="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
                 <span className="text-white">{opdracht.duur_maanden} maanden</span>
               </div>
             )}
 
             {opdracht.teamgrootte && (
               <div className="flex items-center gap-3">
-                <span className="text-gray-500 w-32">Teamgrootte:</span>
-                <span className="text-white">{opdracht.teamgrootte}</span>
+                <svg className="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span className="text-white">Team: {opdracht.teamgrootte}</span>
               </div>
             )}
           </div>
 
-          {/* Description */}
-          <div className="mb-8">
-            <h3 className="text-gray-500 text-sm mb-3">Omschrijving</h3>
+          <div className="mb-6">
+            <h3 className="text-secondary text-sm mb-2">Omschrijving</h3>
             <p className="text-white text-base leading-relaxed whitespace-pre-wrap">
               {opdracht.omschrijving}
             </p>
           </div>
 
-          {/* Contact info */}
-          <div className="pt-6 border-t border-gray-800/50 mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-lg font-bold">
+          <div className="pt-6 border-t border-[#3A3A3C] mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#34C759] to-[#30B350] flex items-center justify-center text-white font-bold">
                 {opdracht.plaatser_naam?.charAt(0).toUpperCase() || "?"}
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Geplaatst door</p>
+                <p className="text-tertiary text-xs">Geplaatst door</p>
                 <p className="text-white font-medium">{opdracht.plaatser_naam}</p>
               </div>
             </div>
           </div>
 
-          {/* Single CTA - WhatsApp */}
-          {!isFilled && (
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block"
-            >
-              <button className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white font-medium py-4 rounded-xl transition-all text-base">
+          {!isFilled ? (
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
+              <button className="btn btn-primary w-full">
                 💬 Reageer via WhatsApp
               </button>
             </a>
-          )}
-
-          {isFilled && (
-            <div className="text-center py-4 text-gray-600">
+          ) : (
+            <div className="text-center py-4 text-tertiary">
               Deze opdracht is ingevuld
             </div>
           )}
