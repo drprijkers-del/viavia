@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import ViaViaLogo from "@/app/components/ViaViaLogo";
-import OpenInAppBanner from "@/app/components/OpenInAppBanner";
 
 type Group = {
   id: string;
@@ -101,8 +100,6 @@ export default function DashboardClient({ groups, jobs, userEmail, userId }: Das
 
   return (
     <div className="dashboard-shell">
-      <OpenInAppBanner />
-
       {/* Desktop Sidebar */}
       <aside className="dashboard-sidebar">
         <div className="mb-6">
