@@ -40,7 +40,19 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (!hasAccess) notFound();
 
   const isOwner = session.user.id === job.createdById;
-  const whatsappLink = `https://wa.me/${job.posterWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+
+  // Format phone number for WhatsApp (needs international format)
+  let phoneNumber = job.posterWhatsapp.replace(/\D/g, "");
+  // If Dutch number starting with 0, replace with 31
+  if (phoneNumber.startsWith("0") && phoneNumber.length === 10) {
+    phoneNumber = "31" + phoneNumber.slice(1);
+  }
+  // If number doesn't have country code, assume Dutch
+  if (phoneNumber.length === 9) {
+    phoneNumber = "31" + phoneNumber;
+  }
+
+  const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
     `Hey ${job.posterName}! Ik ben geïnteresseerd in de opdracht "${job.title}" bij ${job.company}. Kunnen we hierover praten?`
   )}`;
 
