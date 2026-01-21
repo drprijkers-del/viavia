@@ -42,7 +42,7 @@ function LoginForm() {
 
   if (sent) {
     return (
-      <div className="bg-[#2C2C2E] rounded-2xl p-6">
+      <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] max-w-sm w-full">
         <div className="text-center mb-4">
           <div className="w-16 h-16 rounded-full bg-[#34C759]/20 flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-[#34C759]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +56,7 @@ function LoginForm() {
           <p className="text-white font-medium mb-4">{email}</p>
         </div>
 
-        <div className="bg-[#1C1C1E] rounded-xl p-4 mb-4">
+        <div className="bg-[#0A0A0A] rounded-xl p-4 mb-4">
           <p className="text-[#8E8E93] text-sm text-center">
             Klik op de link in de email om in te loggen. Geen email? Check je spam folder.
           </p>
@@ -76,7 +76,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="bg-[#2C2C2E] rounded-2xl p-6">
+    <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] max-w-sm w-full">
       <div className="text-center mb-6">
         <h1 className="text-xl font-bold text-white mb-2">Inloggen of registreren</h1>
         <p className="text-[#8E8E93] text-sm">
@@ -97,7 +97,7 @@ function LoginForm() {
             required
             autoFocus
             autoComplete="email"
-            className="w-full bg-[#1C1C1E] border border-[#3A3A3C] rounded-xl px-4 py-3 text-white placeholder-[#636366] focus:outline-none focus:border-[#34C759] focus:ring-1 focus:ring-[#34C759] transition-colors"
+            className="w-full bg-[#0A0A0A] border border-[#3A3A3C] rounded-xl px-4 py-3 text-white placeholder-[#636366] focus:outline-none focus:border-[#34C759] focus:ring-1 focus:ring-[#34C759] transition-colors"
             disabled={loading}
           />
         </div>
@@ -111,7 +111,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading || !email}
-          className="w-full bg-[#34C759] hover:bg-[#2DB84E] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-2xl py-4 transition-colors"
+          className="w-full bg-[#34C759] hover:bg-[#2DB84E] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-full py-3.5 transition-colors"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -136,7 +136,7 @@ function LoginForm() {
 
 function LoadingState() {
   return (
-    <div className="bg-[#2C2C2E] rounded-2xl p-6">
+    <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] max-w-sm w-full">
       <div className="flex items-center justify-center py-8">
         <svg className="animate-spin h-8 w-8 text-[#34C759]" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -149,17 +149,15 @@ function LoadingState() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#1C1C1E] px-5 py-12 flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+      <div className="flex-1 flex flex-col items-center justify-center px-5 py-12">
         <Link href="/" className="mb-8">
           <ViaViaLogo size="md" />
         </Link>
 
-        <div className="w-full">
-          <Suspense fallback={<LoadingState />}>
-            <LoginForm />
-          </Suspense>
-        </div>
+        <Suspense fallback={<LoadingState />}>
+          <LoginForm />
+        </Suspense>
 
         <Link href="/" className="mt-6 text-[#636366] text-sm hover:text-white transition-colors">
           ← Terug naar home
