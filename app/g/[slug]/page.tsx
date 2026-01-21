@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { listOpdrachten } from "@/app/actions/queries";
 import { createOpdracht, CreateOpdracht } from "@/app/actions/opdracht";
 import { getGroup, deleteGroup } from "@/app/actions/group";
+import ViaViaLogo from "@/app/components/ViaViaLogo";
 
 export default function GroupBoardPage() {
   const params = useParams();
@@ -464,11 +465,7 @@ ${url}
         {/* Header */}
         <div className="mb-6 mt-6">
           <div className="flex items-center justify-between mb-4">
-            <Link href="/">
-              <button className="text-sm text-secondary hover:text-white transition-colors">
-                ← Home
-              </button>
-            </Link>
+            <ViaViaLogo size="sm" />
             <div className="flex-1"></div>
           </div>
           <div className="text-center">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createWhatsAppLink } from "@/lib/utils";
+import ViaViaLogo from "@/app/components/ViaViaLogo";
 
 interface OpdrachtDetailClientProps {
   opdracht: any;
@@ -92,19 +93,25 @@ ${shareUrl}`;
         )}
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 mt-6">
-          <Link href={`/g/${slug}`}>
-            <button className="text-sm text-secondary hover:text-white transition-colors">
-              ← Terug
+        <div className="mb-8 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <ViaViaLogo size="sm" href="/" />
+            <div className="flex-1"></div>
+          </div>
+          <div className="flex items-center justify-between">
+            <Link href={`/g/${slug}`}>
+              <button className="text-sm text-secondary hover:text-white transition-colors">
+                ← Terug
+              </button>
+            </Link>
+            <button
+              onClick={shareOpdracht}
+              className="text-sm text-accent hover:opacity-80 transition-opacity"
+              title="Deel opdracht"
+            >
+              Deel
             </button>
-          </Link>
-          <button
-            onClick={shareOpdracht}
-            className="text-sm text-accent hover:opacity-80 transition-opacity"
-            title="Deel opdracht"
-          >
-            Deel
-          </button>
+          </div>
         </div>
 
         {/* Detail Card */}
