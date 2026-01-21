@@ -7,116 +7,180 @@ import { useEffect, useState } from "react";
 
 export default function DownloadPage() {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
   const appUrl = typeof window !== "undefined" ? window.location.origin : "https://viavia76.vercel.app";
 
   useEffect(() => {
+    // Detect platform
+    const ua = navigator.userAgent;
+    setIsIOS(/iPad|iPhone|iPod/.test(ua));
+    setIsAndroid(/Android/.test(ua));
+    setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
+
+    // Listen for install prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   async function handleInstall() {
-    if (!installPrompt) {
-      alert("Gebruik het browsermenu of volg de instructies hieronder om te installeren.");
-      return;
-    }
-
+    if (!installPrompt) return;
     installPrompt.prompt();
     const { outcome } = await installPrompt.userChoice;
-
     if (outcome === "accepted") {
       setInstallPrompt(null);
     }
   }
 
+  if (isStandalone) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center px-5">
+        <div className="text-center">
+          <div className="w-20 h-20 rounded-2xl bg-[#34C759] flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Al geïnstalleerd!</h1>
+          <p className="text-[#8E8E93] mb-6">ViaVia draait als app op je apparaat.</p>
+          <Link href="/dashboard">
+            <button className="bg-[#34C759] hover:bg-[#2DB84E] text-white font-medium rounded-full px-8 py-3 transition-colors">
+              Open Dashboard
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="app-frame">
-      <div className="app-container pb-24">
-        <div className="flex items-center justify-between mb-8 mt-6">
+    <div className="min-h-screen bg-[#0A0A0A]">
+      <div className="max-w-lg mx-auto px-5 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
           <ViaViaLogo size="sm" />
           <Link href="/">
-            <button className="text-sm text-secondary hover:text-white transition-colors">
+            <button className="text-sm text-[#8E8E93] hover:text-white transition-colors">
               ← Home
             </button>
           </Link>
         </div>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-3">
-              Installeer ViaVia
-            </h1>
-            <p className="text-secondary">
-              Gebruik ViaVia als app op je telefoon
-            </p>
-          </div>
+        {/* Title */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-white mb-2">
+            Installeer ViaVia
+          </h1>
+          <p className="text-[#8E8E93] text-sm">
+            Voeg toe aan je homescreen voor de beste ervaring
+          </p>
+        </div>
 
-          {/* QR Code */}
-          <div className="card text-center mb-6">
+        {/* Android Install Button */}
+        {installPrompt && (
+          <button
+            onClick={handleInstall}
+            className="w-full bg-[#34C759] hover:bg-[#2DB84E] text-white font-medium rounded-full py-4 text-lg mb-6 transition-colors"
+          >
+            Installeer nu
+          </button>
+        )}
+
+        {/* iOS Instructions */}
+        {isIOS && !installPrompt && (
+          <div className="bg-[#1C1C1E] rounded-2xl p-5 border border-[#2C2C2E] mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-2xl">🍎</span>
+              <h2 className="text-white font-semibold">iPhone / iPad</h2>
+            </div>
+            <ol className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">1</span>
+                <span className="text-[#8E8E93] text-sm pt-0.5">Tik op <strong className="text-white">Deel</strong> (⬆️) onderaan</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">2</span>
+                <span className="text-[#8E8E93] text-sm pt-0.5">Scroll en tik op <strong className="text-white">Zet op beginscherm</strong></span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">3</span>
+                <span className="text-[#8E8E93] text-sm pt-0.5">Tik op <strong className="text-white">Voeg toe</strong></span>
+              </li>
+            </ol>
+          </div>
+        )}
+
+        {/* Android Instructions (if no prompt) */}
+        {isAndroid && !installPrompt && (
+          <div className="bg-[#1C1C1E] rounded-2xl p-5 border border-[#2C2C2E] mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-2xl">🤖</span>
+              <h2 className="text-white font-semibold">Android</h2>
+            </div>
+            <ol className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">1</span>
+                <span className="text-[#8E8E93] text-sm pt-0.5">Tik op het <strong className="text-white">menu</strong> (⋮) rechtsboven</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] text-sm font-bold shrink-0">2</span>
+                <span className="text-[#8E8E93] text-sm pt-0.5">Tik op <strong className="text-white">App installeren</strong></span>
+              </li>
+            </ol>
+          </div>
+        )}
+
+        {/* Desktop: QR Code */}
+        {!isIOS && !isAndroid && (
+          <div className="bg-[#1C1C1E] rounded-2xl p-6 border border-[#2C2C2E] mb-6 text-center">
+            <p className="text-[#8E8E93] text-sm mb-4">Scan met je telefoon</p>
             <div className="inline-block p-4 bg-white rounded-xl">
               <QRCodeSVG
                 value={appUrl}
-                size={180}
+                size={160}
                 level="M"
                 includeMargin={false}
               />
             </div>
-            <p className="text-sm text-tertiary mt-4">
-              Scan met je telefoon
-            </p>
           </div>
+        )}
 
-          {/* Install Buttons */}
-          <div className="flex flex-col gap-3 mb-8">
-            <button
-              onClick={handleInstall}
-              className="btn btn-primary py-4 text-lg"
-            >
-              Installeer ViaVia
-            </button>
-            <Link href="/app">
-              <button className="btn btn-secondary py-4 text-lg w-full">
-                Open app
-              </button>
-            </Link>
-          </div>
-
-          {/* Platform Instructions */}
-          <div className="space-y-4">
-            <div className="card">
-              <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span className="text-2xl">📱</span>
-                iOS (iPhone/iPad)
-              </h2>
-              <ol className="text-sm text-secondary space-y-2 list-decimal list-inside">
-                <li>Open ViaVia in <strong>Safari</strong></li>
-                <li>Tik op <strong>Deel</strong> (⬆️)</li>
-                <li>Kies <strong>&apos;Zet op beginscherm&apos;</strong></li>
-                <li>Tik op <strong>&apos;Voeg toe&apos;</strong></li>
-              </ol>
+        {/* Both platform instructions for desktop */}
+        {!isIOS && !isAndroid && (
+          <div className="space-y-4 mb-6">
+            <div className="bg-[#1C1C1E] rounded-2xl p-4 border border-[#2C2C2E]">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🍎</span>
+                <div>
+                  <h3 className="text-white font-medium text-sm">iPhone / iPad</h3>
+                  <p className="text-[#636366] text-xs">Safari → Deel → Zet op beginscherm</p>
+                </div>
+              </div>
             </div>
-
-            <div className="card">
-              <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span className="text-2xl">🤖</span>
-                Android
-              </h2>
-              <ol className="text-sm text-secondary space-y-2 list-decimal list-inside">
-                <li>Open ViaVia in <strong>Chrome</strong></li>
-                <li>Tik op het <strong>menu</strong> (⋮)</li>
-                <li>Kies <strong>&apos;App installeren&apos;</strong></li>
-                <li>Tik op <strong>&apos;Installeren&apos;</strong></li>
-              </ol>
+            <div className="bg-[#1C1C1E] rounded-2xl p-4 border border-[#2C2C2E]">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🤖</span>
+                <div>
+                  <h3 className="text-white font-medium text-sm">Android</h3>
+                  <p className="text-[#636366] text-xs">Chrome → Menu → App installeren</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Continue to app */}
+        <Link href="/dashboard" className="block">
+          <button className="w-full bg-[#2C2C2E] hover:bg-[#3A3A3C] text-white font-medium rounded-full py-3.5 transition-colors">
+            Ga verder in browser
+          </button>
+        </Link>
       </div>
     </div>
   );

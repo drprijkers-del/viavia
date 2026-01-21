@@ -3,163 +3,183 @@
 import Link from "next/link";
 import ViaViaLogo from "./components/ViaViaLogo";
 import { useSession } from "next-auth/react";
-import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 export default function LandingPage() {
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
 
   return (
-    <>
-      <div className="app-frame">
-        <div className="app-container pb-24">
-          {/* Header */}
-          <div className="flex items-center justify-between py-6">
-            <ViaViaLogo size="md" href="/" />
-            <Link href={isLoggedIn ? "/app" : "/login"}>
-              <button className="text-sm text-accent hover:opacity-80">
-                {isLoggedIn ? "Dashboard" : "Inloggen"}
+    <div className="min-h-screen bg-[#0A0A0A]">
+      <div className="max-w-lg mx-auto px-5 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-12">
+          <ViaViaLogo size="sm" />
+          <Link href={isLoggedIn ? "/dashboard" : "/login"}>
+            <button className="text-sm text-[#34C759] hover:opacity-80 transition-opacity">
+              {isLoggedIn ? "Dashboard" : "Inloggen"}
+            </button>
+          </Link>
+        </div>
+
+        {/* Hero */}
+        <section className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-white mb-3 leading-tight">
+            Freelance opdrachten delen,
+            <br />
+            zonder WhatsApp-scrollen
+          </h1>
+          <p className="text-[#8E8E93] mb-8">
+            Eén plek voor alle opdrachten uit je netwerk
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link href={isLoggedIn ? "/dashboard" : "/login"}>
+              <button className="w-full bg-[#34C759] hover:bg-[#2DB84E] text-white font-medium rounded-full py-4 text-lg transition-colors">
+                Start gratis
+              </button>
+            </Link>
+            <Link href="/download">
+              <button className="w-full bg-[#1C1C1E] hover:bg-[#2C2C2E] text-white font-medium rounded-full py-4 border border-[#2C2C2E] transition-colors">
+                Installeer app
               </button>
             </Link>
           </div>
+        </section>
 
-          {/* Hero */}
-          <div className="text-center max-w-2xl mx-auto mb-16 mt-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-              Freelance opdrachten, zonder WhatsApp-scrollen
-            </h1>
-            <p className="text-lg text-secondary mb-8">
-              Alle via-via opdrachten uit je WhatsApp-groepen op één overzichtelijke plek
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href={isLoggedIn ? "/app" : "/login"}>
-                <button className="btn btn-primary px-8 py-4 text-lg w-full sm:w-auto">
-                  Start
-                </button>
-              </Link>
-              <a href="#download">
-                <button className="btn btn-secondary px-8 py-4 text-lg w-full sm:w-auto">
-                  Installeer app
-                </button>
-              </a>
-            </div>
-          </div>
-
-          {/* How It Works */}
-          <div className="max-w-2xl mx-auto mb-16">
-            <h2 className="text-2xl font-bold text-white text-center mb-8">
-              Hoe werkt het?
-            </h2>
-            <div className="card space-y-4">
-              <div className="flex gap-3 items-start">
-                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white font-semibold shrink-0 text-sm">
+        {/* How it works */}
+        <section className="mb-12">
+          <h2 className="text-lg font-semibold text-white mb-4 text-center">
+            Hoe werkt het?
+          </h2>
+          <div className="space-y-3">
+            <div className="bg-[#1C1C1E] rounded-2xl p-4 border border-[#2C2C2E]">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] font-bold shrink-0">
                   1
                 </div>
-                <p className="text-secondary pt-1">Maak een groepsoverzicht en deel de link in WhatsApp</p>
+                <div>
+                  <h3 className="text-white font-medium mb-1">Maak een groep</h3>
+                  <p className="text-[#8E8E93] text-sm">
+                    Koppel aan je WhatsApp-groep
+                  </p>
+                </div>
               </div>
-              <div className="flex gap-3 items-start">
-                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white font-semibold shrink-0 text-sm">
+            </div>
+            <div className="bg-[#1C1C1E] rounded-2xl p-4 border border-[#2C2C2E]">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] font-bold shrink-0">
                   2
                 </div>
-                <p className="text-secondary pt-1">Groepsleden plaatsen opdrachten via ViaVia</p>
+                <div>
+                  <h3 className="text-white font-medium mb-1">Deel opdrachten</h3>
+                  <p className="text-[#8E8E93] text-sm">
+                    Plaats en bekijk opdrachten
+                  </p>
+                </div>
               </div>
-              <div className="flex gap-3 items-start">
-                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white font-semibold shrink-0 text-sm">
+            </div>
+            <div className="bg-[#1C1C1E] rounded-2xl p-4 border border-[#2C2C2E]">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] font-bold shrink-0">
                   3
                 </div>
-                <p className="text-secondary pt-1">Reageren met één tap rechtstreeks via WhatsApp</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Install Section */}
-          <div id="download" className="max-w-2xl mx-auto mb-16">
-            <div className="card text-center">
-              <h2 className="text-2xl font-bold text-white mb-3">
-                Installeer ViaVia
-              </h2>
-              <p className="text-secondary mb-6">
-                Gebruik ViaVia als app op je telefoon
-              </p>
-
-              <div className="flex flex-col gap-3 mb-6">
-                <Link href="/download">
-                  <button className="btn btn-primary w-full py-4">
-                    Installeer ViaVia
-                  </button>
-                </Link>
-                <Link href={isLoggedIn ? "/app" : "/login"}>
-                  <button className="btn btn-secondary w-full py-4">
-                    {isLoggedIn ? "Open app" : "Inloggen"}
-                  </button>
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-                <div className="bg-[#2C2C2E] rounded-xl p-4">
-                  <div className="text-2xl mb-2">📱</div>
-                  <h3 className="text-white font-semibold text-sm mb-1">iOS</h3>
-                  <p className="text-xs text-tertiary">
-                    Safari → Deel → Zet op beginscherm
-                  </p>
-                </div>
-                <div className="bg-[#2C2C2E] rounded-xl p-4">
-                  <div className="text-2xl mb-2">🤖</div>
-                  <h3 className="text-white font-semibold text-sm mb-1">Android</h3>
-                  <p className="text-xs text-tertiary">
-                    Chrome → Menu → Installeren
+                <div>
+                  <h3 className="text-white font-medium mb-1">Reageer via WhatsApp</h3>
+                  <p className="text-[#8E8E93] text-sm">
+                    Direct contact, geen omwegen
                   </p>
                 </div>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* FAQ */}
-          <div className="max-w-2xl mx-auto mb-16">
-            <h2 className="text-2xl font-bold text-white text-center mb-8">
-              Veelgestelde vragen
-            </h2>
-            <div className="space-y-3">
-              <div className="card">
-                <h3 className="text-white font-semibold mb-2 text-sm">
-                  Moet iedereen een account maken?
-                </h3>
-                <p className="text-secondary text-sm">
-                  Nee. Opdrachten lezen kan zonder account. Voor beheren en plaatsen heb je wel een account nodig.
-                </p>
-              </div>
-              <div className="card">
-                <h3 className="text-white font-semibold mb-2 text-sm">
-                  Is ViaVia gekoppeld aan WhatsApp?
-                </h3>
-                <p className="text-secondary text-sm">
-                  Nee. ViaVia leest geen WhatsApp-berichten. Het biedt alleen overzicht.
-                </p>
-              </div>
-              <div className="card">
-                <h3 className="text-white font-semibold mb-2 text-sm">
-                  Wie ziet mijn opdrachten?
-                </h3>
-                <p className="text-secondary text-sm">
-                  Alleen mensen met de groepslink. Opdrachten zijn niet openbaar.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="mt-16 pt-6 border-t border-[#48484A] text-center">
-            <div className="flex justify-center gap-6 text-sm text-tertiary mb-3">
-              <a href="https://github.com/viavia-app" className="hover:text-white transition-colors">Open source</a>
-              <a href="mailto:contact@viavia.app" className="hover:text-white transition-colors">Contact</a>
-            </div>
-            <p className="text-xs text-tertiary">
-              © 2026 ViaVia
+        {/* Install block */}
+        <section className="mb-12">
+          <div className="bg-[#1C1C1E] rounded-2xl p-5 border border-[#2C2C2E]">
+            <h3 className="text-white font-semibold mb-2 text-center">
+              Installeer de app
+            </h3>
+            <p className="text-[#8E8E93] text-sm text-center mb-4">
+              Voeg ViaVia toe aan je homescreen
             </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-[#0A0A0A] rounded-xl p-3 text-center">
+                <div className="text-2xl mb-1">🤖</div>
+                <p className="text-white text-sm font-medium">Android</p>
+                <p className="text-[#636366] text-xs">Tik op installeren</p>
+              </div>
+              <div className="bg-[#0A0A0A] rounded-xl p-3 text-center">
+                <div className="text-2xl mb-1">🍎</div>
+                <p className="text-white text-sm font-medium">iPhone</p>
+                <p className="text-[#636366] text-xs">Deel → Homescreen</p>
+              </div>
+            </div>
+            <Link href="/download" className="block mt-4">
+              <button className="w-full bg-[#2C2C2E] hover:bg-[#3A3A3C] text-white font-medium rounded-full py-3 text-sm transition-colors">
+                Bekijk instructies
+              </button>
+            </Link>
           </div>
-        </div>
+        </section>
+
+        {/* Mini FAQ */}
+        <section className="mb-12">
+          <h2 className="text-lg font-semibold text-white mb-4 text-center">
+            Veelgestelde vragen
+          </h2>
+          <div className="space-y-3">
+            <details className="bg-[#1C1C1E] rounded-2xl border border-[#2C2C2E] group">
+              <summary className="p-4 cursor-pointer text-white font-medium list-none flex justify-between items-center">
+                Is het gratis?
+                <span className="text-[#636366] group-open:rotate-180 transition-transform">
+                  ▼
+                </span>
+              </summary>
+              <p className="px-4 pb-4 text-[#8E8E93] text-sm">
+                Ja, ViaVia is volledig gratis te gebruiken.
+              </p>
+            </details>
+            <details className="bg-[#1C1C1E] rounded-2xl border border-[#2C2C2E] group">
+              <summary className="p-4 cursor-pointer text-white font-medium list-none flex justify-between items-center">
+                Wie kan mijn opdrachten zien?
+                <span className="text-[#636366] group-open:rotate-180 transition-transform">
+                  ▼
+                </span>
+              </summary>
+              <p className="px-4 pb-4 text-[#8E8E93] text-sm">
+                Alleen mensen in je groep kunnen opdrachten zien die je daar
+                deelt.
+              </p>
+            </details>
+            <details className="bg-[#1C1C1E] rounded-2xl border border-[#2C2C2E] group">
+              <summary className="p-4 cursor-pointer text-white font-medium list-none flex justify-between items-center">
+                Hoe reageer ik op een opdracht?
+                <span className="text-[#636366] group-open:rotate-180 transition-transform">
+                  ▼
+                </span>
+              </summary>
+              <p className="px-4 pb-4 text-[#8E8E93] text-sm">
+                Tik op &quot;Reageer via WhatsApp&quot; om direct contact te leggen.
+              </p>
+            </details>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="text-center text-[#636366] text-xs pb-8">
+          <p>
+            ViaVia is{" "}
+            <a
+              href="https://github.com/drprijkers-del/viavia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#34C759] hover:underline"
+            >
+              open source
+            </a>
+          </p>
+        </footer>
       </div>
-      <PWAInstallPrompt />
-    </>
+    </div>
   );
 }
