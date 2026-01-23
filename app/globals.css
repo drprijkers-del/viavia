@@ -22,18 +22,86 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* App Frame */
+/* ================================
+   RESPONSIVE CONTAINER SYSTEM
+   ================================ */
+
+/* App Frame - responsive padding */
 .app-frame {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   padding: 1rem;
 }
 
+@media (min-width: 768px) {
+  .app-frame {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-frame {
+    padding: 2rem 3rem;
+  }
+}
+
+/* Default container - mobile optimized */
 .app-container {
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
+}
+
+/* Wide container for desktop layouts */
+.app-container-wide {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .app-container-wide {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container-wide {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app-container-wide {
+    max-width: 1200px;
+  }
+}
+
+/* Full width container for landing pages */
+.app-container-full {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .app-container-full {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container-full {
+    max-width: 1100px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app-container-full {
+    max-width: 1280px;
+  }
 }
 
 /* Typography */
@@ -58,6 +126,19 @@ h3 {
   transition: all 0.2s ease;
 }
 
+@media (min-width: 768px) {
+  .card {
+    padding: 1.5rem;
+    border-radius: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    padding: 1.75rem;
+  }
+}
+
 .card-interactive {
   cursor: pointer;
 }
@@ -78,6 +159,12 @@ h3 {
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .btn {
+    @apply px-6 py-3.5 gap-3;
+  }
 }
 
 .btn:active {
@@ -286,7 +373,10 @@ textarea {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
-/* Animations */
+/* ================================
+   FANCY ANIMATIONS
+   ================================ */
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -295,6 +385,39 @@ textarea {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -318,16 +441,119 @@ textarea {
   }
 }
 
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(52, 199, 89, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(52, 199, 89, 0.6);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-slide-up {
-  animation: slideUp 0.3s ease-out;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-down {
+  animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
 }
 
 /* Divider */
@@ -402,4 +628,378 @@ textarea {
   content: "•";
   margin: 0 0.375rem;
   color: #636366;
+}
+
+/* ================================
+   GLASSMORPHISM EFFECTS
+   ================================ */
+
+.glass {
+  background: rgba(44, 44, 46, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-accent {
+  background: rgba(52, 199, 89, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+}
+
+/* ================================
+   GRADIENT BACKGROUNDS
+   ================================ */
+
+.gradient-accent {
+  background: linear-gradient(135deg, #34C759 0%, #30B350 100%);
+}
+
+.gradient-dark {
+  background: linear-gradient(180deg, #2C2C2E 0%, #1C1C1E 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.15) 0%, rgba(28, 28, 30, 0) 50%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #34C759, #5ED47A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================================
+   RESPONSIVE DESKTOP LAYOUTS
+   ================================ */
+
+/* Desktop navigation */
+.desktop-nav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-nav {
+    display: flex;
+  }
+}
+
+/* Two-column grid for desktop */
+.desktop-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .desktop-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-grid-2 {
+    gap: 2rem;
+  }
+}
+
+/* Three-column grid for desktop */
+.desktop-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .desktop-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .desktop-grid-3 {
+    gap: 2.5rem;
+  }
+}
+
+/* Dashboard layout with sidebar */
+.dashboard-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 3rem;
+  }
+}
+
+/* Desktop sidebar */
+.desktop-sidebar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .desktop-sidebar {
+    display: block;
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+  }
+}
+
+/* Responsive FAB positioning */
+@media (min-width: 768px) {
+  .fab {
+    bottom: 2rem;
+    right: 2rem;
+    width: 64px;
+    height: 64px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fab {
+    bottom: 2.5rem;
+    right: 3rem;
+  }
+}
+
+/* ================================
+   ENHANCED CARD STYLES
+   ================================ */
+
+.card-gradient {
+  background: linear-gradient(145deg, #2C2C2E 0%, #242426 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-elevated {
+  background: #2C2C2E;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 10px 20px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.card-accent {
+  background: linear-gradient(145deg, rgba(52, 199, 89, 0.15) 0%, rgba(52, 199, 89, 0.05) 100%);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+}
+
+/* Desktop card hover effects */
+@media (min-width: 768px) {
+  .card-hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 12px 24px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  .job-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ================================
+   MOBILE FANCY EFFECTS
+   ================================ */
+
+/* Staggered animation for lists */
+.stagger-animate > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-animate > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-animate > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-animate > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-animate > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-animate > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-animate > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-animate > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-animate > *:nth-child(9) { animation-delay: 400ms; }
+.stagger-animate > *:nth-child(10) { animation-delay: 450ms; }
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: #3A3A3C;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+/* Glow button effect */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #34C759, #5ED47A, #34C759);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-glow:hover::before {
+  opacity: 1;
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+/* Floating label input */
+.floating-input {
+  position: relative;
+}
+
+.floating-input input:focus + label,
+.floating-input input:not(:placeholder-shown) + label {
+  transform: translateY(-1.5rem) scale(0.85);
+  color: #34C759;
+}
+
+/* ================================
+   RESPONSIVE TYPOGRAPHY
+   ================================ */
+
+@media (min-width: 768px) {
+  h1 {
+    @apply text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+}
+
+@media (min-width: 1024px) {
+  h1 {
+    @apply text-5xl;
+  }
+
+  h2 {
+    @apply text-3xl;
+  }
+}
+
+/* ================================
+   RESPONSIVE MODAL
+   ================================ */
+
+@media (min-width: 768px) {
+  .modal {
+    max-width: 560px;
+    padding: 2rem;
+  }
+
+  .modal-overlay {
+    padding: 2rem;
+  }
+}
+
+/* ================================
+   HERO SECTION ENHANCEMENTS
+   ================================ */
+
+.hero-gradient {
+  position: relative;
+}
+
+.hero-gradient::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(52, 199, 89, 0.15) 0%,
+    transparent 40%
+  );
+  pointer-events: none;
+}
+
+/* Decorative elements */
+.decorative-dots {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background-image: radial-gradient(circle, rgba(52, 199, 89, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.5;
+}
+
+/* ================================
+   FOCUS STATES (Accessibility)
+   ================================ */
+
+.btn:focus-visible,
+.card-interactive:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #34C759;
+  outline-offset: 2px;
+}
+
+/* ================================
+   REDUCED MOTION
+   ================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
